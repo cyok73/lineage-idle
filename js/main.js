@@ -198,7 +198,9 @@ function switchTab(tabId) {
   const targetTab = document.getElementById("tab-" + tabId);
   if (targetTab) {
     targetTab.classList.add("active");
-    targetTab.style.setProperty("display", "block", "important");
+    // 針對戰鬥分頁使用 flex 以支援上下分割佈局，其餘維持 block
+    const displayStyle = (tabId === "battle") ? "flex" : "block";
+    targetTab.style.setProperty("display", displayStyle, "important");
   }
 
   const btn = Array.from(document.querySelectorAll(".nav-btn")).find(b => b.getAttribute("onclick")?.includes(`'${tabId}'`));
