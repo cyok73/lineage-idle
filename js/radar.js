@@ -6,15 +6,11 @@ function renderRadar() {
     if (!ctx) return;
   }
 
-  // 強制設定 16:9 內部繪圖解析度 (960x540) 與外觀長寬比，徹底打破舊版 1:1 正方形限制
-  if (canvas.width !== 960 || canvas.height !== 540) {
-    canvas.width = 960;
-    canvas.height = 540;
-    canvas.style.setProperty("aspect-ratio", "16 / 9", "important");
-    canvas.style.setProperty("height", "38vh", "important");
-    canvas.style.setProperty("width", "auto", "important");
-    canvas.style.setProperty("max-width", "100%", "important");
-  }
+  // Canvas 內部繪圖解析度固定為 960x540（16:9）。
+  // 顯示寬高只交由 style.css 控制，避免 JS 的 inline !important 覆蓋 CSS，
+  // 造成雷達被限制成正方形或視窗縮放時寬高比例不一致。
+  if (canvas.width !== 960) canvas.width = 960;
+  if (canvas.height !== 540) canvas.height = 540;
 
   const cw = canvas.width;
   const ch = canvas.height;
