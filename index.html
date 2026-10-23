@@ -34,7 +34,7 @@
       <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted);">
         <span>當前帳號：<b id="lbl-current-user" style="color:var(--gold);">-</b> <span id="lbl-role-badge"
             style="margin-left:4px; font-weight:bold;"></span></span>
-        <a href="javascript:void(0)" onclick="logout()" style="color:#e74c3c; text-decoration:none;">登出帳號</a>
+        <a href="javascript:void(0)" onclick="backToCharSelect()" style="color:#e74c3c; text-decoration:none;">登出帳號</a>
       </div>
       <div class="char-card-list" id="char-list-container"></div>
       <div class="auth-btn-row">
@@ -42,23 +42,20 @@
       </div>
     </div>
 
-    <!-- 創角卡片 (職業底質 + 自由點數分配，單項上限 18) -->
+    <!-- 創角卡片 -->
     <div id="box-create-char" class="auth-card"
       style="display:none; width:460px; max-width:95vw; background:#0f172a; border:1px solid #7f1d1d; border-radius:8px; padding:20px; box-shadow:0 8px 24px rgba(0,0,0,0.8); flex-direction:column; gap:14px;">
-
       <div class="auth-title"
         style="color:var(--gold, #f59e0b); font-size:18px; font-weight:bold; text-align:center; border-bottom:1px solid #334155; padding-bottom:8px;">
         🛡️ 創建新角色
       </div>
 
-      <!-- 角色名稱 -->
       <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#e2e8f0;">
         <label for="new-char-name" style="font-weight:bold;">角色名稱：</label>
         <input type="text" id="new-char-name" placeholder="請輸入 2~12 位角色名稱"
           style="flex:1; margin-left:10px; padding:6px 10px; background:#1e293b; color:#fff; border:1px solid #475569; border-radius:4px; font-size:13px;">
       </div>
 
-      <!-- 選擇職業 -->
       <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#e2e8f0;">
         <label for="new-char-class" style="font-weight:bold;">選擇職業：</label>
         <select id="new-char-class" onchange="onClassSelectChange()"
@@ -70,7 +67,6 @@
         </select>
       </div>
 
-      <!-- 點數分配區塊 -->
       <div
         style="background:#1e293b; border:1px solid #334155; padding:12px; border-radius:6px; display:flex; flex-direction:column; gap:8px;">
         <div
@@ -79,86 +75,70 @@
           <span style="font-size:16px; color:#f59e0b;"><b id="create-remain-points">0</b> 點</span>
         </div>
 
-        <!-- 力量 -->
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#e2e8f0;">
           <span style="width:130px;">力量 (STR) <small id="lbl-base-str" style="color:#94a3b8;">(底質13)</small></span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
               onclick="adjustCreateStat('str', -1)">-</button>
             <b id="val-str" style="width:24px; text-align:center; font-size:15px; color:#38bdf8;">13</b>
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
               onclick="adjustCreateStat('str', 1)">+</button>
           </div>
         </div>
 
-        <!-- 敏捷 -->
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#e2e8f0;">
           <span style="width:130px;">敏捷 (DEX) <small id="lbl-base-dex" style="color:#94a3b8;">(底質10)</small></span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
               onclick="adjustCreateStat('dex', -1)">-</button>
             <b id="val-dex" style="width:24px; text-align:center; font-size:15px; color:#38bdf8;">10</b>
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
               onclick="adjustCreateStat('dex', 1)">+</button>
           </div>
         </div>
 
-        <!-- 體質 -->
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#e2e8f0;">
           <span style="width:130px;">體質 (CON) <small id="lbl-base-con" style="color:#94a3b8;">(底質10)</small></span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
               onclick="adjustCreateStat('con', -1)">-</button>
             <b id="val-con" style="width:24px; text-align:center; font-size:15px; color:#38bdf8;">10</b>
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
               onclick="adjustCreateStat('con', 1)">+</button>
           </div>
         </div>
 
-        <!-- 智力 -->
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#e2e8f0;">
           <span style="width:130px;">智力 (INT) <small id="lbl-base-int" style="color:#94a3b8;">(底質10)</small></span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
               onclick="adjustCreateStat('int', -1)">-</button>
             <b id="val-int" style="width:24px; text-align:center; font-size:15px; color:#38bdf8;">10</b>
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
               onclick="adjustCreateStat('int', 1)">+</button>
           </div>
         </div>
 
-        <!-- 精神 -->
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#e2e8f0;">
           <span style="width:130px;">精神 (WIS) <small id="lbl-base-wis" style="color:#94a3b8;">(底質11)</small></span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
               onclick="adjustCreateStat('wis', -1)">-</button>
             <b id="val-wis" style="width:24px; text-align:center; font-size:15px; color:#38bdf8;">11</b>
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
               onclick="adjustCreateStat('wis', 1)">+</button>
           </div>
         </div>
       </div>
 
-      <!-- 操作按鈕 -->
       <div style="display:flex; gap:12px; margin-top:4px;">
         <button type="button" class="btn btn-gold" style="flex:1; padding:8px 0; font-weight:bold;"
           onclick="confirmCreateChar()">確定創建</button>
         <button type="button" class="btn" style="flex:1; padding:8px 0;" onclick="cancelCreateChar()">取消</button>
       </div>
-
     </div>
   </div>
+
   <div id="view-game" class="view-screen" style="flex-direction:column;">
     <header>
       <div class="brand">
@@ -179,7 +159,7 @@
     </header>
 
     <div class="game-container">
-      <!-- 左側面板 (支援手機折疊詳細數值) -->
+      <!-- 左側面板 -->
       <div class="panel sidebar-left" id="left-panel">
         <h2><span>角色資訊</span><span id="pl-class-tag" style="font-size:11px; color:#fff;">騎士</span></h2>
         <div class="bar-group">
@@ -232,13 +212,12 @@
 
       <!-- 右側內容面板 -->
       <div class="panel main-content" id="main-content-panel">
-        <!-- 戰鬥面板 (單一視窗鎖定：固定雷達區 + 彈性釘底日誌區) -->
+        <!-- 戰鬥面板：16:9 雷達 + 滿版日誌 -->
         <div id="tab-battle" class="tab-content active">
 
-          <!-- 上方雷達與操作固定區 (flex-shrink: 0 確保不動如山) -->
           <div class="radar-fixed-section">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
-              <h2><span>實時戰場正方形雷達</span><span id="battle-mode-tag"
+              <h2><span>實時戰場雷達 (16:9)</span><span id="battle-mode-tag"
                   style="font-size:11px; color:var(--text-muted); margin-left:6px;">[野外待機中]</span></h2>
               <div style="font-size:11px; color:var(--text-muted);">藍:玩家 | 金框:鎖定 | 紅:主動 | 綠:被動 | 👑:Boss</div>
             </div>
@@ -271,7 +250,6 @@
             </div>
           </div>
 
-          <!-- 日誌資訊分流與控制工具列 -->
           <div class="log-toolbar">
             <div style="font-weight:bold; color:var(--gold); font-size:12px;">即時戰鬥日誌 (Battle Log)</div>
             <div class="log-filters">
@@ -288,10 +266,10 @@
             </div>
           </div>
 
-          <!-- 下方彈性日誌容器 (填滿剩餘高度，自帶獨立垂直滾動條) -->
           <div class="log-box" id="log-box"></div>
 
         </div>
+
         <!-- 角色狀態面板 -->
         <div id="tab-char" class="tab-content">
           <h2>六維屬性詳細</h2>
@@ -394,276 +372,8 @@
           </div>
         </div>
 
-        <!-- 掛機戰術設定面板 -->
-        <div id="tab-strategy" class="tab-content">
-          <h2>自動喝水 AI (動態偵測身上現有藥水)</h2>
-          <div class="setting-group" id="potion-auto-settings">
-            <div id="potion-dynamic-list"></div>
-
-            <div class="setting-item">
-              <span>自動續喝「綠色藥水」</span>
-              <input type="checkbox" id="cfg-auto-green">
-            </div>
-            <div class="setting-item">
-              <span>自動續喝「勇敢藥水」</span>
-              <input type="checkbox" id="cfg-auto-brave">
-            </div>
-
-            <div class="setting-item" style="border-top:1px dashed #2e3440; padding-top:6px;">
-              <span>🚨 血量危急【瞬間移動】：HP &le;</span>
-              <div><input type="number" id="cfg-hp-escape-teleport" value="40"> % 時使用瞬移卷軸</div>
-            </div>
-            <div class="setting-item">
-              <span>🛑 血量瀕死【緊急回城】：HP &le;</span>
-              <div><input type="number" id="cfg-hp-escape-home" value="20"> % 時使用回家的卷軸</div>
-            </div>
-
-            <div class="setting-item" style="border-top:1px dashed #2e3440; padding-top:6px;">
-              <span>👿 遭遇 Boss 級怪物 (巴風特/死騎/蟻后) 時：</span>
-              <select id="cfg-boss-action" style="width:160px;">
-                <option value="none">勇敢作戰 (不逃跑)</option>
-                <option value="teleport" selected>使用瞬間移動卷軸飛走</option>
-                <option value="home">使用回家的卷軸回村避難</option>
-              </select>
-            </div>
-
-            <div class="setting-item">
-              <span>📦 身上無「紅色藥水」時：</span>
-              <label><input type="checkbox" id="cfg-restock-no-pot" checked> 自動回村補給採買再回戰場</label>
-            </div>
-            <div class="setting-item">
-              <span>🏹 箭矢用盡時 (普通箭與銀箭皆為 0)：</span>
-              <label><input type="checkbox" id="cfg-restock-no-arrow" checked> 自動回村補給箭矢再回戰場</label>
-            </div>
-
-            <div class="setting-item">
-              <span>索敵優先級：</span>
-              <select id="cfg-target-priority" style="width:160px;">
-                <option value="nearest" selected>最近距離</option>
-                <option value="aggressive_first">先打主動怪</option>
-                <option value="passive_first">先打被動怪</option>
-              </select>
-            </div>
-            <div class="setting-item">
-              <span>被圍攻逃跑門檻：</span>
-              <div>同時被 &ge; <input type="number" id="cfg-escape-mob-count" value="3" style="width:50px;"> 隻怪攻擊時逃跑</div>
-            </div>
-            <div class="setting-item">
-              <span>被圍攻時逃跑方式：</span>
-              <select id="cfg-escape-action" style="width:160px;">
-                <option value="teleport" selected>使用瞬間移動卷軸</option>
-                <option value="home">使用回家的卷軸</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="bot-section">
-            <div class="bot-section-title">▼ 負重過重自動存倉設定</div>
-            <div class="setting-item" style="margin-bottom:6px;">
-              <label><input type="checkbox" id="cfg-auto-store-enable" checked> 負重達 <input type="number"
-                  id="cfg-auto-return-weight" value="80" style="width:50px;"> % 時回城存倉，再回野外繼續掛機</label>
-            </div>
-            <div class="bot-item-list" id="bot-store-list"></div>
-            <div class="bot-add-bar">
-              <select id="bot-store-select" style="flex:1;">
-                <option value="">選擇要存倉的道具...</option>
-              </select>
-              <button class="btn btn-gold" onclick="addStoreRule()">加入存倉清單</button>
-            </div>
-          </div>
-
-          <div class="bot-section">
-            <div class="bot-section-title" style="color:#f6ad55;">▼ 自動出售設定 (野外打怪掉落時，立即就地折現金幣)</div>
-            <div class="bot-item-list" id="bot-sell-list"></div>
-            <div class="bot-add-bar">
-              <select id="bot-sell-select" style="flex:1;">
-                <option value="">選擇要自動變賣的道具...</option>
-              </select>
-              <button class="btn btn-gold" onclick="addSellRule()">加入出售清單</button>
-            </div>
-          </div>
-
-          <div class="bot-section">
-            <div class="bot-section-title" style="color:#38bdf8;">▼ 自動回城補給採買設定 (僅限藥水、回家、瞬移、箭、銀箭)</div>
-            <div class="setting-item" style="margin-bottom:6px;">
-              <label><input type="checkbox" id="cfg-auto-buy-enable" checked> 觸發回城時，自動前往商店補齊指定物資</label>
-            </div>
-            <div class="bot-item-list" id="bot-buy-list"></div>
-            <div class="bot-add-bar">
-              <select id="bot-buy-select" style="flex:1;">
-                <option value="">選擇補給物資...</option>
-              </select>
-              <span style="font-size:11px;">補足至：</span>
-              <input type="number" id="bot-buy-count-input" value="50" min="1" max="5000" style="width:65px;">
-              <button class="btn btn-gold" onclick="addBuyRule()">加入採買清單</button>
-            </div>
-          </div>
-        </div>
-        <div id="tab-strategy" class="tab-content"> 到其結尾 </div>
-        <!-- 掛機戰術設定面板 (依據 🛡️ 天堂 Idle - 掛機戰術 AI 設定規範書) -->
-        <div id="tab-strategy" class="tab-content">
-          <!-- 1. 生命維安與緊急避險（最高優先級） -->
-          <div class="bot-section"
-            style="border:1px solid #ef4444; background:rgba(30,20,20,0.85); margin-bottom:12px;">
-            <div class="bot-section-title" style="color:#ef4444; font-size:14px; font-weight:bold; margin-bottom:4px;">
-              🚨 1. 生命維安與緊急避險（最高優先級）
-            </div>
-            <div style="font-size:11px; color:#94a3b8; margin-bottom:8px;">⚠️ 最高優先級：判定優先於攻擊與走位，防止意外陣亡掉落經驗與裝備。</div>
-
-            <div class="setting-item"
-              style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-              <span>🛑 <b>瀕死緊急回城</b>：當 HP &le; <input type="number" id="cfg-hp-escape-home" value="20"
-                  style="width:48px; text-align:center;" onchange="updateSecSetting('escapeHomeHp', this.value)"> %
-                時，立即使用【傳送回家的卷軸】</span>
-            </div>
-            <div class="setting-item"
-              style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-              <span>⚡ <b>危急瞬間脫離</b>：當 HP &le; <input type="number" id="cfg-hp-escape-teleport" value="40"
-                  style="width:48px; text-align:center;" onchange="updateSecSetting('escapeTeleHp', this.value)"> %
-                時，使用【瞬間移動卷軸】隨機飛離</span>
-            </div>
-            <div class="setting-item" style="display:flex; justify-content:space-between; align-items:center;">
-              <span>👿 <b>強敵遭遇戰術</b>：雷達偵測範圍內遭遇 Boss 級怪物時：</span>
-              <select id="cfg-boss-action" onchange="updateSecSetting('bossAction', this.value)"
-                style="background:#0f172a; color:#fff; border:1px solid #475569;">
-                <option value="teleport" selected>瞬移避戰（隨機飛走）</option>
-                <option value="home">緊急回村（避難整補）</option>
-                <option value="fight">正面迎戰（死鬥到底）</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- 2. 動態喝水與加速狀態維護 -->
-          <div class="bot-section"
-            style="border:1px solid #22c55e; background:rgba(20,30,20,0.85); margin-bottom:12px;">
-            <div class="bot-section-title" style="color:#22c55e; font-size:14px; font-weight:bold; margin-bottom:4px;">
-              🧪 2. 動態喝水與加速狀態維護
-            </div>
-            <div style="font-size:11px; color:#94a3b8; margin-bottom:8px;">日常續航核心，嚴格遵循 500ms 喝水 CD 限制。</div>
-
-            <div style="margin-bottom:8px;">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                <b>💧 自動飲用恢復藥水（階梯補充）</b>
-                <button type="button" class="btn btn-gold" style="padding:2px 8px; font-size:11px;"
-                  onclick="addPotionTier()">➕ 增加藥水組</button>
-              </div>
-              <div id="potion-tier-list"></div>
-            </div>
-
-            <div
-              style="background:#1e293b; padding:8px 10px; border-radius:4px; font-size:12px; display:flex; flex-direction:column; gap:6px;">
-              <div>
-                <input type="checkbox" id="chk-auto-green" checked
-                  onchange="updateBuffSetting('autoGreen', this.checked)">
-                <label for="chk-auto-green">效果結束前 <input type="number" id="cfg-green-sec" value="5"
-                    style="width:40px; text-align:center;" onchange="updateBuffSetting('greenAdvanceSec', this.value)">
-                  秒，自動續喝【綠色藥水】(一段加速)</label>
-              </div>
-              <div>
-                <input type="checkbox" id="chk-auto-brave" onchange="updateBuffSetting('autoBrave', this.checked)">
-                <label for="chk-auto-brave">效果結束前 <input type="number" id="cfg-brave-sec" value="5"
-                    style="width:40px; text-align:center;" onchange="updateBuffSetting('braveAdvanceSec', this.value)">
-                  秒，自動續喝【勇敢藥水】(騎士二段加速)</label>
-              </div>
-              <div>
-                <input type="checkbox" id="chk-cure-poison" checked
-                  onchange="updateBuffSetting('autoCurePoison', this.checked)">
-                <label for="chk-cure-poison">處於中毒狀態時，立即使用【翡翠藥水】解毒</label>
-              </div>
-            </div>
-          </div>
-
-          <!-- 3. 戰場索敵與被圍攻處置 -->
-          <div class="bot-section"
-            style="border:1px solid #38bdf8; background:rgba(20,25,35,0.85); margin-bottom:12px;">
-            <div class="bot-section-title" style="color:#38bdf8; font-size:14px; font-weight:bold; margin-bottom:4px;">
-              ⚔️ 3. 戰場索敵與被圍攻處置
-            </div>
-            <div class="setting-item"
-              style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-              <span>🎯 <b>索敵目標偏好</b>：</span>
-              <select id="cfg-target-priority" onchange="updateCombatSetting('targetPriority', this.value)"
-                style="background:#0f172a; color:#fff; border:1px solid #475569;">
-                <option value="nearest" selected>距離最近優先（減少走位耗時）</option>
-                <option value="aggressive_first">主動怪優先（防止累積圍毆）</option>
-                <option value="passive_first">被動怪優先（穩定安全農怪）</option>
-              </select>
-            </div>
-            <div class="setting-item" style="display:flex; justify-content:space-between; align-items:center;">
-              <span>🛡️ <b>多怪包圍脫離</b>：同時遭受 &ge; <input type="number" id="cfg-escape-mob-count" value="3"
-                  style="width:40px; text-align:center;" onchange="updateCombatSetting('surroundCount', this.value)">
-                隻怪圍攻時：</span>
-              <select id="cfg-escape-action" onchange="updateCombatSetting('surroundAction', this.value)"
-                style="background:#0f172a; color:#fff; border:1px solid #475569;">
-                <option value="teleport" selected>使用【瞬間移動卷軸】飛離</option>
-                <option value="home">使用【傳送回家的卷軸】回城</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- 4. 物資補給、道具處理與自動回城（5 步驟流水線作業 SOP） -->
-          <div class="bot-section" style="border:1px solid var(--gold); background:rgba(30,25,15,0.85);">
-            <div class="bot-section-title"
-              style="color:var(--gold); font-size:14px; font-weight:bold; margin-bottom:4px;">
-              🏛️ 4. 物資補給、道具處理與自動回城（全自動循環流水線 SOP）
-            </div>
-
-            <!-- 4-1 觸發回城條件 -->
-            <div style="background:#1e293b; padding:8px 10px; border-radius:4px; font-size:12px; margin-bottom:10px;">
-              <b>4-1. 觸發回城機制：</b>
-              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-top:4px;">
-                <div><input type="checkbox" id="trig-no-pot" checked
-                    onchange="updateTriggerSetting('noRedPot', this.checked)"> <label
-                    for="trig-no-pot">身上【紅色藥水】歸零時回村</label></div>
-                <div><input type="checkbox" id="trig-no-arr" checked
-                    onchange="updateTriggerSetting('noArrows', this.checked)"> <label
-                    for="trig-no-arr">身上【箭矢】歸零時回村</label></div>
-                <div><input type="checkbox" id="trig-heavy" checked disabled> <label>身上負重達到 <input type="number"
-                      id="cfg-weight-escape" value="50" style="width:45px; text-align:center;"
-                      onchange="updateTriggerSetting('overweightPercent', this.value)"> % 時回村</label></div>
-                <div><input type="checkbox" id="trig-death" checked
-                    onchange="updateTriggerSetting('onDeathOrEscape', this.checked)"> <label
-                    for="trig-death">死亡復活/逃生後順便執行 SOP</label></div>
-              </div>
-            </div>
-
-            <!-- 4-2 流水線 SOP：步驟 1 變賣 與 步驟 2 存倉 (雙向互斥) -->
-            <div style="margin-bottom:10px;">
-              <b>步驟 1（清包・自動變賣）與 步驟 2（存倉・保留設定）雙向互斥清單：</b>
-              <div style="display:flex; gap:6px; margin:6px 0;">
-                <input type="text" id="pipeline-search-input" placeholder="🔍 搜尋道具名稱..."
-                  style="flex:1; padding:4px 8px; background:#0f172a; color:#fff; border:1px solid #475569; border-radius:4px;"
-                  oninput="renderPipelineTables()">
-              </div>
-              <div id="pipeline-tables-container"
-                style="max-height:220px; overflow-y:auto; border:1px solid #334155; border-radius:4px; padding:6px; background:#090d16;">
-              </div>
-            </div>
-
-            <!-- 步驟 3 採買補給 -->
-            <div style="background:#1e293b; padding:8px 10px; border-radius:4px; margin-bottom:8px;">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                <b>步驟 3（採買・自動補給）</b>
-                <span style="font-size:11px; color:#aaa;">安全底線：採買後身上金幣 &ge; <input type="number" id="cfg-min-gold"
-                    value="0" style="width:65px; text-align:center;" onchange="updateMinGoldFloor(this.value)"> 元</span>
-              </div>
-              <div style="display:flex; gap:6px; margin-bottom:6px;">
-                <select id="select-add-buy-item"
-                  style="flex:1; background:#0f172a; color:#fff; border:1px solid #475569;"></select>
-                <input type="number" id="input-add-buy-qty" value="80" style="width:60px; text-align:center;"
-                  placeholder="數量">
-                <button type="button" class="btn btn-gold" onclick="addNewBuyItem()">➕ 加入採買清單</button>
-              </div>
-              <div id="buy-items-list-container"></div>
-            </div>
-
-            <!-- 步驟 4 & 5 提示 -->
-            <div style="font-size:11px; color:#94a3b8; background:#0f172a; padding:6px 10px; border-radius:4px;">
-              <div>⚠️ <b>步驟 4（過重安全防護）</b>：檢查目前負重，若變賣、存倉與採買後負重仍超過 82%，立即終止循環暫停掛機防卡死。</div>
-              <div style="margin-top:2px;">🚀 <b>步驟 5（重返獵場）</b>：物資整備完成、金幣與負重正常，自動出發返回指定獵場。</div>
-            </div>
-          </div>
-        </div>
+        <!-- 掛機戰術設定面板 (由 js/strategy.js 動態渲染) -->
+        <div id="tab-strategy" class="tab-content"></div>
 
         <!-- 👑 最高權限 (GM 管理面版) -->
         <div id="tab-admin" class="tab-content">
@@ -762,20 +472,15 @@
     </div>
   </div>
 
-  <!-- 1. Supabase 官方套件 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- 2. 資料設定 -->
   <script src="js/data.js"></script>
-
-  <!-- 3. 各功能模組（注意順序） -->
   <script src="js/main.js"></script>
   <script src="js/supabase.js"></script>
   <script src="js/character.js"></script>
   <script src="js/inventory.js"></script>
-  <script src="js/strategy.js"></script> <!-- 👈 新增：掛機戰術、補給與過濾器 -->
-  <script src="js/radar.js"></script> <!-- 👈 新增：雷達小地圖繪製 -->
-  <script src="js/battle.js"></script> <!-- 精簡後的核心戰鬥與打怪 -->
+  <script src="js/strategy.js"></script>
+  <script src="js/radar.js"></script>
+  <script src="js/battle.js"></script>
   <script src="js/admin.js"></script>
 </body>
 

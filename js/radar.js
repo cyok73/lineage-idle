@@ -6,7 +6,6 @@ function renderRadar() {
     if (!ctx) return;
   }
 
-  // 保持畫布內部為 960x540 (標準 16:9)
   if (canvas.width !== 960 || canvas.height !== 540) {
     canvas.width = 960;
     canvas.height = 540;
@@ -19,7 +18,7 @@ function renderRadar() {
   if (isNaN(gameState.playerX)) gameState.playerX = 1200;
   if (isNaN(gameState.playerY)) gameState.playerY = 800;
 
-  // 鏡頭鎖定在玩家中心
+  // 鏡頭中心點維持在玩家座標，根據 16:9 畫布尺寸轉換視圖
   const camX = gameState.playerX - cw / 2;
   const camY = gameState.playerY - ch / 2;
 
@@ -35,11 +34,9 @@ function renderRadar() {
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(cw, y); ctx.stroke();
   }
 
-  // 地圖世界邊界框
   ctx.strokeStyle = "#334155";
   ctx.strokeRect(-camX, -camY, WORLD_WIDTH, WORLD_HEIGHT);
 
-  // 安全村莊狀態展示
   if (gameState.inVillage) {
     ctx.fillStyle = "rgba(46, 204, 113, 0.12)";
     ctx.fillRect(0, 0, cw, ch);
@@ -50,7 +47,6 @@ function renderRadar() {
     return;
   }
 
-  // 箭矢彈道軌跡
   if (gameState.arrowTrail && Date.now() < gameState.arrowTrail.expire) {
     ctx.strokeStyle = "#fbbf24";
     ctx.lineWidth = 2;
@@ -60,13 +56,12 @@ function renderRadar() {
     ctx.stroke();
   }
 
-  // 怪物繪製
   if (Array.isArray(gameState.mobs)) {
     gameState.mobs.forEach(mob => {
       const screenX = mob.x - camX;
       const screenY = mob.y - camY;
 
-      // 剔除不在視野內的怪物
+      // 適應 16:9 寬螢幕的可視邊界剔除
       if (screenX < -80 || screenX > cw + 80 || screenY < -80 || screenY > ch + 80) return;
 
       const isTarget = (gameState.targetMob === mob);
@@ -77,7 +72,6 @@ function renderRadar() {
       ctx.arc(screenX, screenY, radius, 0, Math.PI * 2);
       ctx.fill();
 
-      // 鎖定金色光圈
       if (isTarget) {
         ctx.strokeStyle = "#f59e0b";
         ctx.lineWidth = 2.5;
@@ -86,14 +80,12 @@ function renderRadar() {
         ctx.stroke();
       }
 
-      // 血條底色與生命條
       ctx.fillStyle = "#0f172a";
       ctx.fillRect(screenX - 18, screenY - (mob.isBoss ? 20 : 15), 36, 4);
       ctx.fillStyle = mob.isBoss ? "#d946ef" : "#ef4444";
       const hpW = Math.max(0, (mob.currentHp / mob.hp) * 36);
       ctx.fillRect(screenX - 18, screenY - (mob.isBoss ? 20 : 15), hpW, 4);
 
-      // 怪物名稱標籤
       ctx.font = mob.isBoss ? "bold 12px -apple-system, sans-serif" : "11px -apple-system, sans-serif";
       ctx.textAlign = "center";
       ctx.fillStyle = isTarget ? "#fbbf24" : (mob.isBoss ? "#f472b6" : (mob.aggressive ? "#f87171" : "#cbd5e1"));
@@ -104,7 +96,6 @@ function renderRadar() {
     });
   }
 
-  // 玩家自己 (位於中心點)
   const px = cw / 2;
   const py = ch / 2;
   ctx.fillStyle = "#3b82f6";

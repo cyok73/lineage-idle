@@ -56,7 +56,7 @@ let gameState = {
 
 let canvas, ctx;
 
-// 地圖配置存取函式（放在最前面，避免 admin.js 與 battle.js 互相找不到）
+// 地圖配置存取函式
 function getMapConfig(mapId) {
   if (gmSettings.customMapConfigs && gmSettings.customMapConfigs[mapId]) {
     return gmSettings.customMapConfigs[mapId];
@@ -89,22 +89,17 @@ function toggleMobileStats() {
 // ======================== 戰鬥日誌核心：智慧釘底、分流過濾與 200 筆上限 ========================
 let currentLogFilter = "all";
 
-// 智慧釘底滾動函式
 function appendLogMessage(logBox, rowElement) {
-  // 檢查玩家目前是否停留在最底部附近（閥值 40px）
-  const isNearBottom = (logBox.scrollHeight - logBox.scrollTop - logBox.clientHeight) <= 40;
+  const isNearBottom = (logBox.scrollHeight - logBox.scrollTop - logBox.clientHeight) <= 50;
 
   logBox.appendChild(rowElement);
 
-  // 嚴格控制節點上限為 200 筆，避免洗頻卡死
   while (logBox.children.length > 200) {
     logBox.removeChild(logBox.firstChild);
   }
 
-  // 套用當前分頁過濾規則
   applyFilterToLogRow(rowElement);
 
-  // 若原本就在底部，新訊息出來時強制釘在最底端
   if (isNearBottom) {
     requestAnimationFrame(() => {
       logBox.scrollTop = logBox.scrollHeight;
@@ -118,7 +113,7 @@ function log(msg, type = "atk") {
 
   const row = document.createElement("div");
   row.className = `log-row log-${type}`;
-  row.dataset.type = type; // 標記類型以便過濾
+  row.dataset.type = type;
 
   const time = new Date().toTimeString().split(" ")[0];
   row.innerText = `[${time}] ${msg}`;
@@ -126,7 +121,6 @@ function log(msg, type = "atk") {
   appendLogMessage(logBox, row);
 }
 
-// 快速滾回底部
 function scrollToLogBottom() {
   const logBox = document.getElementById("log-box");
   if (!logBox) return;
@@ -136,7 +130,6 @@ function scrollToLogBottom() {
 }
 window.scrollToLogBottom = scrollToLogBottom;
 
-// 清除日誌視窗
 function clearLogBox() {
   const logBox = document.getElementById("log-box");
   if (!logBox) return;
@@ -144,16 +137,13 @@ function clearLogBox() {
 }
 window.clearLogBox = clearLogBox;
 
-// 切換日誌過濾分頁
 function setLogFilter(filterType) {
   currentLogFilter = filterType;
 
-  // 更新按鈕樣式
   document.querySelectorAll(".log-filter-btn").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.filter === filterType);
   });
 
-  // 對現有日誌行進行顯隱篩選
   const logBox = document.getElementById("log-box");
   if (!logBox) return;
   Array.from(logBox.children).forEach(row => {
@@ -164,23 +154,20 @@ function setLogFilter(filterType) {
 }
 window.setLogFilter = setLogFilter;
 
-// 單行過濾顯隱規則
 function applyFilterToLogRow(row) {
   const type = row.dataset.type;
   if (currentLogFilter === "all") {
     row.style.display = "block";
   } else if (currentLogFilter === "battle") {
-    // 普攻、受傷、回血
     row.style.display = (type === "atk" || type === "mob" || type === "heal") ? "block" : "none";
   } else if (currentLogFilter === "sys") {
-    // 系統、整補、SOP
     row.style.display = (type === "sys") ? "block" : "none";
   } else if (currentLogFilter === "drop") {
-    // 掉落、金幣、升級
     row.style.display = (type === "drop") ? "block" : "none";
   }
 }
-// 在 js/main.js 中更新 switchTab 函式：
+
+// 👈 關鍵修改：switchTab 切換至 battle 分頁時採用 flex 佈局
 function switchTab(tabId) {
   if (tabId === "admin" && (!currentUser || currentUser.roleLevel < 2)) {
     alert("⚠️ 您的帳號權限為【一級 一般玩家】，無權訪問 GM 控制台！");
