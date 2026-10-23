@@ -1,0 +1,569 @@
+/* ==========================================================================
+   《亞丁之息：天堂放置版》完整樣式表 (16:9 雷達 + 滿版日誌)
+   ========================================================================== */
+
+:root {
+  --bg-dark: #0a0b0e;
+  --panel-bg: #14171d;
+  --panel-header: #1c212a;
+  --border-color: #2e3440;
+  --gold: #d4af37;
+  --green: #2ecc71;
+  --red: #e74c3c;
+  --blue: #3498db;
+  --text: #eceff4;
+  --text-muted: #7e889b;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-dark);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft JhengHei", monospace;
+  font-size: 13px;
+  line-height: 1.4;
+  user-select: none;
+}
+
+.view-screen {
+  display: none;
+  width: 100vw;
+  height: 100vh;
+}
+
+.view-screen.active {
+  display: flex;
+}
+
+#view-game {
+  width: 100%;
+  height: 100vh;
+  display: none;
+  flex-direction: column;
+  padding: 6px 10px;
+  gap: 6px;
+  box-sizing: border-box;
+}
+
+#view-game.active {
+  display: flex !important;
+}
+
+/* 認證 / 登入卡片 */
+#view-auth {
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at center, #1a1e27 0%, #08090c 100%);
+}
+
+.auth-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  width: 440px;
+  max-width: 92vw;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-title {
+  text-align: center;
+  color: var(--gold);
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.auth-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.auth-input-group label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.auth-input-group input,
+.auth-input-group select {
+  background: #0d0f12;
+  border: 1px solid var(--border-color);
+  color: #fff;
+  padding: 7px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.auth-btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.char-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.char-select-card {
+  background: #0d0f12;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.char-select-card:hover {
+  border-color: var(--gold);
+  background: #181d26;
+}
+
+/* 頂部導覽列 */
+header {
+  background: var(--panel-header);
+  border: 1px solid var(--border-color);
+  padding: 6px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.brand {
+  color: var(--gold);
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.nav-btn {
+  background: #11141a;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.nav-btn:hover {
+  color: #fff;
+  border-color: var(--gold);
+}
+
+.nav-btn.active {
+  background: #252a34;
+  color: var(--gold);
+  border-color: var(--gold);
+  font-weight: bold;
+}
+
+/* 遊戲主佈局容器 */
+.game-container {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* 左側角色數值面板 */
+.sidebar-left,
+#left-panel {
+  width: 290px;
+  flex-shrink: 0;
+  height: 100%;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+}
+
+/* 右側主戰鬥視窗 */
+.main-content,
+#main-content-panel {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 8px 10px;
+  overflow: hidden;
+}
+
+.panel {
+  overflow-y: auto;
+}
+
+h2 {
+  font-size: 13px;
+  color: var(--gold);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 3px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 狀態條 */
+.bar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bar-wrap {
+  background: #0d0f12;
+  border: 1px solid #222;
+  border-radius: 3px;
+  height: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  transition: width 0.2s;
+}
+
+.bar-text {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  top: 0;
+  left: 0;
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 1px 1px 2px #000;
+}
+
+.bar-hp {
+  background: linear-gradient(90deg, #991b1b, #ef4444);
+}
+
+.bar-mp {
+  background: linear-gradient(90deg, #1e40af, #3b82f6);
+}
+
+.bar-exp {
+  background: linear-gradient(90deg, #166534, #22c55e);
+}
+
+.bar-weight {
+  background: linear-gradient(90deg, #854d0e, #eab308);
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 0;
+  border-bottom: 1px dashed #202530;
+  font-size: 12px;
+}
+
+.tab-content {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.tab-content.active {
+  display: flex;
+}
+
+/* ==========================================================================
+   戰鬥分頁：16:9 雷達 + 滿版下方日誌
+   ========================================================================== */
+
+#tab-battle.tab-content.active {
+  display: flex !important;
+  flex-direction: column;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  gap: 6px;
+}
+
+/* 上方 16:9 雷達與操作控制區 */
+.radar-fixed-section {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+.canvas-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* 16:9 比例畫布，橫向填滿不留空 */
+#gameCanvas {
+  width: 100%;
+  max-height: 46vh;
+  aspect-ratio: 16 / 9;
+  background: #0b0f19;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  display: block;
+}
+
+/* 日誌工具列 */
+.log-toolbar {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 2px 2px 2px;
+  border-top: 1px solid #1e293b;
+}
+
+.log-filters {
+  display: flex;
+  gap: 3px;
+}
+
+.log-filter-btn {
+  background: #0f172a;
+  color: var(--text-muted);
+  border: 1px solid #334155;
+  padding: 2px 7px;
+  font-size: 11px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.log-filter-btn.active {
+  background: #1e293b;
+  color: var(--gold);
+  border-color: var(--gold);
+  font-weight: bold;
+}
+
+.log-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.log-act-btn {
+  background: #1e293b;
+  color: #cbd5e1;
+  border: 1px solid #475569;
+  padding: 2px 7px;
+  font-size: 11px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+/* 下方戰鬥日誌：完全吃滿下方空間 */
+.log-box,
+#log-box {
+  flex: 1 1 0 !important;
+  min-height: 120px !important;
+  height: 100% !important;
+  background: #07080a;
+  border: 1px solid #1e293b;
+  border-radius: 4px;
+  padding: 6px 10px;
+  overflow-y: scroll !important;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: Consolas, monospace;
+  font-size: 11.5px;
+  scroll-behavior: smooth;
+  box-sizing: border-box;
+}
+
+.log-box::-webkit-scrollbar,
+#log-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+.log-box::-webkit-scrollbar-thumb,
+#log-box::-webkit-scrollbar-thumb {
+  background: #2e3440;
+  border-radius: 3px;
+}
+
+.log-box::-webkit-scrollbar-thumb:hover,
+#log-box::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
+.log-row {
+  word-break: break-all;
+}
+
+.log-atk {
+  color: #86efac;
+}
+
+.log-mob {
+  color: #fca5a5;
+}
+
+.log-drop {
+  color: var(--gold);
+  font-weight: bold;
+}
+
+.log-heal {
+  color: #93c5fd;
+}
+
+.log-sys {
+  color: #d8b4fe;
+}
+
+/* 通用按鈕與表格 */
+.btn {
+  background: #252a34;
+  color: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.btn:hover {
+  background: #353c4a;
+  border-color: var(--gold);
+}
+
+.btn-gold {
+  background: #854d0e;
+  border-color: var(--gold);
+  color: #fff;
+  font-weight: bold;
+}
+
+.btn-gold:hover {
+  background: #a16207;
+}
+
+.btn-danger {
+  background: #7f1d1d;
+  border-color: var(--red);
+}
+
+.btn-success {
+  background: #14532d;
+  border-color: var(--green);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+th,
+td {
+  padding: 6px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+th {
+  background: #101217;
+  color: var(--gold);
+  font-weight: normal;
+}
+
+input[type="number"],
+input[type="text"],
+select {
+  background: #191d24;
+  border: 1px solid var(--border-color);
+  color: #fff;
+  padding: 4px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.village-status-banner {
+  background: #111722;
+  border: 1px solid var(--blue);
+  border-radius: 4px;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bot-section {
+  background: #131720;
+  border: 1px solid #2d3748;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 8px;
+}
+
+.bot-section-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #63b3ed;
+  margin-bottom: 6px;
+}
+
+.setting-group {
+  background: #0d0f12;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
