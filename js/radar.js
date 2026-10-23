@@ -6,9 +6,14 @@ function renderRadar() {
     if (!ctx) return;
   }
 
+  // 強制設定 16:9 內部繪圖解析度 (960x540) 與外觀長寬比，徹底打破舊版 1:1 正方形限制
   if (canvas.width !== 960 || canvas.height !== 540) {
     canvas.width = 960;
     canvas.height = 540;
+    canvas.style.setProperty("aspect-ratio", "16 / 9", "important");
+    canvas.style.setProperty("height", "38vh", "important");
+    canvas.style.setProperty("width", "auto", "important");
+    canvas.style.setProperty("max-width", "100%", "important");
   }
 
   const cw = canvas.width;
@@ -22,7 +27,7 @@ function renderRadar() {
   const camX = gameState.playerX - cw / 2;
   const camY = gameState.playerY - ch / 2;
 
-  // 繪製背景網格 (每格 50px)
+  // 繪製背景網格 (每格 50px，保持 1:1 正方形網格不變形)
   ctx.strokeStyle = "#131a24";
   ctx.lineWidth = 1;
   const startX = -(camX % 50);
