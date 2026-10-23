@@ -115,11 +115,12 @@ function ensureWorldTickTimer() {
   }
 }
 
+// 👈 關鍵修改：Canvas 寬高設定為 960x540
 function initGameUI() {
   canvas = document.getElementById("gameCanvas");
   if (canvas) {
-    canvas.width = 600;
-    canvas.height = 600;
+    canvas.width = 960;
+    canvas.height = 540;
     ctx = canvas.getContext("2d");
   }
 
@@ -678,7 +679,7 @@ function executePlayerAttack(mob, isBow, wpnData) {
       if (typeof saveAccountData === 'function') saveAccountData();
     }
 
-    // 🚨 核心掉寶處理：依據 itemRules 執行「不撿取」或「就地即時變賣折現」
+    // 核心掉寶處理
     if (mob.drops) {
       mob.drops.forEach(drop => {
         const effectiveChance = Math.min(1.0, drop.chance * gmSettings.dropRate);
@@ -693,12 +694,8 @@ function executePlayerAttack(mob, isBow, wpnData) {
             const itemRules = gameState.botSettings?.itemRules || {};
             const rule = itemRules[drop.item] || { pick: true, autoSell: false };
 
-            // 1. 若取消勾選「撿取」：直接略過不撿
-            if (rule.pick === false) {
-              return;
-            }
+            if (rule.pick === false) return;
 
-            // 2. 若勾選「撿到就賣」：就地即刻折現！不入背包、不佔負重！
             if (rule.autoSell) {
               const itemDb = (typeof DB !== 'undefined' && DB.items) ? DB.items[drop.item] : null;
               const unitPrice = Math.max(1, Math.floor((itemDb ? itemDb.price : 10) * 0.4));
@@ -708,7 +705,6 @@ function executePlayerAttack(mob, isBow, wpnData) {
               return;
             }
 
-            // 3. 一般拾取入包
             if (typeof addItemToInventory === "function") {
               addItemToInventory(drop.item, count);
               log(`✨ 拾獲寶物：${drop.item} x${count}`, "drop");
