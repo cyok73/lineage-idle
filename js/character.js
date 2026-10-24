@@ -175,7 +175,7 @@ function selectChar(index) {
       const remembered = localStorage.getItem("lineage_remembered_user") || "cyok73";
       const localAcc = localStorage.getItem("lineage_acc_" + remembered);
       if (localAcc) {
-        try { currentUser = JSON.parse(localAcc); } catch(e){}
+        try { currentUser = JSON.parse(localAcc); } catch (e) { }
       }
       if (!currentUser) {
         currentUser = { username: remembered, roleLevel: 1, characters: [] };
@@ -191,7 +191,7 @@ function selectChar(index) {
 
     currentUser.characters = currentUser.characters.map(c => {
       if (typeof c === "string") {
-        try { return JSON.parse(c); } catch(e) { return null; }
+        try { return JSON.parse(c); } catch (e) { return null; }
       }
       return c;
     }).filter(Boolean);
@@ -267,19 +267,19 @@ function selectChar(index) {
 
     // F. 安全依序執行渲染 (使用安全判定，不再發生 ReferenceError)
     if (typeof window.loadGMSettings === "function") {
-      try { window.loadGMSettings(); } catch(e){}
+      try { window.loadGMSettings(); } catch (e) { }
     }
     if (typeof window.initWorldMobs === "function") {
-      try { window.initWorldMobs(); } catch(e){}
+      try { window.initWorldMobs(); } catch (e) { }
     }
     if (typeof window.initGameUI === "function") {
-      try { window.initGameUI(); } catch(e){}
+      try { window.initGameUI(); } catch (e) { }
     }
     if (typeof window.renderRadar === "function") {
-      try { window.renderRadar(); } catch(e){}
+      try { window.renderRadar(); } catch (e) { }
     }
     if (typeof window.calculateOfflineGains === "function") {
-      try { window.calculateOfflineGains(); } catch(e){}
+      try { window.calculateOfflineGains(); } catch (e) { }
     }
 
     if (typeof window.switchTab === "function") {
@@ -328,7 +328,7 @@ function renderCharList() {
   if (!currentUser) return;
 
   if (typeof currentUser.characters === "string") {
-    try { currentUser.characters = JSON.parse(currentUser.characters); } catch(e){ currentUser.characters = []; }
+    try { currentUser.characters = JSON.parse(currentUser.characters); } catch (e) { currentUser.characters = []; }
   }
   if (!Array.isArray(currentUser.characters) || currentUser.characters.length === 0) {
     container.innerHTML = `<div style="text-align:center; color:#7e889b; padding:20px;">尚無冒險角色，請點擊下方按鈕創建人物。</div>`;
@@ -338,7 +338,7 @@ function renderCharList() {
   currentUser.characters.forEach((rawChar, idx) => {
     let c = rawChar;
     if (typeof c === "string") {
-      try { c = JSON.parse(c); } catch(e){ return; }
+      try { c = JSON.parse(c); } catch (e) { return; }
     }
     if (!c) return;
 
@@ -506,8 +506,8 @@ function confirmCreateChar() {
   }
 
   const preset = resolveClassPreset(CharCreator.currentClass);
-  const clsKey = (CharCreator.currentClass === "knight" || CharCreator.currentClass === "elf" || CharCreator.currentClass === "mage") 
-    ? CharCreator.currentClass 
+  const clsKey = (CharCreator.currentClass === "knight" || CharCreator.currentClass === "elf" || CharCreator.currentClass === "mage")
+    ? CharCreator.currentClass
     : "prince";
 
   const finalStats = { ...CharCreator.stats };
@@ -728,3 +728,24 @@ function changePolymorph(polyName) {
   renderCharTab();
   updateLeftPanel();
 }
+
+// ---------------- 新增：全域存檔管理 ----------------
+function saveAccountData() {
+  if (!currentUser || !currentChar) return;
+
+  // 記錄角色當下的掛機狀態、村莊狀態與座標
+  if (!currentChar.savedState) currentChar.savedState = {};
+  currentChar.savedState.inVillage = gameState.inVillage;
+  currentChar.savedState.playerX = gameState.playerX;
+  currentChar.savedState.playerY = gameState.playerY;
+  currentChar.savedState.currentMap = gameState.currentMap;
+  currentChar.savedState.isRunning = gameState.isRunning;
+  currentChar.savedState.botStatus = gameState.botStatus;
+
+  const idx = currentUser.characters.findIndex(c => c.name === currentChar.name);
+  if (idx !== -1) {
+    currentUser.characters[idx] = currentChar;
+  }
+  localStorage.setItem("lineage_acc_" + currentUser.username, JSON.stringify(currentUser));
+}
+window.saveAccountData = saveAccountData;
