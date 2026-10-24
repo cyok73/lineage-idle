@@ -238,7 +238,7 @@ window.addEventListener("DOMContentLoaded", () => {
   if (typeof checkAutoLogin === "function") checkAutoLogin();
 });
 
-// 監聽重整與分頁關閉事件，確保狀態不丟失
+// 監聽重整與分頁關閉事件，確保 F5 時狀態不丟失
 window.addEventListener("beforeunload", () => {
   if (typeof saveAccountData === "function") {
     saveAccountData();
