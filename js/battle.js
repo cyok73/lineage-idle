@@ -145,6 +145,11 @@ function initGameUI() {
     btn.onclick = toggleLoop;
   }
 
+  const tag = document.getElementById("battle-mode-tag");
+  if (tag) {
+    tag.innerText = (gameState.botStatus === "running") ? "[野外巡航中]" : (gameState.inVillage ? "[村莊休整中]" : "[野外待機中]");
+  }
+
   if (!gameState.botStatus) {
     gameState.botStatus = gameState.inVillage ? "village" : "idle";
   }

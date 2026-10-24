@@ -219,31 +219,30 @@ function selectChar(index) {
     if (typeof DB !== "undefined" && DB.maps && !DB.maps[gameState.currentMap]) {
       gameState.currentMap = "talking_island";
     }
-    // --- 新增：讀取掛機狀態與上下線位置判斷 ---
+
+    // 🚨 核心邏輯：讀取上次下線前的掛機與地圖座標狀態
     if (currentChar.savedState) {
       gameState.currentMap = currentChar.savedState.currentMap || "talking_island";
 
-      // 如果掛機時下線，再上線的話，還會繼續掛機 (保留原本位置與狀態)
       if (currentChar.savedState.isRunning) {
         gameState.isRunning = true;
         gameState.botStatus = "running";
         gameState.inVillage = false;
         gameState.playerX = currentChar.savedState.playerX || 1200;
         gameState.playerY = currentChar.savedState.playerY || 800;
-        console.log("🔄 檢測到上次為掛機狀態下線，已自動恢復野外掛機！");
+        console.log("🔄 檢測到上次為掛機狀態下線，準備自動恢復野外掛機！");
       } else {
-        // 如果停止掛機的話，會在村莊裡登入，不會在野外裡登入
         gameState.isRunning = false;
         gameState.botStatus = "village";
         gameState.inVillage = true;
-        console.log("🏛️ 檢測到上次已停止掛機，強制於村莊安全區登入。");
+        console.log("🏛️ 檢測到上次已停止掛機，於村莊安全區登入。");
       }
     } else {
-      // 預設登入狀態 (初次創角)
       gameState.isRunning = false;
       gameState.botStatus = "village";
       gameState.inVillage = true;
     }
+
     // C. 🚨 核心黑屏自癒：檢測 #view-game 是否被意外包在 #view-auth 內，自動移至 body！
     const viewAuth = document.getElementById("view-auth");
     const viewGame = document.getElementById("view-game") || document.getElementById("game-main-screen");
@@ -289,7 +288,7 @@ function selectChar(index) {
       adminNavBtn.style.display = (currentUser.roleLevel >= 2) ? "inline-flex" : "none";
     }
 
-    // F. 安全依序執行渲染 (使用安全判定，不再發生 ReferenceError)
+    // F. 安全依序執行渲染
     if (typeof window.loadGMSettings === "function") {
       try { window.loadGMSettings(); } catch (e) { }
     }
@@ -308,6 +307,21 @@ function selectChar(index) {
 
     if (typeof window.switchTab === "function") {
       window.switchTab("battle");
+    }
+
+    // 若判斷為恢復掛機狀態，直接呼叫確保計時器與按鈕標籤同步
+    if (gameState.isRunning && gameState.botStatus === "running") {
+      setTimeout(() => {
+        if (typeof ensureWorldTickTimer === "function") ensureWorldTickTimer();
+        const btn = document.getElementById("toggle-btn");
+        if (btn) {
+          btn.className = "btn btn-danger";
+          btn.innerText = "⏹ 停止掛機";
+        }
+        const tag = document.getElementById("battle-mode-tag");
+        if (tag) tag.innerText = "[野外巡航中]";
+        log("🔄 歡迎回到戰場！已自動恢復野外離線前掛機狀態！", "sys");
+      }, 300);
     }
 
     console.log("🎉【進入世界】成功！畫面已成功展示！");
@@ -371,15 +385,15 @@ function renderCharList() {
     const className = resolveClassPreset(c.charClass)?.name || c.charClass || "冒險者";
 
     card.innerHTML = `
-      <div>
-        <b style="color:var(--gold, #f59e0b); font-size:14px;">${c.name || '無名氏'}</b>
-        <span style="font-size:11px; margin-left:8px; color:#aaa;">Lv.${c.level || 1} ${className}</span>
-      </div>
-      <div style="display:flex; gap:6px;">
-        <button type="button" class="btn btn-gold" style="padding:4px 12px; font-weight:bold;" onclick="selectChar(${idx})">進入世界</button>
-        <button type="button" class="btn btn-danger" style="padding:4px 10px;" onclick="deleteChar(${idx})">刪除</button>
-      </div>
-    `;
+ <div>
+ <b style="color:var(--gold, #f59e0b); font-size:14px;">${c.name || '無名氏'}</b>
+ <span style="font-size:11px; margin-left:8px; color:#aaa;">Lv.${c.level || 1} ${className}</span>
+ </div>
+ <div style="display:flex; gap:6px;">
+ <button type="button" class="btn btn-gold" style="padding:4px 12px; font-weight:bold;" onclick="selectChar(${idx})">進入世界</button>
+ <button type="button" class="btn btn-danger" style="padding:4px 10px;" onclick="deleteChar(${idx})">刪除</button>
+ </div>
+ `;
     container.appendChild(card);
   });
 }
@@ -393,7 +407,7 @@ function deleteChar(index) {
 }
 
 function backToCharSelect() {
-  if (typeof stopLoop === "function") stopLoop();
+  // 🚨 修復：返回選角畫面時只執行存檔，不要主動呼叫 stopLoop() 破壞掛機標記！
   if (typeof saveAccountData === "function") saveAccountData();
   currentChar = null;
 
@@ -673,45 +687,45 @@ function renderCharTab() {
 
     const slotCard = document.createElement("div");
     slotCard.style.cssText = `
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #0f131a;
-      border: 1px solid ${eq ? '#7f1d1d' : '#222834'};
-      border-left: 3px solid ${eq ? '#dc2626' : '#475569'};
-      border-radius: 4px;
-      padding: 6px 10px;
-    `;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ background: #0f131a;
+ border: 1px solid ${eq ? '#7f1d1d' : '#222834'};
+ border-left: 3px solid ${eq ? '#dc2626' : '#475569'};
+ border-radius: 4px;
+ padding: 6px 10px;
+ `;
 
     let titleHtml = "";
     if (eq) {
       const enchantPrefix = (eq.enchant !== undefined && eq.enchant > 0) ? `+${eq.enchant} ` : '';
       const tierColor = itemDb?.tier === "red" ? "#ef4444" : (itemDb?.tier === "blue" ? "#38bdf8" : (itemDb?.tier === "green" ? "#22c55e" : "#f1f5f9"));
       titleHtml = `
-        <div style="font-size:12px; font-weight:bold; color:${tierColor};">
-          ${enchantPrefix}${eq.name}
-        </div>
-        <div style="font-size:10px; color:#94a3b8; margin-top:1px;">
-          ${itemDb?.ac !== undefined ? `AC: ${itemDb.ac - (eq.enchant || 0)} ` : ''}
-          ${itemDb?.desc || ''}
-        </div>
-      `;
+ <div style="font-size:12px; font-weight:bold; color:${tierColor};">
+ ${enchantPrefix}${eq.name}
+ </div>
+ <div style="font-size:10px; color:#94a3b8; margin-top:1px;">
+ ${itemDb?.ac !== undefined ? `AC: ${itemDb.ac - (eq.enchant || 0)} ` : ''}
+ ${itemDb?.desc || ''}
+ </div>
+ `;
     } else {
       titleHtml = `<span style="color:#64748b; font-size:12px;">無裝備</span>`;
     }
 
     slotCard.innerHTML = `
-      <div>
-        <div style="font-size:11px; color:#cbd5e1; display:flex; align-items:center; gap:4px;">
-          <span>${slot.icon}</span>
-          <span style="font-weight:bold; color:#e2e8f0;">${slot.name}</span>
-        </div>
-        <div style="margin-top:2px;">${titleHtml}</div>
-      </div>
-      <div>
-        ${eq ? `<button type="button" class="btn btn-danger" style="padding:2px 8px; font-size:11px;" onclick="unequipSlot('${slot.key}')">卸下</button>` : ''}
-      </div>
-    `;
+ <div>
+ <div style="font-size:11px; color:#cbd5e1; display:flex; align-items:center; gap:4px;">
+ <span>${slot.icon}</span>
+ <span style="font-weight:bold; color:#e2e8f0;">${slot.name}</span>
+ </div>
+ <div style="margin-top:2px;">${titleHtml}</div>
+ </div>
+ <div>
+ ${eq ? `<button type="button" class="btn btn-danger" style="padding:2px 8px; font-size:11px;" onclick="unequipSlot('${slot.key}')">卸下</button>` : ''}
+ </div>
+ `;
 
     grid.appendChild(slotCard);
   });
@@ -731,17 +745,17 @@ function renderPolymorphTable() {
     const isCurrent = currentChar.polymorph === p.name;
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td style="color:${isCurrent ? 'var(--gold)' : '#fff'}; font-weight:${isCurrent ? 'bold' : 'normal'};">
-        ${p.name} <span style="font-size:10px; color:#38bdf8;">${p.type || ''}</span>
-      </td>
-      <td>Lv.${p.reqLv}</td>
-      <td>${(p.speedInterval / 1000).toFixed(2)}s</td>
-      <td>
-        <button type="button" class="btn ${isCurrent ? 'btn-gold' : ''}" ${canUse ? '' : 'disabled'} onclick="changePolymorph('${p.name}')">
-          ${isCurrent ? '變身中' : '選擇變身'}
-        </button>
-      </td>
-    `;
+ <td style="color:${isCurrent ? 'var(--gold)' : '#fff'}; font-weight:${isCurrent ? 'bold' : 'normal'};">
+ ${p.name} <span style="font-size:10px; color:#38bdf8;">${p.type || ''}</span>
+ </td>
+ <td>Lv.${p.reqLv}</td>
+ <td>${(p.speedInterval / 1000).toFixed(2)}s</td>
+ <td>
+ <button type="button" class="btn ${isCurrent ? 'btn-gold' : ''}" ${canUse ? '' : 'disabled'} onclick="changePolymorph('${p.name}')">
+ ${isCurrent ? '變身中' : '選擇變身'}
+ </button>
+ </td>
+ `;
     polyTbody.appendChild(tr);
   });
 }
