@@ -404,7 +404,6 @@ function executePipelineSOP(isStartup = false) {
   const maxAllowedWeight = getWeightEscapeThreshold();
 
   if (currentWeight >= maxAllowedWeight) {
-    // 🚨 依規範替換為紅色警告日誌，禁止呼叫原生 alert()！
     log(`🛑【安全中斷】整備後負重達 ${currentWeight}%（已超過設定上限）！已暫停掛機，請手動清理負重。`, "mob");
     if (typeof stopLoop === "function") stopLoop();
     gameState.restockReasonItem = null;
