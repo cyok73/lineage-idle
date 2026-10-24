@@ -21,10 +21,7 @@ function initBotStrategyDefaults() {
 
   if (!Array.isArray(gameState.botSettings.buffs)) {
     const oldBuffs = (typeof gameState.botSettings.buffs === "object" && gameState.botSettings.buffs) ? gameState.botSettings.buffs : {};
-    gameState.botSettings.buffs = [
-      { item: "綠色藥水", advanceSec: 5, enabled: true },
-      { item: "勇敢藥水", advanceSec: 5, enabled: false }
-    ];
+    gameState.botSettings.buffs = [];
     if (oldBuffs.autoCurePoison !== undefined) {
       gameState.botSettings.curePoison = oldBuffs.autoCurePoison;
     }
@@ -918,11 +915,17 @@ function renderBuffGroupsList() {
     const row = document.createElement("div");
     row.style.cssText = "display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;";
     row.innerHTML = `
-      <div>
+      <div style="display:flex; align-items:center; gap:4px;">
         <input type="checkbox" id="chk-buff-${idx}" ${b.enabled ? "checked" : ""} onchange="updateBuffItemEnabled(${idx}, this.checked)">
-        <label for="chk-buff-${idx}">效果結束前 <input type="number" value="${b.advanceSec || 5}" style="width:38px; text-align:center;" onchange="updateBuffItemSec(${idx}, this.value)"> 秒，自動續喝【${b.item}】</label>
+        <label for="chk-buff-${idx}">效果結束前 <input type="number" value="${b.advanceSec || 5}" style="width:38px; text-align:center;" onchange="updateBuffItemSec(${idx}, this.value)"> 秒，自動續喝</label>
+        <select onchange="updateBuffItemName(${idx}, this.value)" style="background:#0f172a; color:#fff; border:1px solid #475569; border-radius:3px; font-size:11px; padding:2px;">
+          <option value="綠色藥水" ${b.item === '綠色藥水' ? 'selected' : ''}>綠色藥水</option>
+          <option value="勇敢藥水" ${b.item === '勇敢藥水' ? 'selected' : ''}>勇敢藥水</option>
+          <option value="精靈餅乾" ${b.item === '精靈餅乾' ? 'selected' : ''}>精靈餅乾</option>
+          <option value="惡魔之血" ${b.item === '惡魔之血' ? 'selected' : ''}>惡魔之血</option>
+        </select>
       </div>
-      ${idx > 0 ? `<button type="button" class="bot-del-btn" onclick="removeBuffGroup(${idx})">✕</button>` : `<span style="font-size:10px; color:#aaa;">(第 1 組預設)</span>`}
+      <button type="button" class="bot-del-btn" onclick="removeBuffGroup(${idx})">✕</button>
     `;
     container.appendChild(row);
   });
@@ -930,10 +933,7 @@ function renderBuffGroupsList() {
 
 function addBuffGroup() {
   if (!Array.isArray(gameState.botSettings.buffs)) gameState.botSettings.buffs = [];
-  const list = gameState.botSettings.buffs;
-  const hasBrave = list.some(b => b.item === "勇敢藥水");
-  const nextBuff = hasBrave ? "精靈餅乾" : "勇敢藥水";
-  list.push({ item: nextBuff, advanceSec: 5, enabled: true });
+  gameState.botSettings.buffs.push({ item: "綠色藥水", advanceSec: 5, enabled: true });
   saveStrategySettings();
   renderBuffGroupsList();
 }
@@ -948,6 +948,13 @@ function updateBuffItemEnabled(idx, checked) {
 function updateBuffItemSec(idx, val) {
   if (Array.isArray(gameState.botSettings.buffs)) {
     gameState.botSettings.buffs[idx].advanceSec = Math.max(1, Math.min(60, parseInt(val) || 5));
+    saveStrategySettings();
+  }
+}
+
+function updateBuffItemName(idx, val) {
+  if (Array.isArray(gameState.botSettings.buffs)) {
+    gameState.botSettings.buffs[idx].item = val;
     saveStrategySettings();
   }
 }
