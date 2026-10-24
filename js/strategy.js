@@ -182,6 +182,18 @@ function handleStrategyAI() {
     log("🧪 處於中毒狀態，立即使用【翡翠藥水】解毒！", "sys");
   }
 
+  // 藍色藥水 (MP 回復)
+  if (gameState.botSettings.autoBluePotion) {
+    const mpPercent = currentChar.maxMp > 0 ? (currentChar.mp / currentChar.maxMp) * 100 : 0;
+    if (mpPercent <= (gameState.botSettings.bluePotionMp || 30) && hasItem("藍色藥水")) {
+      // 藍水時效約 10 分鐘 (600秒)，加入間隔避免浪費連喝
+      if (!gameState.lastBluePotionTime || now - gameState.lastBluePotionTime > 600000) {
+        useItemByName("藍色藥水");
+        gameState.lastBluePotionTime = now;
+      }
+    }
+  }
+
   // 負重回城
   if (weightPercent >= weightThreshold) {
     log(`🏛️【負重回城】野外負重達 ${weightPercent}% (超過門檻 ${weightThreshold}%)！回村整備！`, "sys");
@@ -553,6 +565,13 @@ function renderStrategyTab() {
           <button type="button" class="btn btn-gold" style="padding:2px 8px; font-size:11px;" onclick="addPotionTier()">➕ 增加藥水組</button>
         </div>
         <div id="potion-tier-list"></div>
+        
+        <div style="border-top:1px dashed #334155; margin-top:8px; padding-top:8px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <input type="checkbox" id="chk-auto-blue" ${gameState.botSettings.autoBluePotion ? "checked" : ""} onchange="updateBluePotion(this.checked)">
+            <label for="chk-auto-blue">當 MP &le; <input type="number" value="${gameState.botSettings.bluePotionMp || 30}" style="width:40px; text-align:center;" onchange="updateBluePotionMp(this.value)"> % 時，自動使用【藍色藥水】</label>
+          </div>
+        </div>
       </div>
 
       <div style="background:#1e293b; padding:8px 10px; border-radius:4px; font-size:12px; display:flex; flex-direction:column; gap:6px;">
@@ -798,7 +817,7 @@ function renderBuyItemsList() {
       row.style.cssText = "display:flex; justify-content:space-between; align-items:center; background:#0f172a; padding:4px 8px; border-radius:4px; margin-bottom:4px; font-size:12px;";
       row.innerHTML = `
         <span>【<b>${b.item}</b>】補足至 <input type="number" value="${b.targetCount}" style="width:55px; text-align:center;" onchange="updateBuyRuleTargetCount(${idx}, this.value)"> 瓶/個</span>
-        <button type="button" class="bot-del-btn" onclick="removePipelineBuyItem(${idx})">✕ 移除</button>
+        <button type="button" class="bot-del-btn" onclick="removePipelineBuyItem(${idx})">✕</button>
       `;
       container.appendChild(row);
     });
@@ -857,7 +876,7 @@ function renderPotionTiersList() {
     row.style.cssText = "display:flex; justify-content:space-between; align-items:center; background:#1e293b; padding:4px 8px; border-radius:4px; margin-bottom:4px; font-size:12px;";
     row.innerHTML = `
       <span>當 HP &le; <input type="number" value="${p.hpPercent}" style="width:45px; text-align:center;" onchange="updatePotionTierHp(${idx}, this.value)"> % 時，自動使用【${p.item}】</span>
-      ${idx > 0 ? `<button type="button" class="bot-del-btn" onclick="removePotionTier(${idx})">✕ 移除</button>` : `<span style="font-size:10px; color:#aaa;">(第 1 組預設)</span>`}
+      ${idx > 0 ? `<button type="button" class="bot-del-btn" onclick="removePotionTier(${idx})">✕</button>` : `<span style="font-size:10px; color:#aaa;">(第 1 組預設)</span>`}
     `;
     container.appendChild(row);
   });
@@ -903,7 +922,7 @@ function renderBuffGroupsList() {
         <input type="checkbox" id="chk-buff-${idx}" ${b.enabled ? "checked" : ""} onchange="updateBuffItemEnabled(${idx}, this.checked)">
         <label for="chk-buff-${idx}">效果結束前 <input type="number" value="${b.advanceSec || 5}" style="width:38px; text-align:center;" onchange="updateBuffItemSec(${idx}, this.value)"> 秒，自動續喝【${b.item}】</label>
       </div>
-      ${idx > 0 ? `<button type="button" class="bot-del-btn" onclick="removeBuffGroup(${idx})">✕ 移除</button>` : `<span style="font-size:10px; color:#aaa;">(第 1 組預設)</span>`}
+      ${idx > 0 ? `<button type="button" class="bot-del-btn" onclick="removeBuffGroup(${idx})">✕</button>` : `<span style="font-size:10px; color:#aaa;">(第 1 組預設)</span>`}
     `;
     container.appendChild(row);
   });
@@ -913,7 +932,7 @@ function addBuffGroup() {
   if (!Array.isArray(gameState.botSettings.buffs)) gameState.botSettings.buffs = [];
   const list = gameState.botSettings.buffs;
   const hasBrave = list.some(b => b.item === "勇敢藥水");
-  const nextBuff = hasBrave ? "藍色藥水" : "勇敢藥水";
+  const nextBuff = hasBrave ? "精靈餅乾" : "勇敢藥水";
   list.push({ item: nextBuff, advanceSec: 5, enabled: true });
   saveStrategySettings();
   renderBuffGroupsList();
@@ -961,5 +980,15 @@ function updateTriggerSetting(key, val) {
   if (key === "overweightPercent") {
     gameState.botSettings.weightLimit = parseInt(val) || 80;
   }
+  saveStrategySettings();
+}
+
+function updateBluePotion(checked) {
+  gameState.botSettings.autoBluePotion = checked;
+  saveStrategySettings();
+}
+
+function updateBluePotionMp(val) {
+  gameState.botSettings.bluePotionMp = Math.max(1, Math.min(99, parseInt(val) || 30));
   saveStrategySettings();
 }
