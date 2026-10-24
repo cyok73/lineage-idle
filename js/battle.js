@@ -79,10 +79,12 @@ function startLoop() {
     }, 15000);
   }
 
-  // 🚨 若原本就已經在野外掛機中，不再重複執行村莊整補 SOP，避免被強制傳回村莊
+  // 🚨 核心防護：如果角色已經在野外掛機，絕對不要觸發回村 SOP！
   if (!gameState.inVillage) {
-    // 已經在野外，直接維持野外巡航
-  } else if (typeof executeStartupPipelineSOP === "function") {
+    return; // 直接中斷，讓下方的 gameTick() 就地接手打怪
+  }
+
+  if (typeof executeStartupPipelineSOP === "function") {
     executeStartupPipelineSOP();
   } else if (typeof executeRestockProcedure === "function") {
     executeRestockProcedure();

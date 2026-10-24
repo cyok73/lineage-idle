@@ -244,3 +244,10 @@ window.addEventListener("beforeunload", () => {
     saveAccountData();
   }
 });
+
+// 🚨 新增：針對手機或部分嚴格瀏覽器 F5 不觸發 beforeunload 的終極防護機制
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    if (typeof saveAccountData === "function") saveAccountData();
+  }
+});
