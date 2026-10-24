@@ -630,3 +630,88 @@ function withdrawFromStorageCustom(storageIdx) {
   renderStorageTab();
   updateLeftPanel();
 }
+
+// ---------------- 渲染個人倉庫介面 ----------------
+function renderStorageTab() {
+  const depositBody = document.getElementById("storage-deposit-body");
+  const storageBody = document.getElementById("storage-table-body");
+  const warning = document.getElementById("storage-warning");
+  const mainContent = document.getElementById("storage-main-content");
+  const lockStatus = document.getElementById("storage-lock-status");
+
+  if (!depositBody || !storageBody) return;
+
+  // 判定是否在村莊安全區，若在野外則鎖定倉庫
+  if (!gameState.inVillage) {
+    if (warning) warning.style.display = "block";
+    if (mainContent) mainContent.style.display = "none";
+    if (lockStatus) {
+      lockStatus.innerText = "野外區域：已上鎖，無法存取";
+      lockStatus.style.color = "var(--red)";
+    }
+    return;
+  }
+
+  if (warning) warning.style.display = "none";
+  if (mainContent) mainContent.style.display = "block";
+  if (lockStatus) {
+    lockStatus.innerText = "安全區：可隨時存取";
+    lockStatus.style.color = "var(--green)";
+  }
+
+  // 1. 渲染【個人倉庫內】的物品列表
+  storageBody.innerHTML = "";
+  if (!currentChar.storage || currentChar.storage.length === 0) {
+    storageBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#7e889b; padding:12px;">倉庫目前沒有存放任何物品</td></tr>`;
+  } else {
+    currentChar.storage.forEach((item, idx) => {
+      const dbItem = DB.items[item.name] || {};
+      const maxCount = item.count || 1;
+      const tierColor = dbItem.tier === "red" ? "#ef4444" : (dbItem.tier === "blue" ? "#38bdf8" : (dbItem.tier === "green" ? "#22c55e" : "#e2e8f0"));
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td style="color:${tierColor}; font-weight:${dbItem.tier === 'blue' || dbItem.tier === 'red' ? 'bold' : 'normal'};">
+          ${item.enchant !== undefined && item.enchant > 0 ? '+' + item.enchant : ''} ${item.name}
+        </td>
+        <td>${maxCount}</td>
+        <td>
+          <div style="display:inline-flex; align-items:center; gap:4px;">
+            <input type="number" id="storage-wit-qty-${idx}" value="1" min="1" max="${maxCount}" style="width:48px; text-align:center;">
+            <button class="btn" style="padding:2px 5px; font-size:10px;" onclick="document.getElementById('storage-wit-qty-${idx}').value=${maxCount}">MAX</button>
+            <button class="btn btn-gold" onclick="withdrawFromStorageCustom(${idx})">取出 (30金幣)</button>
+          </div>
+        </td>
+      `;
+      storageBody.appendChild(tr);
+    });
+  }
+
+  // 2. 渲染【背包中可存入倉庫】的物品列表
+  depositBody.innerHTML = "";
+  if (!currentChar.inventory || currentChar.inventory.length === 0) {
+    depositBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#7e889b; padding:12px;">背包空空如也</td></tr>`;
+  } else {
+    currentChar.inventory.forEach((item, idx) => {
+      const dbItem = DB.items[item.name] || {};
+      const maxCount = item.count || 1;
+      const tierColor = dbItem.tier === "red" ? "#ef4444" : (dbItem.tier === "blue" ? "#38bdf8" : (dbItem.tier === "green" ? "#22c55e" : "#e2e8f0"));
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td style="color:${tierColor}; font-weight:${dbItem.tier === 'blue' || dbItem.tier === 'red' ? 'bold' : 'normal'};">
+          ${item.enchant !== undefined && item.enchant > 0 ? '+' + item.enchant : ''} ${item.name}
+        </td>
+        <td>${maxCount}</td>
+        <td>
+          <div style="display:inline-flex; align-items:center; gap:4px;">
+            <input type="number" id="storage-dep-qty-${idx}" value="1" min="1" max="${maxCount}" style="width:48px; text-align:center;">
+            <button class="btn" style="padding:2px 5px; font-size:10px;" onclick="document.getElementById('storage-dep-qty-${idx}').value=${maxCount}">MAX</button>
+            <button class="btn btn-gold" onclick="depositToStorageCustom(${idx})">存入</button>
+          </div>
+        </td>
+      `;
+      depositBody.appendChild(tr);
+    });
+  }
+}
