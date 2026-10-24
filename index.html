@@ -34,7 +34,7 @@
       <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted);">
         <span>當前帳號：<b id="lbl-current-user" style="color:var(--gold);">-</b> <span id="lbl-role-badge"
             style="margin-left:4px; font-weight:bold;"></span></span>
-        <a href="javascript:void(0)" onclick="backToCharSelect()" style="color:#e74c3c; text-decoration:none;">登出帳號</a>
+        <a href="javascript:void(0)" onclick="logout()" style="color:#e74c3c; text-decoration:none;">登出帳號</a>
       </div>
       <div class="char-card-list" id="char-list-container"></div>
       <div class="auth-btn-row">
@@ -42,20 +42,23 @@
       </div>
     </div>
 
-    <!-- 創角卡片 -->
+    <!-- 創角卡片 (職業底質 + 自由點數分配，單項上限 18) -->
     <div id="box-create-char" class="auth-card"
       style="display:none; width:460px; max-width:95vw; background:#0f172a; border:1px solid #7f1d1d; border-radius:8px; padding:20px; box-shadow:0 8px 24px rgba(0,0,0,0.8); flex-direction:column; gap:14px;">
+
       <div class="auth-title"
         style="color:var(--gold, #f59e0b); font-size:18px; font-weight:bold; text-align:center; border-bottom:1px solid #334155; padding-bottom:8px;">
         🛡️ 創建新角色
       </div>
 
+      <!-- 角色名稱 -->
       <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#e2e8f0;">
         <label for="new-char-name" style="font-weight:bold;">角色名稱：</label>
         <input type="text" id="new-char-name" placeholder="請輸入 2~12 位角色名稱"
           style="flex:1; margin-left:10px; padding:6px 10px; background:#1e293b; color:#fff; border:1px solid #475569; border-radius:4px; font-size:13px;">
       </div>
 
+      <!-- 選擇職業 -->
       <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#e2e8f0;">
         <label for="new-char-class" style="font-weight:bold;">選擇職業：</label>
         <select id="new-char-class" onchange="onClassSelectChange()"
@@ -67,6 +70,7 @@
         </select>
       </div>
 
+      <!-- 點數分配區塊 -->
       <div
         style="background:#1e293b; border:1px solid #334155; padding:12px; border-radius:6px; display:flex; flex-direction:column; gap:8px;">
         <div
@@ -75,67 +79,84 @@
           <span style="font-size:16px; color:#f59e0b;"><b id="create-remain-points">0</b> 點</span>
         </div>
 
+        <!-- 力量 -->
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#e2e8f0;">
           <span style="width:130px;">力量 (STR) <small id="lbl-base-str" style="color:#94a3b8;">(底質13)</small></span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
+            <button type="button" class="btn"
+              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
               onclick="adjustCreateStat('str', -1)">-</button>
             <b id="val-str" style="width:24px; text-align:center; font-size:15px; color:#38bdf8;">13</b>
-            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
+            <button type="button" class="btn"
+              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
               onclick="adjustCreateStat('str', 1)">+</button>
           </div>
         </div>
 
+        <!-- 敏捷 -->
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#e2e8f0;">
           <span style="width:130px;">敏捷 (DEX) <small id="lbl-base-dex" style="color:#94a3b8;">(底質10)</small></span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
+            <button type="button" class="btn"
+              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
               onclick="adjustCreateStat('dex', -1)">-</button>
             <b id="val-dex" style="width:24px; text-align:center; font-size:15px; color:#38bdf8;">10</b>
-            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
+            <button type="button" class="btn"
+              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
               onclick="adjustCreateStat('dex', 1)">+</button>
           </div>
         </div>
 
+        <!-- 體質 -->
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#e2e8f0;">
           <span style="width:130px;">體質 (CON) <small id="lbl-base-con" style="color:#94a3b8;">(底質10)</small></span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
+            <button type="button" class="btn"
+              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
               onclick="adjustCreateStat('con', -1)">-</button>
             <b id="val-con" style="width:24px; text-align:center; font-size:15px; color:#38bdf8;">10</b>
-            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
+            <button type="button" class="btn"
+              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
               onclick="adjustCreateStat('con', 1)">+</button>
           </div>
         </div>
 
+        <!-- 智力 -->
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#e2e8f0;">
           <span style="width:130px;">智力 (INT) <small id="lbl-base-int" style="color:#94a3b8;">(底質10)</small></span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
+            <button type="button" class="btn"
+              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
               onclick="adjustCreateStat('int', -1)">-</button>
             <b id="val-int" style="width:24px; text-align:center; font-size:15px; color:#38bdf8;">10</b>
-            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
+            <button type="button" class="btn"
+              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
               onclick="adjustCreateStat('int', 1)">+</button>
           </div>
         </div>
 
+        <!-- 精神 -->
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#e2e8f0;">
           <span style="width:130px;">精神 (WIS) <small id="lbl-base-wis" style="color:#94a3b8;">(底質11)</small></span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
+            <button type="button" class="btn"
+              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
               onclick="adjustCreateStat('wis', -1)">-</button>
             <b id="val-wis" style="width:24px; text-align:center; font-size:15px; color:#38bdf8;">11</b>
-            <button type="button" class="btn" style="width:28px; height:28px; padding:0;"
+            <button type="button" class="btn"
+              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
               onclick="adjustCreateStat('wis', 1)">+</button>
           </div>
         </div>
       </div>
 
+      <!-- 操作按鈕 -->
       <div style="display:flex; gap:12px; margin-top:4px;">
         <button type="button" class="btn btn-gold" style="flex:1; padding:8px 0; font-weight:bold;"
           onclick="confirmCreateChar()">確定創建</button>
         <button type="button" class="btn" style="flex:1; padding:8px 0;" onclick="cancelCreateChar()">取消</button>
       </div>
+
     </div>
   </div>
 
@@ -159,7 +180,7 @@
     </header>
 
     <div class="game-container">
-      <!-- 左側面板 -->
+      <!-- 左側面板 (支援手機折疊詳細數值) -->
       <div class="panel sidebar-left" id="left-panel">
         <h2><span>角色資訊</span><span id="pl-class-tag" style="font-size:11px; color:#fff;">騎士</span></h2>
         <div class="bar-group">
@@ -212,12 +233,13 @@
 
       <!-- 右側內容面板 -->
       <div class="panel main-content" id="main-content-panel">
-        <!-- 戰鬥面板：16:9 雷達 + 滿版日誌 -->
+        <!-- 戰鬥面板 (單一視窗鎖定：固定雷達區 + 彈性釘底日誌區) -->
         <div id="tab-battle" class="tab-content active">
 
+          <!-- 上方雷達與操作固定區 -->
           <div class="radar-fixed-section">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
-              <h2><span>實時戰場雷達 (16:9)</span><span id="battle-mode-tag"
+              <h2><span>實時戰場雷達</span><span id="battle-mode-tag"
                   style="font-size:11px; color:var(--text-muted); margin-left:6px;">[野外待機中]</span></h2>
               <div style="font-size:11px; color:var(--text-muted);">藍:玩家 | 金框:鎖定 | 紅:主動 | 綠:被動 | 👑:Boss</div>
             </div>
@@ -250,6 +272,7 @@
             </div>
           </div>
 
+          <!-- 日誌資訊分流與控制工具列 -->
           <div class="log-toolbar">
             <div style="font-weight:bold; color:var(--gold); font-size:12px;">即時戰鬥日誌 (Battle Log)</div>
             <div class="log-filters">
@@ -266,6 +289,7 @@
             </div>
           </div>
 
+          <!-- 下方彈性日誌容器 -->
           <div class="log-box" id="log-box"></div>
 
         </div>
@@ -372,7 +396,7 @@
           </div>
         </div>
 
-        <!-- 掛機戰術設定面板 (由 js/strategy.js 動態渲染) -->
+        <!-- 掛機戰術設定面板 (由 js/strategy.js 自動動態渲染) -->
         <div id="tab-strategy" class="tab-content"></div>
 
         <!-- 👑 最高權限 (GM 管理面版) -->
@@ -472,8 +496,13 @@
     </div>
   </div>
 
+  <!-- 1. Supabase 官方套件 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- 2. 資料設定 -->
   <script src="js/data.js"></script>
+
+  <!-- 3. 各功能模組（注意順序） -->
   <script src="js/main.js"></script>
   <script src="js/supabase.js"></script>
   <script src="js/character.js"></script>

@@ -140,7 +140,7 @@ function initGameUI() {
 
   const btn = document.getElementById("toggle-btn");
   if (btn) {
-    btn.innerText = (gameState.botStatus === "running") ? "⏹ 停止掛機" : "▶ 開始掛機迴圈";
+    btn.innerText = (gameState.botStatus === "running") ? "⏹ 停止掛機" : "▶ 開始掛機";
     btn.className = (gameState.botStatus === "running") ? "btn btn-danger" : "btn btn-success";
     btn.onclick = toggleLoop;
   }
