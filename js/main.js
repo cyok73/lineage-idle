@@ -212,3 +212,23 @@ window.addEventListener("DOMContentLoaded", () => {
   if (typeof loadGMSettings === "function") loadGMSettings();
   if (typeof checkAutoLogin === "function") checkAutoLogin();
 });
+// ---------------- 新增：全域存檔管理 ----------------
+function saveAccountData() {
+  if (!currentUser || !currentChar) return;
+
+  // 記錄角色當下的掛機狀態、村莊狀態與座標
+  if (!currentChar.savedState) currentChar.savedState = {};
+  currentChar.savedState.inVillage = gameState.inVillage;
+  currentChar.savedState.playerX = gameState.playerX;
+  currentChar.savedState.playerY = gameState.playerY;
+  currentChar.savedState.currentMap = gameState.currentMap;
+  currentChar.savedState.isRunning = gameState.isRunning;
+  currentChar.savedState.botStatus = gameState.botStatus;
+
+  const idx = currentUser.characters.findIndex(c => c.name === currentChar.name);
+  if (idx !== -1) {
+    currentUser.characters[idx] = currentChar;
+  }
+  localStorage.setItem("lineage_acc_" + currentUser.username, JSON.stringify(currentUser));
+}
+window.saveAccountData = saveAccountData;

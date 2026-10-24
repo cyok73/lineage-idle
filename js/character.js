@@ -219,7 +219,31 @@ function selectChar(index) {
     if (typeof DB !== "undefined" && DB.maps && !DB.maps[gameState.currentMap]) {
       gameState.currentMap = "talking_island";
     }
+    // --- 新增：讀取掛機狀態與上下線位置判斷 ---
+    if (currentChar.savedState) {
+      gameState.currentMap = currentChar.savedState.currentMap || "talking_island";
 
+      // 如果掛機時下線，再上線的話，還會繼續掛機 (保留原本位置與狀態)
+      if (currentChar.savedState.isRunning) {
+        gameState.isRunning = true;
+        gameState.botStatus = "running";
+        gameState.inVillage = false;
+        gameState.playerX = currentChar.savedState.playerX || 1200;
+        gameState.playerY = currentChar.savedState.playerY || 800;
+        console.log("🔄 檢測到上次為掛機狀態下線，已自動恢復野外掛機！");
+      } else {
+        // 如果停止掛機的話，會在村莊裡登入，不會在野外裡登入
+        gameState.isRunning = false;
+        gameState.botStatus = "village";
+        gameState.inVillage = true;
+        console.log("🏛️ 檢測到上次已停止掛機，強制於村莊安全區登入。");
+      }
+    } else {
+      // 預設登入狀態 (初次創角)
+      gameState.isRunning = false;
+      gameState.botStatus = "village";
+      gameState.inVillage = true;
+    }
     // C. 🚨 核心黑屏自癒：檢測 #view-game 是否被意外包在 #view-auth 內，自動移至 body！
     const viewAuth = document.getElementById("view-auth");
     const viewGame = document.getElementById("view-game") || document.getElementById("game-main-screen");
@@ -728,24 +752,3 @@ function changePolymorph(polyName) {
   renderCharTab();
   updateLeftPanel();
 }
-
-// ---------------- 新增：全域存檔管理 ----------------
-function saveAccountData() {
-  if (!currentUser || !currentChar) return;
-
-  // 記錄角色當下的掛機狀態、村莊狀態與座標
-  if (!currentChar.savedState) currentChar.savedState = {};
-  currentChar.savedState.inVillage = gameState.inVillage;
-  currentChar.savedState.playerX = gameState.playerX;
-  currentChar.savedState.playerY = gameState.playerY;
-  currentChar.savedState.currentMap = gameState.currentMap;
-  currentChar.savedState.isRunning = gameState.isRunning;
-  currentChar.savedState.botStatus = gameState.botStatus;
-
-  const idx = currentUser.characters.findIndex(c => c.name === currentChar.name);
-  if (idx !== -1) {
-    currentUser.characters[idx] = currentChar;
-  }
-  localStorage.setItem("lineage_acc_" + currentUser.username, JSON.stringify(currentUser));
-}
-window.saveAccountData = saveAccountData;

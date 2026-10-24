@@ -54,11 +54,20 @@ function startLoop() {
 
   const btn = document.getElementById("toggle-btn");
   if (btn) {
-    btn.className = "btn btn-danger";
-    btn.innerText = "⏹ 停止掛機";
+    btn.innerText = (gameState.botStatus === "running") ? "⏹ 停止掛機" : "▶ 開始掛機迴圈";
+    btn.className = (gameState.botStatus === "running") ? "btn btn-danger" : "btn btn-success";
+    btn.onclick = toggleLoop;
   }
+
+  // 確保登入時，戰鬥面板的標籤文字會對應正確的狀態
   const tag = document.getElementById("battle-mode-tag");
-  if (tag) tag.innerText = "[野外巡航中]";
+  if (tag) {
+    tag.innerText = (gameState.botStatus === "running") ? "[野外巡航中]" : (gameState.inVillage ? "[村莊休整中]" : "[野外待機中]");
+  }
+
+  if (!gameState.botStatus) {
+    gameState.botStatus = gameState.inVillage ? "village" : "idle";
+  }
 
   log("▶ 啟動掛機！角色開始主動索敵巡邏...", "sys");
 
