@@ -205,7 +205,7 @@ function switchTab(tabId) {
   }
 }
 
-// ---------------- 全域角色與掛機狀態持久化 ----------------
+// ---------------- 關鍵修復：全域角色與掛機狀態持久化 ----------------
 function saveAccountData() {
   if (!currentUser || !currentChar) return;
 
@@ -238,7 +238,7 @@ window.addEventListener("DOMContentLoaded", () => {
   if (typeof checkAutoLogin === "function") checkAutoLogin();
 });
 
-// 視窗關閉或重新整理時，強制自動儲存當下狀態
+// 監聽重整與分頁關閉事件，確保狀態不丟失
 window.addEventListener("beforeunload", () => {
   if (typeof saveAccountData === "function") {
     saveAccountData();

@@ -79,7 +79,10 @@ function startLoop() {
     }, 15000);
   }
 
-  if (typeof executeStartupPipelineSOP === "function") {
+  // 🚨 若原本就已經在野外掛機中，不再重複執行村莊整補 SOP，避免被強制傳回村莊
+  if (!gameState.inVillage) {
+    // 已經在野外，直接維持野外巡航
+  } else if (typeof executeStartupPipelineSOP === "function") {
     executeStartupPipelineSOP();
   } else if (typeof executeRestockProcedure === "function") {
     executeRestockProcedure();
@@ -140,7 +143,7 @@ function initGameUI() {
 
   const btn = document.getElementById("toggle-btn");
   if (btn) {
-    btn.innerText = (gameState.botStatus === "running") ? "⏹ 停止掛機" : "▶ 開始掛機";
+    btn.innerText = (gameState.botStatus === "running") ? "⏹ 停止掛機" : "▶ 開始掛機迴圈";
     btn.className = (gameState.botStatus === "running") ? "btn btn-danger" : "btn btn-success";
     btn.onclick = toggleLoop;
   }
