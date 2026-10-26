@@ -1175,6 +1175,8 @@ function onMapSelectChange() {
   const mapSelect = document.getElementById("map-select");
   if (!mapSelect) return;
   gameState.currentMap = mapSelect.value;
+  // 清除地表緩存，讓新地圖重新生成地表紋理
+  if (typeof _terrainCacheKey !== "undefined") _terrainCacheKey = "";
   const cfg = window.mapData && window.mapData[gameState.currentMap];
   if (cfg && cfg.bounds) {
     gameState.playerX = cfg.bounds.x + cfg.bounds.width / 2;

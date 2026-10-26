@@ -22,7 +22,7 @@ let gameState = {
   isRunning: false,
   loopTimer: null,
   cloudSaveTimer: null,
-  currentMap: "town",
+  currentMap: "talking_island",
   viewingVillage: "ti_village",
   inVillage: false,
   isRestocking: false,
