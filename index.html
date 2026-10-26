@@ -442,20 +442,23 @@
           </div>
         </div>
 
-        <!-- 技能欄分頁 (重現附圖 5x5 矩陣與職業專屬技能圖示) -->
+        <!-- 技能欄分頁 (天堂1經典 24格 4列x6行 魔法書視窗：專屬職業魔法 / 一般魔法技能) -->
         <div id="tab-skills" class="tab-content">
           <div class="lineage-skill-book-wrapper">
-            <!-- 左側/主體：職業專屬技術書篩選與技能矩陣 -->
+            <!-- 視窗主體：頂部雙分頁、紅鈕與 24 格魔法矩陣 -->
             <div class="skill-main-container">
-              <div class="skill-category-tabs" id="skill-category-tabs">
-                <!-- 由 character.js 依據當前角色職業動態渲染：專屬技能書、主動技能、被動技術 -->
+              <div class="lineage-tab-bar" id="lineage-spellbook-tabs">
+                <div class="lineage-tabs-group" id="skill-tab-buttons">
+                  <!-- 由 character.js 動態渲染【專屬職業魔法】與【一般魔法技能】 -->
+                </div>
+                <button type="button" class="lineage-red-close-btn" onclick="switchTab('battle')" title="關閉魔法書返回戰場">✕</button>
               </div>
 
-              <!-- 技能網格 (僅呈現當前角色之職業專屬技能) -->
+              <!-- 4 列 x 6 行 (共 24 格) 經典魔法網格 -->
               <div class="skill-matrix-grid" id="skill-matrix-grid"></div>
             </div>
 
-            <!-- 右側：技能詳細屬性檢視器 -->
+            <!-- 右側：技能詳細屬性檢視器 (MP/HP消耗、材料精靈玉/魔石、需求等級) -->
             <div class="skill-detail-inspector" id="skill-detail-inspector">
               <!-- 由 character.js 動態渲染 -->
             </div>

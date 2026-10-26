@@ -1175,24 +1175,25 @@ input[type="number"] {
   box-shadow: 0 0 6px rgba(212, 175, 55, 0.3);
 }
 
-/* 5 欄經典技能矩陣網格 */
+/* 4 列 x 6 行 (24格) 經典天堂魔法書矩陣網格 */
 .skill-matrix-grid {
   display: grid;
-  grid-template-columns: repeat(5, 68px);
-  grid-auto-rows: 68px;
+  grid-template-columns: repeat(6, 64px);
+  grid-template-rows: repeat(4, 64px);
   gap: 6px;
   padding: 10px;
   background: #090a0d;
   border: 2px solid #1d212a;
   border-radius: 4px;
   box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.85);
-  min-height: 360px;
+  min-height: 290px;
+  width: fit-content;
 }
 
-/* 單一技能格子槽位 */
+/* 單一技能格子槽位 (64px x 64px) */
 .skill-slot-box {
-  width: 68px;
-  height: 68px;
+  width: 64px;
+  height: 64px;
   position: relative;
   background: radial-gradient(circle at 50% 35%, #181b22 0%, #0d0f13 100%);
   border: 1.5px solid #2c313d;
@@ -1207,9 +1208,15 @@ input[type="number"] {
   transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
 }
 
-.skill-slot-box:hover {
+/* 已學狀態：全彩 Icon，邊框微亮金屬光芒 */
+.skill-slot-box.state-learned {
+  border-color: #524727;
+  box-shadow: inset 0 0 6px rgba(212, 175, 55, 0.2), 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.skill-slot-box.state-learned:hover {
   border-color: #d4af37;
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.5), inset 0 0 6px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.6), inset 0 0 6px rgba(212, 175, 55, 0.3);
   transform: translateY(-1px);
 }
 
@@ -1253,8 +1260,8 @@ input[type="number"] {
 
 /* 技能圖示內部容器 */
 .skill-art-container {
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1267,25 +1274,92 @@ input[type="number"] {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
 }
 
-/* 狀態：未習得 (圖示半透明暗化 + 底部亮綠色「+」加號) */
+/* 狀態：未習得 (灰階 100%、亮度降低 50% + 置中暗金屬鎖頭圖示) */
 .skill-slot-box.state-unlearned .skill-art-container {
-  opacity: 0.45;
-  filter: grayscale(85%) brightness(0.65);
+  opacity: 0.6;
+  filter: grayscale(100%) brightness(50%) contrast(90%);
 }
 
-.skill-plus-sign {
+.skill-padlock-overlay {
   position: absolute;
-  bottom: 0px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #22c55e;
-  font-size: 22px;
-  font-weight: 900;
-  line-height: 1;
-  text-shadow: 0 0 6px rgba(34, 197, 94, 0.9), 0 0 2px #000;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   pointer-events: none;
   z-index: 6;
-  animation: pulsePlus 2s infinite ease-in-out;
+}
+
+.skill-padlock-icon {
+  width: 22px;
+  height: 22px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.95));
+}
+
+/* 天堂經典魔法書頂部雙分頁工具列 */
+.lineage-tab-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border-bottom: 2px solid #232731;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.lineage-tabs-group {
+  display: flex;
+  gap: 8px;
+}
+
+.lineage-tab-btn {
+  background: #11141a;
+  border: 1.5px solid #232731;
+  color: #64748b;
+  font-weight: bold;
+  font-size: 13px;
+  padding: 6px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.5px;
+}
+
+.lineage-tab-btn:hover {
+  border-color: #475569;
+  color: #94a3b8;
+}
+
+.lineage-tab-btn.active {
+  background: linear-gradient(180deg, #2b2512 0%, #15130b 100%);
+  border: 1.5px solid #d4af37;
+  color: #fef08a;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  text-shadow: 0 0 6px rgba(245, 158, 11, 0.8), 0 1px 2px #000;
+}
+
+.lineage-red-close-btn {
+  background: linear-gradient(180deg, #7f1d1d 0%, #450a0a 100%);
+  border: 1.5px solid #b91c1c;
+  color: #fecaca;
+  font-size: 14px;
+  font-weight: bold;
+  width: 26px;
+  height: 26px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 2px 4px rgba(0, 0, 0, 0.6);
+  transition: all 0.15s ease;
+}
+
+.lineage-red-close-btn:hover {
+  background: linear-gradient(180deg, #991b1b 0%, #5c0f0f 100%);
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
 }
 
 @keyframes pulsePlus {

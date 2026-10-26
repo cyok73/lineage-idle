@@ -315,38 +315,40 @@ const DB = {
       ]
     },
   skills: {
-    // 🛡️ 騎士技術 (Knight)
-    "衝擊之暈": { name: "衝擊之暈", school: "knight", tier: 1, mpCost: 15, cooldown: 10000, type: "damage", power: 60, mode: "active", iconKey: "shock_stun", desc: "主動重劈打擊，對目標造成傷害並使目標陷入暈眩" },
-    "堅固防護": { name: "堅固防護", school: "knight", tier: 1, mpCost: 20, cooldown: 60000, type: "buff", stat: "ac", amount: -2, duration: 300, mode: "passive", iconKey: "solid_carriage", desc: "騎士防護技術，自身防禦 AC-2" },
-    "反擊屏障": { name: "反擊屏障", school: "knight", tier: 2, mpCost: 25, cooldown: 45000, type: "buff", stat: "mr", amount: 10, duration: 200, mode: "active", iconKey: "counter_barrier", desc: "近戰防禦神技，提升魔防並有機率反彈近身攻擊" },
-    "增幅防禦": { name: "增幅防禦", school: "knight", tier: 2, mpCost: 20, cooldown: 60000, type: "buff", stat: "ac", amount: -3, duration: 300, mode: "passive", iconKey: "reduction_armor", desc: "強化盾牌堅定格擋，AC額外-3" },
-    "狂暴將軍": { name: "狂暴將軍", school: "knight", tier: 3, mpCost: 25, cooldown: 30000, type: "buff", stat: "str", amount: 3, duration: 180, mode: "active", iconKey: "brave_aura", desc: "激發騎士狂暴之魂，力量 STR+3" },
+    // 🛡️ 專屬騎士技術 (Knight - Class Specific)
+    "衝擊之暈": { skillId: "shock_stun", name: "衝擊之暈", school: "knight", category: "class", reqLv: 50, tier: 1, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 10000, type: "damage", power: 60, mode: "active", iconKey: "shock_stun", desc: "主動重劈打擊，對目標造成傷害並使目標陷入暈眩" },
+    "堅固防護": { skillId: "solid_carriage", name: "堅固防護", school: "knight", category: "class", reqLv: 40, tier: 1, mpCost: 20, hpCost: 0, materialCost: "無", cooldown: 60000, type: "buff", stat: "ac", amount: -2, duration: 300, mode: "passive", iconKey: "solid_carriage", desc: "騎士防護技術，自身防禦 AC-2" },
+    "反擊屏障": { skillId: "counter_barrier", name: "反擊屏障", school: "knight", category: "class", reqLv: 60, tier: 2, mpCost: 25, hpCost: 0, materialCost: "魔力之石 x1", cooldown: 45000, type: "buff", stat: "mr", amount: 10, duration: 200, mode: "active", iconKey: "counter_barrier", desc: "近戰防禦神技，提升魔防並有機率反彈近身攻擊" },
+    "增幅防禦": { skillId: "reduction_armor", name: "增幅防禦", school: "knight", category: "class", reqLv: 45, tier: 2, mpCost: 20, hpCost: 0, materialCost: "無", cooldown: 60000, type: "buff", stat: "ac", amount: -3, duration: 300, mode: "passive", iconKey: "reduction_armor", desc: "強化盾牌堅定格擋，AC額外-3" },
+    "狂暴將軍": { skillId: "brave_aura", name: "狂暴將軍", school: "knight", category: "class", reqLv: 55, tier: 3, mpCost: 25, hpCost: 0, materialCost: "無", cooldown: 30000, type: "buff", stat: "str", amount: 3, duration: 180, mode: "active", iconKey: "brave_aura", desc: "激發騎士狂暴之魂，力量 STR+3" },
 
-    // 🏹 精靈魔法 (Elf)
-    "三重矢": { name: "三重矢", school: "elf", tier: 3, mpCost: 15, cooldown: 2500, type: "damage", power: 90, mode: "active", iconKey: "triple_arrow", desc: "妖精標誌神技，瞬間連續射出三支強烈魔法箭矢" },
-    "屬性之火": { name: "屬性之火", school: "elf", tier: 1, mpCost: 10, cooldown: 2000, type: "damage", power: 40, mode: "active", iconKey: "elemental_fire", desc: "引導火鳳凰烈焰之力，造成強烈火屬性傷害" },
-    "屬性之水": { name: "屬性之水", school: "elf", tier: 1, mpCost: 10, cooldown: 2000, type: "damage", power: 40, mode: "active", iconKey: "elemental_water", desc: "凝聚神聖水元素漩渦打擊目標" },
-    "屬性之風": { name: "屬性之風", school: "elf", tier: 2, mpCost: 12, cooldown: 2000, type: "damage", power: 55, mode: "active", iconKey: "elemental_wind", desc: "召喚銳利疾風風刃破空打擊" },
-    "屬性之地": { name: "屬性之地", school: "elf", tier: 2, mpCost: 12, cooldown: 2000, type: "damage", power: 55, mode: "active", iconKey: "elemental_earth", desc: "引動大地剛石結晶重壓目標" },
-    "自然之祝福": { name: "自然之祝福", school: "elf", tier: 3, mpCost: 20, cooldown: 30000, type: "buff", stat: "dex", amount: 3, duration: 180, mode: "passive", iconKey: "nature_blessing", desc: "自然精靈永恆印記，敏捷 DEX+3" },
+    // 🏹 專屬精靈魔法 (Elf - Class Specific)
+    "三重矢": { skillId: "triple_arrow", name: "三重矢", school: "elf", category: "class", reqLv: 30, tier: 3, mpCost: 15, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 2500, type: "damage", power: 90, mode: "active", iconKey: "triple_arrow", desc: "妖精標誌神技，瞬間連續射出三支強烈魔法箭矢" },
+    "屬性之火": { skillId: "elemental_fire", name: "屬性之火", school: "elf", category: "class", reqLv: 15, tier: 1, mpCost: 10, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 2000, type: "damage", power: 40, mode: "active", iconKey: "elemental_fire", desc: "引導火鳳凰烈焰之力，造成強烈火屬性傷害" },
+    "屬性之水": { skillId: "elemental_water", name: "屬性之水", school: "elf", category: "class", reqLv: 15, tier: 1, mpCost: 10, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 2000, type: "damage", power: 40, mode: "active", iconKey: "elemental_water", desc: "凝聚神聖水元素漩渦打擊目標" },
+    "屬性之風": { skillId: "elemental_wind", name: "屬性之風", school: "elf", category: "class", reqLv: 20, tier: 2, mpCost: 12, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 2000, type: "damage", power: 55, mode: "active", iconKey: "elemental_wind", desc: "召喚銳利疾風風刃破空打擊" },
+    "屬性之地": { skillId: "elemental_earth", name: "屬性之地", school: "elf", category: "class", reqLv: 20, tier: 2, mpCost: 12, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 2000, type: "damage", power: 55, mode: "active", iconKey: "elemental_earth", desc: "引動大地剛石結晶重壓目標" },
+    "自然之祝福": { skillId: "nature_blessing", name: "自然之祝福", school: "elf", category: "class", reqLv: 45, tier: 3, mpCost: 20, hpCost: 0, materialCost: "精靈玉 x2", cooldown: 30000, type: "buff", stat: "dex", amount: 3, duration: 180, mode: "passive", iconKey: "nature_blessing", desc: "自然精靈永恆印記，敏捷 DEX+3" },
 
-    // 🧙‍♂️ 正統魔法 (Mage)
-    "初級治癒術": { name: "初級治癒術", school: "normal", tier: 1, mpCost: 10, cooldown: 2000, type: "heal", power: 60, mode: "active", iconKey: "heal", desc: "回復少量生命值" },
-    "魔法飛彈": { name: "魔法飛彈", school: "normal", tier: 1, mpCost: 8, cooldown: 1500, type: "damage", power: 30, mode: "active", iconKey: "energy_bolt", desc: "基礎單體秘術飛彈攻擊" },
-    "光箭術": { name: "光箭術", school: "normal", tier: 2, mpCost: 12, cooldown: 2000, type: "damage", power: 50, mode: "active", iconKey: "light_arrow", desc: "光屬性單體破魔箭矢打擊" },
-    "初級加速術": { name: "初級加速術", school: "normal", tier: 2, mpCost: 15, cooldown: 30000, type: "buff", stat: "dex", amount: 2, duration: 120, mode: "active", iconKey: "haste", desc: "疾行雷電祝福，DEX+2" },
-    "火球術": { name: "火球術", school: "normal", tier: 3, mpCost: 15, cooldown: 3000, type: "damage", power: 80, mode: "active", iconKey: "fireball", desc: "凝聚熾熱爆炎火球轟擊目標" },
-    "初級體力回復術": { name: "初級體力回復術", school: "normal", tier: 3, mpCost: 18, cooldown: 5000, type: "heal", power: 120, mode: "active", iconKey: "extra_heal", desc: "中度體力回復術" },
-    "極道落雷": { name: "極道落雷", school: "normal", tier: 4, mpCost: 25, cooldown: 4000, type: "damage", power: 140, mode: "active", iconKey: "lightning", desc: "召喚黑紫狂雷貫穿目標" },
-    "高級治癒術": { name: "高級治癒術", school: "normal", tier: 4, mpCost: 30, cooldown: 5000, type: "heal", power: 180, mode: "active", iconKey: "greater_heal", desc: "神聖高級急救神術，大量回復生命值" },
-    "體魄強健術": { name: "體魄強健術", school: "normal", tier: 5, mpCost: 20, cooldown: 60000, type: "buff", stat: "str", amount: 5, duration: 300, mode: "passive", iconKey: "physical_enchant", desc: "肌肉力量爆發，STR+5" },
-    "聖結界": { name: "聖結界", school: "normal", tier: 5, mpCost: 40, cooldown: 120000, type: "buff", stat: "mr", amount: 20, duration: 300, mode: "active", iconKey: "immune_to_harm", desc: "神聖守護屏障，受擊傷害大幅減免" },
-    "究極光裂術": { name: "究極光裂術", school: "normal", tier: 6, mpCost: 60, cooldown: 8000, type: "damage", power: 320, mode: "active", iconKey: "disintegrate", desc: "天界裁決之毀滅光芒，終極單體神術" },
+    // 👑 專屬王族魔法 (Prince - Class Specific)
+    "精準目標": { skillId: "true_target", name: "精準目標", school: "prince", category: "class", reqLv: 15, tier: 1, mpCost: 10, hpCost: 0, materialCost: "無", cooldown: 20000, type: "buff", stat: "hit", amount: 5, duration: 180, mode: "active", iconKey: "true_target", desc: "王族集火目標印記，命中+5" },
+    "皇家血統": { skillId: "royal_blood", name: "皇家血統", school: "prince", category: "class", reqLv: 20, tier: 1, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 30000, type: "buff", stat: "hp", amount: 50, duration: 300, mode: "passive", iconKey: "royal_blood", desc: "帝國皇族血統威嚴，HP上限+50" },
+    "激勵士氣": { skillId: "brave_mental", name: "激勵士氣", school: "prince", category: "class", reqLv: 30, tier: 2, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 40000, type: "buff", stat: "hit", amount: 3, duration: 180, mode: "active", iconKey: "brave_mental", desc: "鼓舞全軍戰意，命中率提升" },
 
-    // 👑 王族魔法 (Prince)
-    "精準目標": { name: "精準目標", school: "prince", tier: 1, mpCost: 10, cooldown: 20000, type: "buff", stat: "hit", amount: 5, duration: 180, mode: "active", iconKey: "true_target", desc: "王族集火目標印記，命中+5" },
-    "皇家血統": { name: "皇家血統", school: "prince", tier: 1, mpCost: 15, cooldown: 30000, type: "buff", stat: "hp", amount: 50, duration: 300, mode: "passive", iconKey: "royal_blood", desc: "帝國皇族血統威嚴，HP上限+50" },
-    "激勵士氣": { name: "激勵士氣", school: "prince", tier: 2, mpCost: 15, cooldown: 40000, type: "buff", stat: "hit", amount: 3, duration: 180, mode: "active", iconKey: "brave_mental", desc: "鼓舞全軍戰意，命中率提升" }
+    // 🧙‍♂️ 專屬正統高階魔法 (Mage - Class Specific)
+    "火球術": { skillId: "fireball", name: "火球術", school: "mage", category: "class", reqLv: 16, tier: 3, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 3000, type: "damage", power: 80, mode: "active", iconKey: "fireball", desc: "凝聚熾熱爆炎火球轟擊目標" },
+    "極道落雷": { skillId: "lightning", name: "極道落雷", school: "mage", category: "class", reqLv: 28, tier: 4, mpCost: 25, hpCost: 0, materialCost: "無", cooldown: 4000, type: "damage", power: 140, mode: "active", iconKey: "lightning", desc: "召喚黑紫狂雷貫穿目標" },
+    "高級治癒術": { skillId: "greater_heal", name: "高級治癒術", school: "mage", category: "class", reqLv: 24, tier: 4, mpCost: 30, hpCost: 0, materialCost: "無", cooldown: 5000, type: "heal", power: 180, mode: "active", iconKey: "greater_heal", desc: "神聖高級急救神術，大量回復生命值" },
+    "體魄強健術": { skillId: "physical_enchant", name: "體魄強健術", school: "mage", category: "class", reqLv: 32, tier: 5, mpCost: 20, hpCost: 0, materialCost: "魔力之石 x1", cooldown: 60000, type: "buff", stat: "str", amount: 5, duration: 300, mode: "passive", iconKey: "physical_enchant", desc: "肌肉力量爆發，STR+5" },
+    "聖結界": { skillId: "immune_to_harm", name: "聖結界", school: "mage", category: "class", reqLv: 40, tier: 5, mpCost: 40, hpCost: 0, materialCost: "魔力之石 x2", cooldown: 120000, type: "buff", stat: "mr", amount: 20, duration: 300, mode: "active", iconKey: "immune_to_harm", desc: "神聖守護屏障，受擊傷害大幅減免" },
+    "究極光裂術": { skillId: "disintegrate", name: "究極光裂術", school: "mage", category: "class", reqLv: 50, tier: 6, mpCost: 60, hpCost: 0, materialCost: "魔力之石 x3", cooldown: 8000, type: "damage", power: 320, mode: "active", iconKey: "disintegrate", desc: "天界裁決之毀滅光芒，終極單體神術" },
+
+    // ✨ 一般魔法技能 (Common Magic - 共通魔法技能分頁)
+    "光箭術": { skillId: "light_arrow", name: "光箭術", school: "common", category: "common", reqLv: 4, tier: 1, mpCost: 12, hpCost: 0, materialCost: "無", cooldown: 2000, type: "damage", power: 50, mode: "active", iconKey: "light_arrow", desc: "光屬性單體破魔箭矢打擊" },
+    "初級治癒術": { skillId: "heal", name: "初級治癒術", school: "common", category: "common", reqLv: 4, tier: 1, mpCost: 10, hpCost: 0, materialCost: "無", cooldown: 2000, type: "heal", power: 60, mode: "active", iconKey: "heal", desc: "回復少量生命值" },
+    "魔法飛彈": { skillId: "energy_bolt", name: "魔法飛彈", school: "common", category: "common", reqLv: 4, tier: 1, mpCost: 8, hpCost: 0, materialCost: "無", cooldown: 1500, type: "damage", power: 30, mode: "active", iconKey: "energy_bolt", desc: "基礎單體秘術飛彈攻擊" },
+    "初級加速術": { skillId: "haste", name: "初級加速術", school: "common", category: "common", reqLv: 12, tier: 2, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 30000, type: "buff", stat: "dex", amount: 2, duration: 120, mode: "active", iconKey: "haste", desc: "疾行雷電祝福，DEX+2" },
+    "初級體力回復術": { skillId: "extra_heal", name: "初級體力回復術", school: "common", category: "common", reqLv: 16, tier: 3, mpCost: 18, hpCost: 0, materialCost: "無", cooldown: 5000, type: "heal", power: 120, mode: "active", iconKey: "extra_heal", desc: "中度體力回復術" }
   },
   villages: {
     ti_village: {

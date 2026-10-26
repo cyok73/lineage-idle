@@ -1366,7 +1366,14 @@ function getSkillBookItemName(skillName) {
 }
 
 let currentSkillFilter = "all";
+let currentSpellTab = "class"; // "class" (專屬職業魔法) | "common" (一般魔法技能)
 let selectedSkillName = null;
+
+function switchSpellTab(tabKey) {
+  currentSpellTab = tabKey;
+  renderSkillTab();
+}
+window.switchSpellTab = switchSpellTab;
 
 function filterSkillCategory(cat) {
   currentSkillFilter = cat;
@@ -1380,11 +1387,24 @@ function selectSkillInInspector(skillName) {
 }
 window.selectSkillInInspector = selectSkillInInspector;
 
+function getPadlockSvg() {
+  return `<svg class="skill-padlock-icon" viewBox="0 0 24 24" width="22" height="22" fill="#71717a">
+    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+  </svg>`;
+}
+
+function showSkillLockedToast(skillName, reqLv) {
+  const msg = `🔒 尚未習得此技能【${skillName}】${reqLv ? ` (需求等級: Lv.${reqLv})` : ""}，請研讀對應技能書習得！`;
+  if (typeof addLog === "function") {
+    addLog(msg, "sys");
+  }
+}
+
 function learnSkillByBook(skillName) {
   const charCls = (currentChar && currentChar.charClass) || "prince";
   const expectedSchool = (charCls === "mage") ? "normal" : charCls;
   const targetSkill = (typeof DB !== "undefined" && DB.skills) ? DB.skills[skillName] : null;
-  if (!targetSkill || targetSkill.school !== expectedSchool) {
+  if (!targetSkill || (targetSkill.school !== expectedSchool && targetSkill.school !== "common" && targetSkill.category !== "common")) {
     alert("你的職業無法研讀非本職業的技能！");
     return;
   }
@@ -1412,44 +1432,58 @@ window.useSkillFromTab = useSkillFromTab;
 function renderSkillTab() {
   const gridContainer = document.getElementById("skill-matrix-grid");
   const inspector = document.getElementById("skill-detail-inspector");
-  const tabsContainer = document.getElementById("skill-category-tabs");
+  const tabButtonsGroup = document.getElementById("skill-tab-buttons");
+  const legacyTabsContainer = document.getElementById("skill-category-tabs");
 
   // 取得目前角色職業並解析對應技能學派 (knight -> knight, elf -> elf, mage -> normal, prince -> prince)
   const charCls = (currentChar && currentChar.charClass) || "prince";
   const expectedSchool = (charCls === "mage") ? "normal" : charCls;
 
-  // 【核心要求】：若角色身上存有非本職業技能，強制過濾清除！
+  // 強制清理角色身上非本職業且非通用的技能
   if (currentChar && Array.isArray(currentChar.skills)) {
     currentChar.skills = currentChar.skills.filter(sn => {
       const sk = (typeof DB !== "undefined" && DB.skills) ? DB.skills[sn] : null;
-      return sk && sk.school === expectedSchool;
+      if (!sk) return false;
+      return sk.school === expectedSchool || sk.school === "common" || sk.category === "common";
     });
   }
 
-  // 取得所有屬於當前角色的職業專屬技能
   const allSkills = (typeof DB !== "undefined" && DB.skills) ? Object.values(DB.skills) : [];
-  const classSkills = allSkills.filter(sk => sk.school === expectedSchool);
 
-  // 動態渲染頂部專屬頁籤（僅呈現該職業之：全部 / 主動 / 被動）
-  if (tabsContainer) {
-    const classTitles = {
-      knight: "🛡️ 騎士專屬技術",
-      elf: "🏹 精靈專屬魔法",
-      mage: "🧙‍♂️ 正統專屬魔法",
-      prince: "👑 皇家專屬魔典"
-    };
-    const titleText = classTitles[charCls] || "✨ 職業專屬技能";
-    const activeCount = classSkills.filter(s => s.mode === "active").length;
-    const passiveCount = classSkills.filter(s => s.mode === "passive").length;
+  // 渲染頂部雙分頁標籤：【專屬職業魔法】與【一般魔法技能】
+  const classTitles = {
+    knight: "專屬騎士技術",
+    elf: "專屬精靈魔法",
+    mage: "專屬正統魔法",
+    prince: "專屬王族魔法"
+  };
+  const activeClassTitle = classTitles[charCls] || "專屬職業魔法";
 
-    tabsContainer.innerHTML = `
-      <button type="button" class="skill-cat-btn ${currentSkillFilter === 'all' ? 'active' : ''}" data-cat="all" onclick="filterSkillCategory('all')">${titleText} (${classSkills.length})</button>
-      <button type="button" class="skill-cat-btn ${currentSkillFilter === 'active' ? 'active' : ''}" data-cat="active" onclick="filterSkillCategory('active')">⚔️ 主動技能 (${activeCount})</button>
-      <button type="button" class="skill-cat-btn ${currentSkillFilter === 'passive' ? 'active' : ''}" data-cat="passive" onclick="filterSkillCategory('passive')">🛡️ 被動技術 (${passiveCount})</button>
+  if (tabButtonsGroup) {
+    tabButtonsGroup.innerHTML = `
+      <button type="button" class="lineage-tab-btn ${currentSpellTab === 'class' ? 'active' : ''}" onclick="switchSpellTab('class')">
+        ${activeClassTitle}
+      </button>
+      <button type="button" class="lineage-tab-btn ${currentSpellTab === 'common' ? 'active' : ''}" onclick="switchSpellTab('common')">
+        一般魔法技能
+      </button>
     `;
   }
 
-  // 若不在技能矩陣結構中，嘗試後備相容
+  // 根據當前分頁篩選技能清單
+  let currentTabSkills = [];
+  if (currentSpellTab === "class") {
+    currentTabSkills = allSkills.filter(sk => (sk.school === expectedSchool || (sk.category === "class" && sk.school === expectedSchool)));
+  } else {
+    currentTabSkills = allSkills.filter(sk => (sk.school === "common" || sk.category === "common"));
+  }
+
+  // 若存在舊版過濾按鈕容器
+  if (legacyTabsContainer) {
+    legacyTabsContainer.innerHTML = "";
+  }
+
+  // 若找不到 24 格矩陣容器，相容傳統列表
   if (!gridContainer) {
     const legacyContainer = document.getElementById("skill-list-container");
     if (!legacyContainer) return;
@@ -1461,7 +1495,6 @@ function renderSkillTab() {
       learned.forEach(sn => {
         const sk = (typeof DB !== "undefined" && DB.skills) ? DB.skills[sn] : null;
         if (!sk) return;
-        const cd = getSkillCooldownRemaining(sn);
         const card = document.createElement("div");
         card.style.cssText = "background:#0f131a; border:1px solid #2e3440; border-radius:6px; padding:8px;";
         card.innerHTML = `<div style="color:var(--gold); font-weight:bold;">${sk.name}</div><div style="font-size:11px;">MP ${sk.mpCost}</div>`;
@@ -1473,24 +1506,19 @@ function renderSkillTab() {
 
   gridContainer.innerHTML = "";
 
-  // 依當前過濾篩選 (全部 / 主動 / 被動)
-  let filteredSkills = classSkills;
-  if (currentSkillFilter === "active") {
-    filteredSkills = classSkills.filter(sk => sk.mode === "active");
-  } else if (currentSkillFilter === "passive") {
-    filteredSkills = classSkills.filter(sk => sk.mode === "passive");
-  }
-
   // 如果當前選取的技能不在目前過濾結果中，重設為第一個技能
-  if (!selectedSkillName || !filteredSkills.some(s => s.name === selectedSkillName)) {
-    selectedSkillName = filteredSkills.length > 0 ? filteredSkills[0].name : null;
+  if (!selectedSkillName || !currentTabSkills.some(s => s.name === selectedSkillName)) {
+    selectedSkillName = currentTabSkills.length > 0 ? currentTabSkills[0].name : null;
   }
 
-  // 取得角色當前背包與已學會技能
   const learnedList = (currentChar && Array.isArray(currentChar.skills)) ? currentChar.skills : [];
   const inventoryList = (currentChar && Array.isArray(currentChar.inventory)) ? currentChar.inventory : [];
 
-  filteredSkills.forEach(skill => {
+  // 固定渲染 4 列 x 6 行 (共 24 格)
+  const TOTAL_SLOTS = 24;
+  const renderList = currentTabSkills.slice(0, TOTAL_SLOTS);
+
+  renderList.forEach(skill => {
     const isLearned = learnedList.includes(skill.name);
     const bookName = getSkillBookItemName(skill.name);
     const hasBook = inventoryList.some(i => i.name === bookName && (i.count || 1) > 0);
@@ -1503,8 +1531,13 @@ function renderSkillTab() {
     else if (hasBook) stateClass = "state-can-learn";
 
     slot.className = `skill-slot-box ${stateClass} ${isSelected ? "selected" : ""}`;
-    slot.onclick = () => selectSkillInInspector(skill.name);
-    slot.title = `${skill.name} (${skill.mode === "passive" ? "被動技術" : "主動技能"})`;
+    slot.onclick = () => {
+      selectSkillInInspector(skill.name);
+      if (!isLearned) {
+        showSkillLockedToast(skill.name, skill.reqLv);
+      }
+    };
+    slot.title = `${skill.name} (${isLearned ? "已習得" : "未習得 - 鎖定中"})`;
 
     const isPassive = skill.mode === "passive";
     const badgeText = isPassive ? "P" : "A";
@@ -1517,6 +1550,11 @@ function renderSkillTab() {
       bottomIndicator = `<div class="skill-plus-sign">+</div>`;
     }
 
+    let padlockHtml = "";
+    if (!isLearned) {
+      padlockHtml = `<div class="skill-padlock-overlay">${getPadlockSvg()}</div>`;
+    }
+
     let cdOverlay = "";
     if (isLearned && cd > 0) {
       cdOverlay = `<div class="skill-cooldown-overlay">${Math.ceil(cd / 1000)}s</div>`;
@@ -1527,6 +1565,7 @@ function renderSkillTab() {
       <div class="skill-art-container">
         ${getSkillIconSvg(skill.iconKey)}
       </div>
+      ${padlockHtml}
       ${bottomIndicator}
       ${cdOverlay}
     `;
@@ -1534,9 +1573,8 @@ function renderSkillTab() {
     gridContainer.appendChild(slot);
   });
 
-  // 補充空槽使視覺填滿 5 的倍數 (至少滿 25 格，與附圖 5x5 完美一致)
-  const totalSlotsNeeded = Math.max(25, Math.ceil(filteredSkills.length / 5) * 5);
-  const emptySlotsCount = totalSlotsNeeded - filteredSkills.length;
+  // 若不足 24 格，自動補齊空石槽使版面保持完美的 4 列 x 6 行格局
+  const emptySlotsCount = TOTAL_SLOTS - renderList.length;
   for (let i = 0; i < emptySlotsCount; i++) {
     const emptySlot = document.createElement("div");
     emptySlot.className = "skill-slot-box";
@@ -1563,7 +1601,8 @@ function renderSkillTab() {
       knight: "🛡️ 騎士技術",
       elf: "🏹 精靈魔法",
       normal: "🧙‍♂️ 正統魔法",
-      prince: "👑 王族魔法"
+      prince: "👑 王族魔法",
+      common: "✨ 通用魔法"
     };
 
     let actionBtnHtml = "";
@@ -1588,7 +1627,7 @@ function renderSkillTab() {
     } else {
       actionBtnHtml = `
         <button type="button" class="btn" disabled style="padding:10px; font-weight:bold; font-size:12px; color:#71717a; border-color:#333; background:#12141a;">
-          🔒 尚未習得 (缺少 ${bookName || "專屬秘笈"})
+          🔒 尚未習得 (需求 Lv.${curSkill.reqLv || 1} / 缺少 ${bookName || "專屬秘笈"})
         </button>
       `;
     }
@@ -1604,7 +1643,7 @@ function renderSkillTab() {
 
     inspector.innerHTML = `
       <div class="skill-insp-header">
-        <div class="skill-insp-art">
+        <div class="skill-insp-art" style="${!isLearned ? 'filter: grayscale(100%) brightness(50%);' : ''}">
           ${getSkillIconSvg(curSkill.iconKey)}
         </div>
         <div class="skill-insp-info">
@@ -1614,17 +1653,28 @@ function renderSkillTab() {
               ${isPassive ? "P 被動技術" : "A 主動技能"}
             </span>
             <span class="skill-tag-pill skill-tag-school">
-              ${schoolLabels[curSkill.school] || "通用"}
+              ${schoolLabels[curSkill.school] || "通用魔法"}
             </span>
             <span class="skill-tag-pill" style="background:#27272a; color:#cbd5e1;">Tier ${curSkill.tier || 1}</span>
+            <span class="skill-tag-pill" style="background:${isLearned ? '#14532d' : '#3f3f46'}; color:${isLearned ? '#86efac' : '#a1a1aa'};">
+              ${isLearned ? '已習得' : '未習得 (鎖定中)'}
+            </span>
           </div>
         </div>
       </div>
 
       <div class="skill-insp-props">
         <div class="insp-prop-row">
-          <span class="insp-prop-lbl">消耗 MP</span>
-          <span class="insp-prop-val" style="color:#60a5fa;">${curSkill.mpCost} 點</span>
+          <span class="insp-prop-lbl">需求等級</span>
+          <span class="insp-prop-val" style="color:var(--gold);">Lv. ${curSkill.reqLv || 1}</span>
+        </div>
+        <div class="insp-prop-row">
+          <span class="insp-prop-lbl">消耗 MP / HP</span>
+          <span class="insp-prop-val" style="color:#60a5fa;">MP ${curSkill.mpCost || 0} / HP ${curSkill.hpCost || 0}</span>
+        </div>
+        <div class="insp-prop-row">
+          <span class="insp-prop-lbl">施法材料</span>
+          <span class="insp-prop-val" style="color:#f59e0b;">${curSkill.materialCost || "無"}</span>
         </div>
         <div class="insp-prop-row">
           <span class="insp-prop-lbl">冷卻時間</span>
