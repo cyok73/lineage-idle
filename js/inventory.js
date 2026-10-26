@@ -638,7 +638,7 @@ function renderVillageTab() {
       const dbItem = DB.items[itemName];
       if (dbItem) {
         const inputId = `shop-qty-${sIdx}-${iIdx}`;
-        let defaultQty = (itemName === "箭" || itemName === "銀箭") ? 500 : (itemName.includes("水") ? 50 : 1);
+        let defaultQty = 0;
         const iconHtml = (typeof getItemIconHtml === "function") ? getItemIconHtml(itemName) : "";
         rowsHtml += `
           <div class="bot-item-row" style="padding:6px 8px; border-bottom:1px solid #1e293b; display:flex; justify-content:space-between; align-items:center;">
@@ -647,7 +647,7 @@ function renderVillageTab() {
               <span class="bot-item-name" style="font-weight:bold;">${itemName} <span style="color:#f59e0b; font-size:11px;">(${dbItem.price} 金幣)</span></span>
             </div>
             <div style="display:flex; align-items:center; gap:6px;">
-              <input type="number" id="${inputId}" value="${defaultQty}" min="1" max="9999" style="width:65px; text-align:center;">
+              <input type="number" id="${inputId}" value="${defaultQty}" min="0" max="9999" style="width:65px; text-align:center;">
               <button class="btn btn-gold" onclick="buyItemFromShop('${itemName}', '${inputId}')">購買</button>
             </div>
           </div>

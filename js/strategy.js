@@ -1293,8 +1293,7 @@ function renderAutoSkillsSection() {
             </div>
 
             <div class="ro-rule-controls">
-              <span>Lv</span>
-              <input type="number" min="1" max="10" value="${ruleLv}" style="width:36px; text-align:center;" onchange="updateAutoAttackRuleProp(${idx}, 'lv', this.value)">
+              
 
               <span style="margin-left:4px;">MP &ge;</span>
               <input type="number" min="0" max="100" value="${minMp}" style="width:40px; text-align:center;" onchange="updateAutoAttackRuleProp(${idx}, 'minMpPercent', this.value)">
@@ -1319,7 +1318,7 @@ function renderAutoSkillsSection() {
 
           <!-- 行 2：對象摘要說明 -->
           <div style="font-size:11.5px; color:#cbd5e1; padding:2px 2px 0 2px;">
-            對象: <b style="color:#fde047;">${targetDesc}</b> &rarr; <span style="color:#60a5fa; font-weight:bold;">${rule.skillName} Lv ${ruleLv}</span> <span style="color:#94a3b8; font-size:11px;">(怪物、屬性等可在下方「條件」調整)</span>
+            對象: <b style="color:#fde047;">${targetDesc}</b> &rarr; <span style="color:#60a5fa; font-weight:bold;">${rule.skillName}</span> <span style="color:#94a3b8; font-size:11px;">(怪物、屬性等可在下方「條件」調整)</span>
           </div>
 
           <!-- 行 3：即時狀態動態提示 (仿 RO 即時提示) -->
@@ -1435,8 +1434,7 @@ function renderAutoSkillsSection() {
             </div>
 
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-              <span style="color:#cbd5e1; font-size:12px;">施放 Lv</span>
-              <input type="number" id="sel-add-attack-lv" min="1" max="10" value="10" style="width:40px; text-align:center;">
+              
 
               <select id="sel-add-attack-mode">
                 <option value="once">每隻怪只放一次</option>
@@ -1578,7 +1576,6 @@ function addAutoAttackRule() {
   rules.push({
     id: "atk_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
     skillName: skillName,
-    lv: lv,
     minMpPercent: 20,
     mode: mode,
     chainSkill: "",
@@ -1715,7 +1712,7 @@ function applyClassPresetSkills() {
 
   if (cClass === "elf") {
     gameState.botSettings.autoSkills.attackRules = [
-      { id: "atk_preset_1", skillName: "三重矢", lv: 10, minMpPercent: 20, mode: "once", chainSkill: "", enabled: true, targetMobs: [] },
+      { id: "atk_preset_1", skillName: "三重矢", minMpPercent: 20, mode: "always", chainSkill: "", enabled: true, targetMobs: [] },
       { id: "atk_preset_2", skillName: "極道落雷", lv: 10, minMpPercent: 35, mode: "always", chainSkill: "", enabled: true, targetMobs: [] }
     ];
     gameState.botSettings.autoSkills.buffRules = {
