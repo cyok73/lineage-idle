@@ -407,17 +407,26 @@ function drawBattlefieldTerrain(cw, ch, camX, camY) {
   };
   const theme = mapCfg.theme || "forest";
   const tileBase = mapCfg.tileBase || "#224726";
-  const gridLine = mapCfg.gridLine || "#2d5e33";
 
-  // 基底防邊緣閃爍填色
-  ctx.fillStyle = tileBase;
-  ctx.fillRect(0, 0, cw, ch);
+  // 1. 同步為 Canvas DOM 元素設定經典天堂地圖背景 (保證畫面零秒延遲直出)
+  if (canvas && canvas.style && mapCfg.bg) {
+    const bgUrl = `url("${mapCfg.bg}")`;
+    if (!canvas.style.backgroundImage || !canvas.style.backgroundImage.includes(mapCfg.bg)) {
+      canvas.style.backgroundImage = bgUrl;
+      canvas.style.backgroundSize = "cover";
+      canvas.style.backgroundPosition = "center";
+      canvas.style.backgroundRepeat = "no-repeat";
+    }
+  }
 
-  // --- 嘗試載入並繪製經典天堂 2.5D 等角背景圖 (若有配置) ---
+  // --- 嘗試載入並以攝影機視角繪製經典天堂 2.5D 等角背景圖 ---
   let bgDrawn = false;
   if (mapCfg.bg) {
     if (!mapCfg._img) {
       const img = new Image();
+      img.onload = () => {
+        if (typeof renderRadar === "function") renderRadar();
+      };
       img.src = mapCfg.bg;
       mapCfg._img = img;
     }
@@ -954,27 +963,7 @@ function drawBattlefieldTerrain(cw, ch, camX, camY) {
     }
   }
 
-  // --- 3. 戰鬥輔助細格線 (在經典天堂背景圖上保持極淡，還原經典視覺) ---
-  ctx.strokeStyle = gridLine;
-  ctx.lineWidth = 1;
-  ctx.globalAlpha = bgDrawn ? 0.03 : 0.12;
-  const startX = -(camX % 48);
-  const startY = -(camY % 48);
-  for (let x = startX; x < cw; x += 48) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, ch);
-    ctx.stroke();
-  }
-  for (let y = startY; y < ch; y += 48) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(cw, y);
-    ctx.stroke();
-  }
-  ctx.globalAlpha = 1.0;
-
-  // --- 4. 動態環境光影粒子特效 (每幀賦予戰場生命力) ---
+  // --- 3. 動態環境光影粒子特效 (每幀賦予戰場生命力) ---
   const time = Date.now() * 0.001;
   if (theme === "fire") {
     // 火龍窟升騰火星
@@ -1003,11 +992,6 @@ function drawBattlefieldTerrain(cw, ch, camX, camY) {
     ctx.fillStyle = `rgba(220, 38, 38, ${pulse})`;
     ctx.fillRect(0, 0, cw, ch);
   }
-
-  // --- 5. 世界邊界石牆/暗黑邊緣線 ---
-  ctx.strokeStyle = "rgba(220, 38, 38, 0.5)";
-  ctx.lineWidth = 3;
-  ctx.strokeRect(-camX, -camY, WORLD_WIDTH, WORLD_HEIGHT);
 }
 
 window.renderRadar = renderRadar;

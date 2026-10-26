@@ -354,7 +354,11 @@ h2 {
   max-height: none;
   aspect-ratio: 16 / 9;
   object-fit: contain;
-  background: #0b0f19;
+  background-color: #121820;
+  background-image: url("assets/maps/field_bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   border: 1px solid #334155;
   border-radius: 4px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
