@@ -980,6 +980,12 @@ function useSkill(skillName) {
     log(`⚠️ 技能資料缺失：${skillName}`, "sys");
     return false;
   }
+  const charCls = (currentChar && currentChar.charClass) || "prince";
+  const expectedSchool = (charCls === "mage") ? "normal" : charCls;
+  if (skill.school !== expectedSchool) {
+    log(`⚠️ 【${skillName}】非本職業技能，無法使用！`, "sys");
+    return false;
+  }
   if ((currentChar.mp || 0) < skill.mpCost) {
     log(`⚠️ MP 不足，無法使用【${skillName}】（需要 ${skill.mpCost} MP）。`, "sys");
     return false;
@@ -1364,11 +1370,6 @@ let selectedSkillName = null;
 
 function filterSkillCategory(cat) {
   currentSkillFilter = cat;
-  const btns = document.querySelectorAll(".skill-cat-btn");
-  btns.forEach(b => {
-    if (b.getAttribute("data-cat") === cat) b.classList.add("active");
-    else b.classList.remove("active");
-  });
   renderSkillTab();
 }
 window.filterSkillCategory = filterSkillCategory;
@@ -1380,6 +1381,13 @@ function selectSkillInInspector(skillName) {
 window.selectSkillInInspector = selectSkillInInspector;
 
 function learnSkillByBook(skillName) {
+  const charCls = (currentChar && currentChar.charClass) || "prince";
+  const expectedSchool = (charCls === "mage") ? "normal" : charCls;
+  const targetSkill = (typeof DB !== "undefined" && DB.skills) ? DB.skills[skillName] : null;
+  if (!targetSkill || targetSkill.school !== expectedSchool) {
+    alert("你的職業無法研讀非本職業的技能！");
+    return;
+  }
   const bookName = getSkillBookItemName(skillName);
   if (!bookName) {
     alert("查無對應之技能書！");
@@ -1404,6 +1412,42 @@ window.useSkillFromTab = useSkillFromTab;
 function renderSkillTab() {
   const gridContainer = document.getElementById("skill-matrix-grid");
   const inspector = document.getElementById("skill-detail-inspector");
+  const tabsContainer = document.getElementById("skill-category-tabs");
+
+  // 取得目前角色職業並解析對應技能學派 (knight -> knight, elf -> elf, mage -> normal, prince -> prince)
+  const charCls = (currentChar && currentChar.charClass) || "prince";
+  const expectedSchool = (charCls === "mage") ? "normal" : charCls;
+
+  // 【核心要求】：若角色身上存有非本職業技能，強制過濾清除！
+  if (currentChar && Array.isArray(currentChar.skills)) {
+    currentChar.skills = currentChar.skills.filter(sn => {
+      const sk = (typeof DB !== "undefined" && DB.skills) ? DB.skills[sn] : null;
+      return sk && sk.school === expectedSchool;
+    });
+  }
+
+  // 取得所有屬於當前角色的職業專屬技能
+  const allSkills = (typeof DB !== "undefined" && DB.skills) ? Object.values(DB.skills) : [];
+  const classSkills = allSkills.filter(sk => sk.school === expectedSchool);
+
+  // 動態渲染頂部專屬頁籤（僅呈現該職業之：全部 / 主動 / 被動）
+  if (tabsContainer) {
+    const classTitles = {
+      knight: "🛡️ 騎士專屬技術",
+      elf: "🏹 精靈專屬魔法",
+      mage: "🧙‍♂️ 正統專屬魔法",
+      prince: "👑 皇家專屬魔典"
+    };
+    const titleText = classTitles[charCls] || "✨ 職業專屬技能";
+    const activeCount = classSkills.filter(s => s.mode === "active").length;
+    const passiveCount = classSkills.filter(s => s.mode === "passive").length;
+
+    tabsContainer.innerHTML = `
+      <button type="button" class="skill-cat-btn ${currentSkillFilter === 'all' ? 'active' : ''}" data-cat="all" onclick="filterSkillCategory('all')">${titleText} (${classSkills.length})</button>
+      <button type="button" class="skill-cat-btn ${currentSkillFilter === 'active' ? 'active' : ''}" data-cat="active" onclick="filterSkillCategory('active')">⚔️ 主動技能 (${activeCount})</button>
+      <button type="button" class="skill-cat-btn ${currentSkillFilter === 'passive' ? 'active' : ''}" data-cat="passive" onclick="filterSkillCategory('passive')">🛡️ 被動技術 (${passiveCount})</button>
+    `;
+  }
 
   // 若不在技能矩陣結構中，嘗試後備相容
   if (!gridContainer) {
@@ -1429,13 +1473,13 @@ function renderSkillTab() {
 
   gridContainer.innerHTML = "";
 
-  if (typeof DB === "undefined" || !DB.skills) return;
-
-  const allSkills = Object.values(DB.skills);
-  const filteredSkills = allSkills.filter(sk => {
-    if (currentSkillFilter === "all") return true;
-    return sk.school === currentSkillFilter;
-  });
+  // 依當前過濾篩選 (全部 / 主動 / 被動)
+  let filteredSkills = classSkills;
+  if (currentSkillFilter === "active") {
+    filteredSkills = classSkills.filter(sk => sk.mode === "active");
+  } else if (currentSkillFilter === "passive") {
+    filteredSkills = classSkills.filter(sk => sk.mode === "passive");
+  }
 
   // 如果當前選取的技能不在目前過濾結果中，重設為第一個技能
   if (!selectedSkillName || !filteredSkills.some(s => s.name === selectedSkillName)) {

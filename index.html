@@ -445,17 +445,13 @@
         <!-- 技能欄分頁 (重現附圖 5x5 矩陣與職業專屬技能圖示) -->
         <div id="tab-skills" class="tab-content">
           <div class="lineage-skill-book-wrapper">
-            <!-- 左側/主體：分類篩選與 5x5 技能矩陣 -->
+            <!-- 左側/主體：職業專屬技術書篩選與技能矩陣 -->
             <div class="skill-main-container">
-              <div class="skill-category-tabs">
-                <button type="button" class="skill-cat-btn active" data-cat="all" onclick="filterSkillCategory('all')">全部技能 (25)</button>
-                <button type="button" class="skill-cat-btn" data-cat="knight" onclick="filterSkillCategory('knight')">🛡️ 騎士技術</button>
-                <button type="button" class="skill-cat-btn" data-cat="elf" onclick="filterSkillCategory('elf')">🏹 精靈魔法</button>
-                <button type="button" class="skill-cat-btn" data-cat="normal" onclick="filterSkillCategory('normal')">🧙‍♂️ 正統魔法</button>
-                <button type="button" class="skill-cat-btn" data-cat="prince" onclick="filterSkillCategory('prince')">👑 王族魔法</button>
+              <div class="skill-category-tabs" id="skill-category-tabs">
+                <!-- 由 character.js 依據當前角色職業動態渲染：專屬技能書、主動技能、被動技術 -->
               </div>
 
-              <!-- 5x5 技能網格 -->
+              <!-- 技能網格 (僅呈現當前角色之職業專屬技能) -->
               <div class="skill-matrix-grid" id="skill-matrix-grid"></div>
             </div>
 
@@ -642,15 +638,15 @@
 
   <!-- 腳本引用 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/data.js?v=17"></script>
-  <script src="js/main.js?v=17"></script>
-  <script src="js/supabase.js?v=17"></script>
-  <script src="js/character.js?v=17"></script>
-  <script src="js/inventory.js?v=17"></script>
-  <script src="js/strategy.js?v=17"></script>
-  <script src="js/radar.js?v=17"></script>
-  <script src="js/battle.js?v=17"></script>
-  <script src="js/admin.js?v=17"></script>
+  <script src="js/data.js?v=18"></script>
+  <script src="js/main.js?v=18"></script>
+  <script src="js/supabase.js?v=18"></script>
+  <script src="js/character.js?v=18"></script>
+  <script src="js/inventory.js?v=18"></script>
+  <script src="js/strategy.js?v=18"></script>
+  <script src="js/radar.js?v=18"></script>
+  <script src="js/battle.js?v=18"></script>
+  <script src="js/admin.js?v=18"></script>
 </body>
 
 </html>
