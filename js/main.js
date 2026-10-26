@@ -238,6 +238,7 @@ function switchTab(tabId) {
     if (tabId === "strategy" && typeof renderStrategyTab === "function") renderStrategyTab();
     if (tabId === "skills" && typeof renderSkillTab === "function") renderSkillTab();
     if (tabId === "admin" && typeof renderAdminTab === "function") renderAdminTab();
+    if (tabId === "database" && typeof renderDatabaseTab === "function") renderDatabaseTab();
     if (tabId === "battle" && typeof renderRadar === "function") renderRadar();
   } catch (err) {
     console.warn(`⚠️ [${tabId}] 分頁渲染小提醒:`, err);

@@ -2009,3 +2009,526 @@ input[type="number"] {
   padding-top: 8px;
   line-height: 1.5;
 }
+
+
+/* ==========================================================================
+   📖 亞丁大陸掉落寶典與查詢系統專屬樣式 (Database / Drop Bestiary)
+   ========================================================================== */
+.db-header-panel {
+  background: linear-gradient(180deg, #182232 0%, #0d131d 100%);
+  border: 1px solid #3b82f6;
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+}
+
+.db-mode-bar {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 8px 0;
+  flex-wrap: wrap;
+}
+
+.db-mode-btn {
+  background: #111827;
+  color: #94a3b8;
+  border: 1px solid #374151;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.db-mode-btn:hover {
+  background: #1e293b;
+  color: #f8fafc;
+  border-color: #60a5fa;
+}
+
+.db-mode-btn.active {
+  background: linear-gradient(90deg, #1e40af 0%, #2563eb 100%);
+  color: #ffffff;
+  border-color: #93c5fd;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+}
+
+.db-search-box-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.db-search-box-row input {
+  width: 100%;
+  background: #030712;
+  color: #f8fafc;
+  border: 1px solid #3b82f6;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 13px;
+  outline: none;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+}
+
+.db-search-box-row input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3);
+}
+
+.db-search-clear {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  cursor: pointer;
+  font-weight: bold;
+  padding: 2px 6px;
+}
+
+.db-search-clear:hover {
+  color: #ef4444;
+}
+
+.db-quick-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.db-tag-pill {
+  background: #1e293b;
+  color: #cbd5e1;
+  border: 1px solid #475569;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.db-tag-pill:hover {
+  background: #2563eb;
+  color: #fff;
+  border-color: #60a5fa;
+}
+
+.db-cat-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed #334155;
+}
+
+.db-cat-pill {
+  background: #0f172a;
+  color: #94a3b8;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 11.5px;
+  cursor: pointer;
+}
+
+.db-cat-pill:hover {
+  border-color: #60a5fa;
+  color: #f1f5f9;
+}
+
+.db-cat-pill.active {
+  background: #1e3a8a;
+  border-color: #3b82f6;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+/* 結果卡片容器 */
+.db-results-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: calc(100vh - 240px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.db-cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.db-card {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 10px 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.2s;
+}
+
+.db-card:hover {
+  border-color: #60a5fa;
+}
+
+.db-card.tier-blue {
+  border-left: 4px solid #38bdf8;
+}
+
+.db-card.tier-purple {
+  border-left: 4px solid #c084fc;
+}
+
+.db-card.tier-gold {
+  border-left: 4px solid #facc15;
+}
+
+.db-card.tier-scroll {
+  border-left: 4px solid #f43f5e;
+}
+
+.db-card.tier-white {
+  border-left: 4px solid #94a3b8;
+}
+
+.db-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-bottom: 1px solid #1e293b;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.db-card-icon-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.db-icon-frame {
+  width: 40px;
+  height: 40px;
+  background: #090d16;
+  border: 1px solid #475569;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.db-card-title {
+  font-size: 14.5px;
+  font-weight: bold;
+  color: #f8fafc;
+}
+
+.db-card-desc {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.db-badges-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.db-spec-badge {
+  background: #1e293b;
+  color: #cbd5e1;
+  border: 1px solid #334155;
+  border-radius: 3px;
+  padding: 1px 6px;
+  font-size: 11px;
+}
+
+.db-source-subhead {
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px 6px;
+  border-radius: 3px;
+  margin: 6px 0 4px 0;
+}
+
+.db-subhead-drop {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border-left: 3px solid #ef4444;
+}
+
+.db-subhead-shop {
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+  border-left: 3px solid #22c55e;
+}
+
+.db-drop-table-wrap {
+  overflow-x: auto;
+  margin-bottom: 8px;
+}
+
+.db-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+  background: #090d16;
+  border: 1px solid #1e293b;
+}
+
+.db-table th {
+  background: #1e293b;
+  color: #93c5fd;
+  text-align: left;
+  padding: 4px 8px;
+  border: 1px solid #334155;
+}
+
+.db-table td {
+  padding: 4px 8px;
+  border: 1px solid #1e293b;
+  color: #e2e8f0;
+}
+
+.db-table tbody tr:hover {
+  background: #131d31;
+}
+
+.db-rate-badge {
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+.rate-high {
+  background: #064e3b;
+  color: #6ee7b7;
+  border: 1px solid #059669;
+}
+
+.rate-med {
+  background: #1e3a8a;
+  color: #93c5fd;
+  border: 1px solid #2563eb;
+}
+
+.rate-low {
+  background: #312e81;
+  color: #c7d2fe;
+  border: 1px solid #4338ca;
+}
+
+.db-undead-tag {
+  background: #701a75;
+  color: #f5d0fe;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-left: 4px;
+}
+
+.db-aggro-tag {
+  background: #7f1d1d;
+  color: #fca5a5;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.db-passive-tag {
+  background: #1e293b;
+  color: #94a3b8;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.db-poison-tag {
+  background: #064e3b;
+  color: #86efac;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.db-action-btn {
+  background: #1e3a8a;
+  color: #bfdbfe;
+  border: 1px solid #3b82f6;
+  border-radius: 3px;
+  padding: 2px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.db-action-btn:hover {
+  background: #2563eb;
+  color: #fff;
+  border-color: #93c5fd;
+}
+
+.db-source-empty {
+  font-size: 11px;
+  color: #64748b;
+  background: #090d16;
+  padding: 6px 10px;
+  border-radius: 3px;
+  border: 1px dashed #1e293b;
+  margin-bottom: 6px;
+}
+
+.db-shop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.db-shop-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #090d16;
+  border: 1px solid #1e293b;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11.5px;
+}
+
+/* 怪物圖鑑網格 */
+.db-mob-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 10px;
+}
+
+.db-mob-card {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.db-mob-card.mob-boss {
+  border: 1px solid #f59e0b;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+
+.db-mob-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-bottom: 1px solid #1e293b;
+  padding-bottom: 4px;
+}
+
+.db-mob-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #f8fafc;
+}
+
+.db-mob-stats-row {
+  display: flex;
+  gap: 10px;
+  font-size: 11.5px;
+  color: #cbd5e1;
+  background: #090d16;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.db-mob-stats-row b {
+  color: #60a5fa;
+}
+
+.db-mob-drop-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.db-mob-drop-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.db-mob-drop-chip:hover {
+  border-color: #facc15;
+  background: #1e293b;
+}
+
+.db-mob-drop-chip .chip-rate {
+  color: #facc15;
+  font-weight: bold;
+  font-size: 10px;
+}
+
+/* 地圖網格 */
+.db-map-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.db-map-card {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.db-map-card.map-current {
+  border-color: #22c55e;
+}
+
+.db-map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #1e293b;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+}
+
+.db-map-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #38bdf8;
+}
+
+.db-no-data {
+  text-align: center;
+  padding: 30px 20px;
+  color: #94a3b8;
+  font-size: 13px;
+  background: #0f172a;
+  border: 1px dashed #334155;
+  border-radius: 6px;
+}
