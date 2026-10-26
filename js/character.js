@@ -981,8 +981,7 @@ function useSkill(skillName) {
     return false;
   }
   const charCls = (currentChar && currentChar.charClass) || "prince";
-  const expectedSchool = (charCls === "mage") ? "normal" : charCls;
-  if (skill.school !== expectedSchool) {
+  if (typeof isSkillMatchClass === "function" ? !isSkillMatchClass(skill, charCls) : (skill.school !== charCls && skill.school !== "common")) {
     log(`⚠️ 【${skillName}】非本職業技能，無法使用！`, "sys");
     return false;
   }
@@ -1400,11 +1399,17 @@ function showSkillLockedToast(skillName, reqLv) {
   }
 }
 
+function isSkillMatchClass(skill, charCls) {
+  if (!skill) return false;
+  if (skill.category === "common" || skill.school === "common") return true;
+  if (charCls === "mage") return skill.school === "mage" || skill.school === "normal";
+  return skill.school === charCls;
+}
+
 function learnSkillByBook(skillName) {
   const charCls = (currentChar && currentChar.charClass) || "prince";
-  const expectedSchool = (charCls === "mage") ? "normal" : charCls;
   const targetSkill = (typeof DB !== "undefined" && DB.skills) ? DB.skills[skillName] : null;
-  if (!targetSkill || (targetSkill.school !== expectedSchool && targetSkill.school !== "common" && targetSkill.category !== "common")) {
+  if (!targetSkill || !isSkillMatchClass(targetSkill, charCls)) {
     alert("你的職業無法研讀非本職業的技能！");
     return;
   }
@@ -1435,16 +1440,14 @@ function renderSkillTab() {
   const tabButtonsGroup = document.getElementById("skill-tab-buttons");
   const legacyTabsContainer = document.getElementById("skill-category-tabs");
 
-  // 取得目前角色職業並解析對應技能學派 (knight -> knight, elf -> elf, mage -> normal, prince -> prince)
+  // 取得目前角色職業
   const charCls = (currentChar && currentChar.charClass) || "prince";
-  const expectedSchool = (charCls === "mage") ? "normal" : charCls;
 
   // 強制清理角色身上非本職業且非通用的技能
   if (currentChar && Array.isArray(currentChar.skills)) {
     currentChar.skills = currentChar.skills.filter(sn => {
       const sk = (typeof DB !== "undefined" && DB.skills) ? DB.skills[sn] : null;
-      if (!sk) return false;
-      return sk.school === expectedSchool || sk.school === "common" || sk.category === "common";
+      return sk && isSkillMatchClass(sk, charCls);
     });
   }
 
@@ -1473,7 +1476,10 @@ function renderSkillTab() {
   // 根據當前分頁篩選技能清單
   let currentTabSkills = [];
   if (currentSpellTab === "class") {
-    currentTabSkills = allSkills.filter(sk => (sk.school === expectedSchool || (sk.category === "class" && sk.school === expectedSchool)));
+    currentTabSkills = allSkills.filter(sk => {
+      if (sk.category === "common" || sk.school === "common") return false;
+      return isSkillMatchClass(sk, charCls);
+    });
   } else {
     currentTabSkills = allSkills.filter(sk => (sk.school === "common" || sk.category === "common"));
   }
