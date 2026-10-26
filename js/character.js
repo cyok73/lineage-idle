@@ -989,14 +989,33 @@ function useSkill(skillName) {
     log(`⚠️ MP 不足，無法使用【${skillName}】（需要 ${skill.mpCost} MP）。`, "sys");
     return false;
   }
+  if (skill.hpCost && (currentChar.hp || 0) <= skill.hpCost) {
+    log(`⚠️ HP 不足，無法使用【${skillName}】（需要 ${skill.hpCost} HP）。`, "sys");
+    return false;
+  }
   if (!canUseSkill(skillName)) {
     const remain = Math.ceil(getSkillCooldownRemaining(skillName) / 1000);
     log(`⏳【技能冷卻中】${skillName} 需等待 ${remain} 秒。`, "sys");
     return false;
   }
 
+  // 扣除 HP 消耗 (如魂體轉換)
+  if (skill.hpCost) {
+    currentChar.hp = Math.max(1, (currentChar.hp || 0) - skill.hpCost);
+  }
+
   // 套用效果
-  if (skill.type === "heal") {
+  if (skillName === "魂體轉換") {
+    currentChar.mp = Math.min(currentChar.maxMp, (currentChar.mp || 0) + (skill.mpRecovery || 15));
+    log(`☯️ 施展【魂體轉換】，消耗 ${skill.hpCost || 40} HP 轉化為 ${skill.mpRecovery || 15} MP！`, "heal");
+  } else if (skillName === "解毒術") {
+    if (currentChar.isPoisoned) {
+      currentChar.isPoisoned = false;
+      log(`🌿 施展【解毒術】，體內劇毒已完全淨化解除！`, "heal");
+    } else {
+      log(`🌿 施展【解毒術】，純淨解毒光輝環繞自身。`, "heal");
+    }
+  } else if (skill.type === "heal") {
     const before = currentChar.hp;
     currentChar.hp = Math.min(currentChar.maxHp, currentChar.hp + (skill.power || 0));
     log(`✨ 使用【${skillName}】，HP 回復 +${currentChar.hp - before}！`, "heal");
@@ -1010,8 +1029,9 @@ function useSkill(skillName) {
       }
     }
     if (target) {
-      target.currentHp = (target.currentHp || target.hp) - (skill.power || 0);
-      log(`🔥 使用【${skillName}】命中【${target.name}】，造成 ${skill.power} 傷害！`, "atk");
+      const totalDmg = (skillName === "三重矢") ? (skill.power || 90) : (skill.power || 0);
+      target.currentHp = (target.currentHp || target.hp) - totalDmg;
+      log(`🔥 使用【${skillName}】命中【${target.name}】，造成 ${totalDmg} 傷害！`, "atk");
       if (target.currentHp <= 0) {
         target.currentHp = 0;
         log(`💀 【${target.name}】被技能擊敗！`, "sys");
@@ -1361,6 +1381,18 @@ function getSkillIconHtml(iconKey) {
 
 function getSkillBookItemName(skillName) {
   if (typeof DB !== "undefined" && DB.items) {
+    const candidates = [
+      `精靈水晶(${skillName})`,
+      `技術書(${skillName})`,
+      `皇家魔典(${skillName})`,
+      `魔法書(${skillName})`,
+      `技能書(${skillName})`
+    ];
+    for (const cName of candidates) {
+      if (DB.items[cName] && DB.items[cName].skill === skillName) {
+        return cName;
+      }
+    }
     for (let itemName in DB.items) {
       const item = DB.items[itemName];
       if (item && item.type === "spellbook" && item.skill === skillName) {
@@ -1371,13 +1403,42 @@ function getSkillBookItemName(skillName) {
   return null;
 }
 
+// 經典天堂1技能需求等級計算 (依職業修煉界線)
+function getSkillReqLevelForClass(skill, charCls) {
+  if (!skill) return 1;
+  const cls = charCls || "prince";
+  if (cls === "elf") {
+    // 妖精精靈魔法：階段 1~5 階 -> Lv 10, 20, 30, 40, 50
+    if (skill.school === "elf") {
+      const tier = skill.tier || 1;
+      return tier * 10;
+    }
+    // 妖精一般魔法：1~6 級 -> Lv 8, 16, 24, 32, 40, 48
+    if (skill.circle) {
+      return skill.circle * 8;
+    }
+  } else if (cls === "mage") {
+    // 法師一般魔法：1~10 級 -> Lv 4, 8, 12, 16, 20, 24, 28, 32, 36, 40
+    if (skill.circle) {
+      return skill.circle * 4;
+    }
+  } else if (cls === "knight") {
+    if (skill.circle) return 50;
+    return skill.reqLv || 50;
+  } else if (cls === "prince") {
+    if (skill.circle) return skill.circle * 10;
+    return skill.reqLv || 15;
+  }
+  return skill.reqLv || 1;
+}
+
 let currentSkillFilter = "all";
-let currentSpellTab = "all"; // "all" (全部可學技能) | "class" (專屬職業魔法) | "common" (一般魔法技能)
+let currentSpellTab = "class"; // 經典雙分頁：預設專屬職業魔法 ("class")，或一般魔法技能 ("common") (絕不顯示第三分頁)
 let selectedSkillName = null;
 let skillCooldownTimer = null;
 
 function switchSpellTab(tabKey) {
-  currentSpellTab = tabKey;
+  currentSpellTab = (tabKey === "common") ? "common" : "class";
   renderSkillTab();
 }
 window.switchSpellTab = switchSpellTab;
@@ -1419,22 +1480,31 @@ function isSkillMatchClass(skill, charCls) {
   // 🛡️ 騎士 (Knight): 騎士專屬技術 + 1 級一般魔法
   if (cls === "knight") {
     if (skill.school === "knight") return true;
-    return ["光箭術", "初級治癒術", "魔法飛彈"].includes(skill.name);
+    if (skill.category === "common" || skill.school === "common") {
+      return (skill.circle || 1) <= 1;
+    }
+    return ["光箭術", "初級治癒術", "魔法飛彈", "保護罩"].includes(skill.name);
   }
 
   // 👑 王族 (Prince): 王族專屬魔法 + 1~2 級一般魔法
   if (cls === "prince") {
     if (skill.school === "prince") return true;
-    return ["光箭術", "初級治癒術", "魔法飛彈", "初級加速術"].includes(skill.name);
+    if (skill.category === "common" || skill.school === "common") {
+      return (skill.circle || 1) <= 2;
+    }
+    return ["光箭術", "初級治癒術", "魔法飛彈", "初級加速術", "解毒術", "保護罩", "初級體力回復術"].includes(skill.name);
   }
 
-  // 🏹 妖精 (Elf): 精靈專屬魔法 + 1~6 級正統一般魔法 (全套一般魔法皆可學)
+  // 🏹 妖精 (Elf): 精靈專屬魔法 + 1~6 級正統一般魔法 (全套 1~6 級一般魔法皆可學)
   if (cls === "elf") {
     if (skill.school === "elf") return true;
-    return skill.category === "common" || skill.school === "common";
+    if (skill.category === "common" || skill.school === "common") {
+      return (skill.circle || 1) <= 6;
+    }
+    return false;
   }
 
-  // 🧙‍♂️ 法師 (Mage): 法師專屬高階神術 + 全套正統一般魔法
+  // 🧙‍♂️ 法師 (Mage): 法師專屬高階神術 + 全套正統一般魔法 (1~10 級)
   if (cls === "mage") {
     if (skill.school === "mage" || skill.school === "normal") return true;
     return skill.category === "common" || skill.school === "common";
@@ -1556,30 +1626,36 @@ function renderSkillTab() {
 
   const allSkills = (typeof DB !== "undefined" && DB.skills) ? Object.values(DB.skills) : [];
 
-  // 篩選：全部該職業能學的技能、專屬技能、一般魔法技能
-  const allLearnableSkills = allSkills.filter(sk => isSkillMatchClass(sk, charCls));
+  // 專屬職業魔法 (左分頁)
   const classSkills = allSkills.filter(sk => {
     if (sk.category === "common" || sk.school === "common") return false;
     return isSkillMatchClass(sk, charCls);
   });
+
+  // 一般魔法技能 (右分頁，依職業上限篩選：妖精可學 1~6 級正統魔法，共 20 招)
   const commonLearnableSkills = allSkills.filter(sk => {
     return (sk.category === "common" || sk.school === "common") && isSkillMatchClass(sk, charCls);
   });
 
+  // 排序：一般魔法依 circle 升序排列 (1級 -> 2級 -> 3級 -> 4級 -> 5級 -> 6級)，專屬技能依 tier 升序排列
+  commonLearnableSkills.sort((a, b) => (a.circle || 1) - (b.circle || 1) || (a.reqLv || 1) - (b.reqLv || 1));
+  classSkills.sort((a, b) => (a.tier || 1) - (b.tier || 1) || (a.reqLv || 1) - (b.reqLv || 1));
+
   const classTitles = {
     knight: "專屬騎士技術",
     elf: "專屬精靈魔法",
-    mage: "專屬正統魔法",
+    mage: "專屬正統神術",
     prince: "專屬王族魔法"
   };
   const activeClassTitle = classTitles[charCls] || "專屬職業魔法";
 
-  // 渲染頂部分頁：【全部可學技能】、【專屬職業魔法】、【一般魔法技能】
+  // 經典雙分頁：嚴格限定只有【專屬職業魔法】與【一般魔法技能】兩個按鈕，絕不渲染第三分頁
+  if (currentSpellTab !== "common" && currentSpellTab !== "class") {
+    currentSpellTab = "class";
+  }
+
   if (tabButtonsGroup) {
     tabButtonsGroup.innerHTML = `
-      <button type="button" class="lineage-tab-btn ${currentSpellTab === 'all' ? 'active' : ''}" onclick="switchSpellTab('all')">
-        全部可學技能 (${allLearnableSkills.length})
-      </button>
       <button type="button" class="lineage-tab-btn ${currentSpellTab === 'class' ? 'active' : ''}" onclick="switchSpellTab('class')">
         ${activeClassTitle} (${classSkills.length})
       </button>
@@ -1589,17 +1665,10 @@ function renderSkillTab() {
     `;
   }
 
-  // 根據當前分頁篩選技能清單
-  let currentTabSkills = [];
-  if (currentSpellTab === "all") {
-    currentTabSkills = allLearnableSkills;
-  } else if (currentSpellTab === "class") {
-    currentTabSkills = classSkills;
-  } else {
-    currentTabSkills = commonLearnableSkills;
-  }
+  // 根據當前分頁篩選技能清單 (專屬 vs 一般)
+  const currentTabSkills = (currentSpellTab === "common") ? commonLearnableSkills : classSkills;
 
-  // 若存在舊版過濾按鈕容器
+  // 若存在舊版過濾按鈕容器清空
   if (legacyTabsContainer) {
     legacyTabsContainer.innerHTML = "";
   }
@@ -1635,7 +1704,7 @@ function renderSkillTab() {
   const learnedList = (currentChar && Array.isArray(currentChar.skills)) ? currentChar.skills : [];
   const inventoryList = (currentChar && Array.isArray(currentChar.inventory)) ? currentChar.inventory : [];
 
-  // 固定渲染 4 列 x 6 行 (共 24 格)
+  // 固定渲染 4 列 x 6 行 (共 24 格石槽)
   const TOTAL_SLOTS = 24;
   const renderList = currentTabSkills.slice(0, TOTAL_SLOTS);
 
@@ -1645,6 +1714,7 @@ function renderSkillTab() {
     const hasBook = inventoryList.some(i => i.name === bookName && (i.count || 1) > 0);
     const cd = getSkillCooldownRemaining(skill.name);
     const isSelected = skill.name === selectedSkillName;
+    const reqLv = getSkillReqLevelForClass(skill, charCls);
 
     const slot = document.createElement("div");
     let stateClass = "state-unlearned";
@@ -1656,10 +1726,10 @@ function renderSkillTab() {
     slot.onclick = () => {
       selectSkillInInspector(skill.name);
       if (!isLearned) {
-        showSkillLockedToast(skill.name, skill.reqLv);
+        showSkillLockedToast(skill.name, reqLv);
       }
     };
-    slot.title = `${skill.name} (${isLearned ? "已習得" : "未習得 - 鎖定中"})`;
+    slot.title = `${skill.name} (${isLearned ? "已習得" : `未習得 - 需求 Lv.${reqLv}`})`;
 
     const isPassive = skill.mode === "passive";
     const badgeText = isPassive ? "P" : "A";
@@ -1695,7 +1765,7 @@ function renderSkillTab() {
     gridContainer.appendChild(slot);
   });
 
-  // 若不足 24 格，自動補齊空石槽使版面保持完美的 4 列 x 6 行格局
+  // 若不足 24 格，自動補齊古典石雕空槽，使版面保持完美的 4 列 x 6 行格局
   const emptySlotsCount = TOTAL_SLOTS - renderList.length;
   for (let i = 0; i < emptySlotsCount; i++) {
     const emptySlot = document.createElement("div");
@@ -1718,13 +1788,14 @@ function renderSkillTab() {
     const hasBook = inventoryList.some(i => i.name === bookName && (i.count || 1) > 0);
     const cd = getSkillCooldownRemaining(curSkill.name);
     const isPassive = curSkill.mode === "passive";
+    const reqLv = getSkillReqLevelForClass(curSkill, charCls);
 
     const schoolLabels = {
       knight: "🛡️ 騎士技術",
       elf: "🏹 精靈魔法",
-      normal: "🧙‍♂️ 正統魔法",
+      mage: "🧙‍♂️ 正統魔法",
       prince: "👑 王族魔法",
-      common: "✨ 通用魔法"
+      common: `✨ ${curSkill.circle ? curSkill.circle + " 級正統魔法" : "一般魔法"}`
     };
 
     let actionBtnHtml = "";
@@ -1749,7 +1820,7 @@ function renderSkillTab() {
     } else {
       actionBtnHtml = `
         <button type="button" class="btn" disabled style="padding:10px; font-weight:bold; font-size:12px; color:#71717a; border-color:#333; background:#12141a;">
-          🔒 尚未習得 (需求 Lv.${curSkill.reqLv || 1} / 缺少 ${bookName || "專屬秘笈"})
+          🔒 尚未習得 (需求 Lv.${reqLv} / 缺少 ${bookName || "專屬秘笈"})
         </button>
       `;
     }
@@ -1758,9 +1829,11 @@ function renderSkillTab() {
     if (curSkill.type === "damage") {
       effectDesc = `單體破壞威力：${curSkill.power} 點傷害`;
     } else if (curSkill.type === "heal") {
-      effectDesc = `神聖生命回復：+${curSkill.power} 點 HP`;
+      effectDesc = curSkill.hpRecovery ? `轉化效益：HP -${curSkill.hpCost} 轉化 MP +${curSkill.mpRecovery}` : `神聖生命回復：+${curSkill.power || 0} 點 HP`;
     } else if (curSkill.type === "buff") {
-      effectDesc = `${curSkill.stat.toUpperCase()} 提升 +${curSkill.amount}（持續 ${curSkill.duration} 秒）`;
+      effectDesc = `${(curSkill.stat || "狀態").toUpperCase()} 提升 ${curSkill.amount > 0 ? "+" + curSkill.amount : curSkill.amount}（持續 ${curSkill.duration} 秒）`;
+    } else {
+      effectDesc = curSkill.desc || "特殊秘術效益";
     }
 
     inspector.innerHTML = `
@@ -1777,7 +1850,7 @@ function renderSkillTab() {
             <span class="skill-tag-pill skill-tag-school">
               ${schoolLabels[curSkill.school] || "通用魔法"}
             </span>
-            <span class="skill-tag-pill" style="background:#27272a; color:#cbd5e1;">Tier ${curSkill.tier || 1}</span>
+            <span class="skill-tag-pill" style="background:#27272a; color:#cbd5e1;">${curSkill.circle ? curSkill.circle + " 級" : (curSkill.tier ? curSkill.tier + " 階" : "初級")}</span>
             <span class="skill-tag-pill" style="background:${isLearned ? '#14532d' : '#3f3f46'}; color:${isLearned ? '#86efac' : '#a1a1aa'};">
               ${isLearned ? '已習得' : '未習得 (鎖定中)'}
             </span>
@@ -1788,7 +1861,7 @@ function renderSkillTab() {
       <div class="skill-insp-props">
         <div class="insp-prop-row">
           <span class="insp-prop-lbl">需求等級</span>
-          <span class="insp-prop-val" style="color:var(--gold);">Lv. ${curSkill.reqLv || 1}</span>
+          <span class="insp-prop-val" style="color:var(--gold);">Lv. ${reqLv}</span>
         </div>
         <div class="insp-prop-row">
           <span class="insp-prop-lbl">消耗 MP / HP</span>

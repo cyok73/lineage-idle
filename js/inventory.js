@@ -261,9 +261,16 @@ function useItemByIndex(idx) {
     } else {
       flyBackToVillage();
     }
-  } else if (dbItem && dbItem.type === "spellbook") {
-    const skillName = dbItem.skill;
-    if (skillName && DB.skills && DB.skills[skillName]) {
+  } else if (dbItem && dbItem.type === "spellbook" || (item.name && /(?:魔法書|技能書|精靈水晶|技術書|皇家魔典)/.test(item.name))) {
+    let skillName = (dbItem && dbItem.skill);
+    if (!skillName && item.name) {
+      const match = item.name.match(/(?:魔法書|技能書|精靈水晶|技術書|皇家魔典)[(（\s]?([^()）\s]+)[)）]?/);
+      if (match && match[1] && typeof DB !== "undefined" && DB.skills && DB.skills[match[1]]) {
+        skillName = match[1];
+      }
+    }
+
+    if (skillName && typeof DB !== "undefined" && DB.skills && DB.skills[skillName]) {
       const targetSkill = DB.skills[skillName];
       const charCls = (currentChar && currentChar.charClass) || "prince";
       const isMatch = (typeof isSkillMatchClass === "function")
@@ -273,16 +280,27 @@ function useItemByIndex(idx) {
         log(`⚠️ 你的職業無法學習【${skillName}】（非本職業專屬秘笈）！`, "sys");
         return;
       }
+
+      // 經典等級檢核
+      const reqLv = (typeof getSkillReqLevelForClass === "function")
+        ? getSkillReqLevelForClass(targetSkill, charCls)
+        : (targetSkill.reqLv || 1);
+      if ((currentChar.level || 1) < reqLv) {
+        log(`⚠️ 等級不足！學習【${skillName}】需要等級達到 Lv.${reqLv}（目前角色 Lv.${currentChar.level || 1}）。`, "sys");
+        return;
+      }
+
       if (!currentChar.skills) currentChar.skills = [];
       if (!currentChar.skills.includes(skillName)) {
         currentChar.skills.push(skillName);
-        log(`📖 學會技能【${skillName}】！`, "sys");
+        log(`📖 研讀成功！學會技能【${skillName}】！`, "heal");
+        if (typeof renderSkillTab === "function") renderSkillTab();
       } else {
-        log(`📖 你已經學會【${skillName}】，此魔法書已無效。`, "sys");
+        log(`📖 你已經學會【${skillName}】，此秘笈已無需重複研讀。`, "sys");
         return;
       }
     } else {
-      log("📖 此魔法書無法解析。", "sys");
+      log("📖 此技能秘笈無法解析。", "sys");
       return;
     }
   }
