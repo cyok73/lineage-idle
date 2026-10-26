@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Lineage Idle - 天堂 1.82 經典復刻版</title>
-  <link rel="stylesheet" href="style.css?v=14">
+  <link rel="stylesheet" href="style.css?v=16">
 </head>
 
 <body>
@@ -144,11 +144,11 @@
       <div class="nav-tabs">
         <button class="nav-btn active" onclick="switchTab('battle')">⚔️ 實體戰場</button>
         <button class="nav-btn" onclick="switchTab('char')">👤 人物狀態與裝備</button>
+        <button class="nav-btn" onclick="switchTab('skills')">✨ 技能欄</button>
         <button class="nav-btn" onclick="switchTab('inventory')">🎒 背包與衝裝</button>
         <button class="nav-btn" onclick="switchTab('village')">🏛️ 各大陸村莊</button>
         <button class="nav-btn" onclick="switchTab('storage')">🏦 個人倉庫</button>
         <button class="nav-btn" onclick="switchTab('strategy')">⚙️ 掛機戰術設定</button>
-        <button class="nav-btn" onclick="switchTab('skills')">✨ 技能與魔法</button>
         <button id="btn-nav-admin" class="nav-btn" style="border-color:var(--gold); color:var(--gold); display:none;" onclick="switchTab('admin')">👑 最高權限</button>
         <button class="nav-btn" style="border-color:#e74c3c; color:#e74c3c;" onclick="backToCharSelect()">選角選單</button>
         <button class="nav-btn" style="border-color:#e74c3c; color:#e74c3c;" onclick="logout()">登出帳號</button>
@@ -282,30 +282,170 @@
 
         </div>
 
-        <!-- 角色狀態面板 -->
+        <!-- 角色狀態面板 (經典天堂雙窗風格：人物狀態 + 裝備欄) -->
         <div id="tab-char" class="tab-content">
-          <h2>六維屬性詳細</h2>
-          <div style="background:#0d0f12; padding:8px 12px; border-radius:4px; display:flex; flex-direction:column; gap:4px;">
-            <div class="stat-row"><span>力量 (STR)</span><b id="attr-str">16</b></div>
-            <div class="stat-row"><span>敏捷 (DEX)</span><b id="attr-dex">12</b></div>
-            <div class="stat-row"><span>體質 (CON)</span><b id="attr-con">18</b></div>
-            <div class="stat-row"><span>智力 (INT)</span><b id="attr-int">8</b></div>
-            <div class="stat-row"><span>精神 (WIS)</span><b id="attr-wis">9</b></div>
+          <div class="lineage-dual-window">
+
+            <!-- 左窗：人物狀態視窗 -->
+            <div class="lineage-win lineage-status-win">
+              <div class="lineage-win-title">
+                <div class="win-title-left">
+                  <span class="win-ornament">◆</span>
+                  <span>人物狀態</span>
+                </div>
+                <button class="win-close-btn" type="button" onclick="switchTab('battle')" title="關閉返回戰場">✕</button>
+              </div>
+
+              <div class="lineage-win-body">
+                <!-- 儀表列 -->
+                <div class="lineage-gauge-group">
+                  <div class="gauge-row">
+                    <span class="gauge-lbl">等 級</span>
+                    <div class="gauge-box">
+                      <div class="gauge-fill gauge-fill-exp" id="cwin-exp-bar" style="width:0%;"></div>
+                      <span class="gauge-val" id="cwin-lv-exp">Lv. 1  00.00%</span>
+                    </div>
+                  </div>
+                  <div class="gauge-row">
+                    <span class="gauge-lbl">體 力</span>
+                    <div class="gauge-box">
+                      <div class="gauge-fill gauge-fill-hp" id="cwin-hp-bar" style="width:100%;"></div>
+                      <span class="gauge-val" id="cwin-hp">0 / 0</span>
+                    </div>
+                  </div>
+                  <div class="gauge-row">
+                    <span class="gauge-lbl">魔 力</span>
+                    <div class="gauge-box">
+                      <div class="gauge-fill gauge-fill-mp" id="cwin-mp-bar" style="width:100%;"></div>
+                      <span class="gauge-val" id="cwin-mp">0 / 0</span>
+                    </div>
+                  </div>
+                  <div class="gauge-row">
+                    <span class="gauge-lbl">負重度</span>
+                    <div class="gauge-box gauge-box-sm">
+                      <span class="gauge-val" id="cwin-weight">0%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 六維屬性 (2列 x 3行 石雕凹槽面板) -->
+                <div class="lineage-stats-grid">
+                  <div class="stat-slot"><span>力 量</span><b id="cwin-str">10</b></div>
+                  <div class="stat-slot"><span>智 力</span><b id="cwin-int">10</b></div>
+                  <div class="stat-slot"><span>敏 捷</span><b id="cwin-dex">10</b></div>
+                  <div class="stat-slot"><span>精 神</span><b id="cwin-wis">10</b></div>
+                  <div class="stat-slot"><span>體 質</span><b id="cwin-con">10</b></div>
+                  <div class="stat-slot"><span>魅 力</span><b id="cwin-cha">10</b></div>
+                </div>
+
+                <!-- 隱藏相容節點 -->
+                <div style="display:none;">
+                  <b id="attr-str">10</b><b id="attr-dex">10</b><b id="attr-con">10</b><b id="attr-int">10</b><b id="attr-wis">10</b>
+                  <div id="equip-slots-container"></div>
+                </div>
+
+                <!-- 魔法等級與正義 -->
+                <div class="lineage-sub-panel">
+                  <div class="sub-row">
+                    <span class="sub-lbl">魔法等級</span>
+                    <div class="sub-box" id="cwin-magic-lv">1</div>
+                    <span class="sub-align-title">正 義</span>
+                    <div class="sub-box sub-box-align" id="cwin-align">32767</div>
+                  </div>
+                  <div class="sub-row">
+                    <span class="sub-lbl">額外魔法點數</span>
+                    <div class="sub-box" id="cwin-extra-sp">0</div>
+                  </div>
+                </div>
+
+                <!-- 四屬性防禦與迴避 -->
+                <div class="lineage-sub-panel elements-panel">
+                  <div class="elem-row">
+                    <div class="elem-item"><span>地</span><b id="cwin-res-earth">0</b>%</div>
+                    <div class="elem-item"><span>火</span><b id="cwin-res-fire">0</b>%</div>
+                  </div>
+                  <div class="elem-row">
+                    <div class="elem-item"><span>水</span><b id="cwin-res-water">0</b>%</div>
+                    <div class="elem-item"><span>風</span><b id="cwin-res-wind">0</b>%</div>
+                  </div>
+                  <div class="elem-row">
+                    <div class="elem-item-wide"><span>迴避率</span><b id="cwin-er">10</b></div>
+                    <div class="elem-item-wide"><span>閃避率</span><b id="cwin-dg">0</b></div>
+                  </div>
+                </div>
+
+                <!-- 底部操作鈕 -->
+                <div class="lineage-win-actions">
+                  <button type="button" class="lineage-btn" onclick="alert('【狀態獎勵】\n全能力正常發揮，防具與飾品效果皆已加成生效！')">狀態獎勵</button>
+                  <button type="button" class="lineage-btn" onclick="alert('【友好度】\n各大陸勢力聲望友好度皆為崇敬中。')">友好度</button>
+                </div>
+              </div>
+
+              <!-- 底部小分頁裝飾條 -->
+              <div class="lineage-bottom-tabs">
+                <div class="lineage-tab-ico active" title="人物基本狀態">👤</div>
+                <div class="lineage-tab-ico" title="戰鬥防護狀態">🛡️</div>
+              </div>
+            </div>
+
+            <!-- 右窗：裝備欄位視窗 -->
+            <div class="lineage-win lineage-equip-win">
+              <div class="lineage-win-title">
+                <div class="win-title-left">
+                  <span class="win-ornament">◆</span>
+                  <span>裝備欄位</span>
+                </div>
+                <button class="win-close-btn" type="button" onclick="switchTab('battle')" title="關閉返回戰場">✕</button>
+              </div>
+
+              <div class="lineage-win-body">
+                <!-- 3 x 5 + 1 經典天堂裝備格子矩陣 (由 character.js 動態渲染) -->
+                <div class="lineage-equip-matrix" id="lineage-equip-matrix"></div>
+              </div>
+
+              <!-- 底部小分頁裝飾條 -->
+              <div class="lineage-bottom-tabs">
+                <div class="lineage-tab-ico active" title="身上裝備">⚔️</div>
+                <div class="lineage-tab-ico" onclick="switchTab('inventory')" title="前往背包">🎒</div>
+              </div>
+            </div>
+
           </div>
-          <h2>裝備欄位管理 (已穿戴在身上的裝備)</h2>
-          <div class="equip-manage-list" id="equip-slots-container"></div>
-          <h2>變身圖鑑</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>變身名稱</th>
-                <th>需求等級</th>
-                <th>攻速間隔</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody id="poly-table-body"></tbody>
-          </table>
+
+          <!-- 裝備操作/挑選彈窗 -->
+          <div id="equip-action-modal" class="equip-modal" style="display:none;">
+            <div class="equip-modal-card">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 id="equip-modal-title" style="margin:0; font-size:14px; color:var(--gold);">裝備管理</h3>
+                <button class="btn" onclick="closeEquipActionModal()">✕</button>
+              </div>
+              <div id="equip-modal-body" style="display:flex; flex-direction:column; gap:8px;"></div>
+            </div>
+          </div>
+
+          <!-- 變身圖鑑 -->
+          <div class="setting-group" style="margin-top:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h2 style="border:none; padding:0; margin:0;"><span>🎭 亞丁變身圖鑑</span><span style="font-size:11px; color:var(--text-muted);">選擇變身提升攻速與移動表現</span></h2>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>變身名稱</th>
+                  <th>需求等級</th>
+                  <th>攻速間隔</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="poly-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 技能欄分頁 -->
+        <div id="tab-skills" class="tab-content">
+          <h2><span>✨ 技能欄</span><span style="font-size:11px; color:var(--text-muted);">(使用魔法書習得各職業專屬技能)</span></h2>
+          <div id="skill-list-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap:8px;"></div>
         </div>
 
         <!-- 背包面板 -->
@@ -388,12 +528,6 @@
 
         <!-- 掛機戰術設定面板 (由 js/strategy.js 自動動態渲染) -->
         <div id="tab-strategy" class="tab-content"></div>
-
-        <!-- 技能與魔法分頁 -->
-        <div id="tab-skills" class="tab-content">
-          <h2>技能與魔法</h2>
-          <div id="skill-list-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap:8px;"></div>
-        </div>
 
         <!-- 👑 最高權限 (GM 管理面版) -->
         <div id="tab-admin" class="tab-content">
@@ -490,15 +624,15 @@
 
   <!-- 腳本引用 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/data.js?v=14"></script>
-  <script src="js/main.js?v=14"></script>
-  <script src="js/supabase.js?v=14"></script>
-  <script src="js/character.js?v=14"></script>
-  <script src="js/inventory.js?v=14"></script>
-  <script src="js/strategy.js?v=14"></script>
-  <script src="js/radar.js?v=14"></script>
-  <script src="js/battle.js?v=14"></script>
-  <script src="js/admin.js?v=14"></script>
+  <script src="js/data.js?v=16"></script>
+  <script src="js/main.js?v=16"></script>
+  <script src="js/supabase.js?v=16"></script>
+  <script src="js/character.js?v=16"></script>
+  <script src="js/inventory.js?v=16"></script>
+  <script src="js/strategy.js?v=16"></script>
+  <script src="js/radar.js?v=16"></script>
+  <script src="js/battle.js?v=16"></script>
+  <script src="js/admin.js?v=16"></script>
 </body>
 
 </html>

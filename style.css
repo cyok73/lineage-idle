@@ -587,3 +587,524 @@ input[type="number"] {
   align-items: center;
   font-size: 12px;
 }
+
+/* ==========================================================================
+   經典天堂雙窗介面：人物狀態 (左) + 裝備欄 (右)
+   ========================================================================== */
+
+.lineage-dual-window {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 auto;
+  padding: 4px 0 12px 0;
+  max-width: 720px;
+  flex-wrap: wrap;
+}
+
+.lineage-win {
+  background: linear-gradient(180deg, #252830 0%, #16171b 40px, #101114 100%);
+  border: 2px solid #3c414c;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 0 0 1px #050608;
+  border-radius: 4px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.lineage-status-win {
+  width: 310px;
+  min-height: 520px;
+}
+
+.lineage-equip-win {
+  width: 310px;
+  min-height: 520px;
+}
+
+.lineage-win-title {
+  height: 28px;
+  background: linear-gradient(180deg, #323742 0%, #20232a 100%);
+  border-bottom: 1px solid #14161a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  color: #c9ccd4;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 2px #000;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.win-title-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.win-ornament {
+  color: var(--gold);
+  font-size: 11px;
+}
+
+.win-close-btn {
+  background: transparent;
+  border: none;
+  color: #8b91a0;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.win-close-btn:hover {
+  color: #ef4444;
+}
+
+.lineage-win-body {
+  padding: 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+/* 儀表槽 (等級、體力、魔力、負重度) */
+.lineage-gauge-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #0a0b0e;
+  border: 1px solid #23262f;
+  border-radius: 3px;
+  padding: 6px 8px;
+}
+
+.gauge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.gauge-lbl {
+  color: #a0a6b5;
+  font-size: 12px;
+  font-weight: bold;
+  width: 44px;
+  flex-shrink: 0;
+  text-shadow: 1px 1px 1px #000;
+}
+
+.gauge-box {
+  flex: 1;
+  height: 18px;
+  background: #050608;
+  border: 1px solid #22252e;
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gauge-box-sm {
+  flex: 0 0 90px;
+  margin-left: auto;
+}
+
+.gauge-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  transition: width 0.3s ease;
+  z-index: 1;
+}
+
+.gauge-fill-exp {
+  background: linear-gradient(180deg, #6b7280 0%, #374151 100%);
+  border-right: 1px solid #9ca3af;
+}
+
+.gauge-fill-hp {
+  background: linear-gradient(180deg, #b91c1c 0%, #7f1d1d 100%);
+  border-right: 1px solid #f87171;
+}
+
+.gauge-fill-mp {
+  background: linear-gradient(180deg, #1d4ed8 0%, #1e3a8a 100%);
+  border-right: 1px solid #60a5fa;
+}
+
+.gauge-val {
+  position: relative;
+  z-index: 2;
+  font-size: 11px;
+  color: #fff;
+  font-family: Consolas, monospace;
+  text-shadow: 1px 1px 2px #000;
+  font-weight: bold;
+}
+
+/* 六維屬性 2x3 石雕凹槽面板 */
+.lineage-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 4px;
+  background: #0a0b0e;
+  border: 1px solid #23262f;
+  border-radius: 3px;
+  padding: 6px 8px;
+}
+
+.stat-slot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #111317;
+  border: 1px solid #1c1f26;
+  border-radius: 2px;
+  padding: 3px 8px;
+  font-size: 12px;
+}
+
+.stat-slot span {
+  color: #a0a6b5;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.stat-slot b {
+  font-family: Consolas, monospace;
+  color: #e2e8f0;
+  font-size: 13px;
+}
+
+/* 魔法等級、正義、四屬性等子面板 */
+.lineage-sub-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #0a0b0e;
+  border: 1px solid #23262f;
+  border-radius: 3px;
+  padding: 6px 8px;
+}
+
+.sub-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.sub-lbl {
+  color: #a0a6b5;
+  font-weight: bold;
+}
+
+.sub-box {
+  background: #050608;
+  border: 1px solid #22252e;
+  border-radius: 2px;
+  padding: 1px 8px;
+  color: #e2e8f0;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  min-width: 36px;
+  text-align: center;
+}
+
+.sub-align-title {
+  color: #3b82f6;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+.sub-box-align {
+  color: #60a5fa;
+  font-weight: bold;
+  flex: 1;
+}
+
+/* 四屬性與迴避率 */
+.elements-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.elem-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.elem-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #111317;
+  border: 1px solid #1c1f26;
+  border-radius: 2px;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.elem-item span {
+  color: #cbd5e1;
+  font-weight: bold;
+}
+
+.elem-item b {
+  color: #fff;
+  font-family: Consolas, monospace;
+}
+
+.elem-item-wide {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #111317;
+  border: 1px solid #1c1f26;
+  border-radius: 2px;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.elem-item-wide span {
+  color: #cbd5e1;
+  font-weight: bold;
+}
+
+.elem-item-wide b {
+  color: #facc15;
+  font-family: Consolas, monospace;
+}
+
+/* 底部操作鈕 */
+.lineage-win-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.lineage-btn {
+  flex: 1;
+  height: 26px;
+  background: linear-gradient(180deg, #373c47 0%, #20232a 100%);
+  border: 1px solid #4a5160;
+  border-radius: 3px;
+  color: #d1d5db;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.lineage-btn:hover {
+  background: linear-gradient(180deg, #444b58 0%, #2a2e38 100%);
+  color: #fff;
+  border-color: #636b7e;
+}
+
+/* 底部小分頁裝飾條 */
+.lineage-bottom-tabs {
+  height: 24px;
+  background: #0d0e12;
+  border-top: 1px solid #1e2129;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  gap: 8px;
+}
+
+.lineage-tab-ico {
+  font-size: 12px;
+  opacity: 0.5;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+.lineage-tab-ico.active {
+  opacity: 1;
+  background: #1e222a;
+}
+
+/* ================== 裝備欄 3x5 矩陣 ================== */
+.lineage-equip-matrix {
+  display: grid;
+  grid-template-columns: repeat(3, 76px);
+  grid-template-rows: repeat(5, 76px) 56px;
+  grid-gap: 8px;
+  justify-content: center;
+  margin: 4px auto 0 auto;
+}
+
+.equip-slot-box {
+  width: 76px;
+  height: 76px;
+  background: #08090c;
+  border: 2px solid #282b34;
+  border-radius: 4px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.95), 0 1px 1px rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.equip-slot-box:hover {
+  border-color: #d4af37;
+  box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.95), 0 0 8px rgba(212, 175, 55, 0.35);
+}
+
+.slot-watermark {
+  font-size: 26px;
+  opacity: 0.22;
+  line-height: 1;
+}
+
+.slot-tag {
+  font-size: 10px;
+  color: #555b69;
+  position: absolute;
+  bottom: 3px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* 已裝備狀態 */
+.equip-slot-box.has-item {
+  background: #0f1218;
+  border-color: #4b5568;
+}
+
+.equip-slot-box.has-item.tier-green {
+  border-color: #16a34a;
+  box-shadow: inset 1px 1px 4px #000, 0 0 6px rgba(34, 197, 94, 0.25);
+}
+
+.equip-slot-box.has-item.tier-blue {
+  border-color: #2563eb;
+  box-shadow: inset 1px 1px 4px #000, 0 0 8px rgba(59, 130, 246, 0.35);
+}
+
+.equip-slot-box.has-item.tier-red {
+  border-color: #dc2626;
+  box-shadow: inset 1px 1px 4px #000, 0 0 10px rgba(239, 68, 68, 0.45);
+}
+
+.item-enchant-badge {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  font-size: 11px;
+  font-weight: bold;
+  color: #facc15;
+  text-shadow: 1px 1px 2px #000;
+  font-family: Consolas, monospace;
+}
+
+.item-visual-icon {
+  font-size: 28px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+}
+
+.item-name-brief {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  right: 2px;
+  font-size: 9px;
+  color: #e2e8f0;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 1px 1px 1px #000;
+  background: rgba(0, 0, 0, 0.65);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+/* 鎖定狀態 (紅框與 Lv.76 / Lv.81，完全符合附件截圖！) */
+.equip-slot-box.is-locked {
+  border: 2px solid #b91c1c;
+  background: #110c0e;
+  box-shadow: inset 2px 2px 8px rgba(0, 0, 0, 0.95), 0 0 6px rgba(185, 28, 28, 0.4);
+}
+
+.slot-lock-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+.lock-ico {
+  font-size: 14px;
+  opacity: 0.35;
+}
+
+.lock-req-text {
+  font-size: 11px;
+  color: #ef4444;
+  font-family: Consolas, monospace;
+  font-weight: bold;
+  letter-spacing: -0.5px;
+  text-shadow: 1px 1px 2px #000;
+}
+
+.equip-slot-box.slot-rune-bottom {
+  grid-column: 1;
+  height: 52px;
+  margin-top: 2px;
+}
+
+/* 裝備彈窗 */
+.equip-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.equip-modal-card {
+  background: #15181f;
+  border: 2px solid var(--gold);
+  border-radius: 6px;
+  width: 360px;
+  max-width: 90vw;
+  padding: 14px;
+  box-shadow: 0 10px 30px #000;
+}

@@ -248,7 +248,15 @@ const DB = {
     // --- 腰帶 (Belt) ---
     "皮腰帶": { type: "accessory", tier: "white", slot: "belt", ac: 0, weight: 10, price: 1000 },
     "多羅皮帶": { type: "accessory", tier: "green", slot: "belt", ac: 0, weightMultiplier: 1.2, weight: 15, price: 60000, desc: "負重上限+20%" },
-    "歐吉皮帶": { type: "accessory", tier: "blue", slot: "belt", ac: 0, weightMultiplier: 1.5, weight: 20, price: 450000, desc: "負重上限+50%" }
+    "歐吉皮帶": { type: "accessory", tier: "blue", slot: "belt", ac: 0, weightMultiplier: 1.5, weight: 20, price: 450000, desc: "負重上限+50%" },
+
+    // --- 內衣 (T-Shirt) ---
+    "棉質T恤": { type: "armor", tier: "white", slot: "tshirt", ac: 0, safe: 4, weight: 5, price: 1000, desc: "初學者棉質內衣" },
+    "精靈T恤": { type: "armor", tier: "green", slot: "tshirt", ac: -1, safe: 6, weight: 5, price: 30000, desc: "精靈編織內衣，安定值+6" },
+
+    // --- 符石與徽章 (Rune) ---
+    "力量符石": { type: "accessory", tier: "green", slot: "rune", ac: 0, strBonus: 1, weight: 2, price: 50000, desc: "刻有巨力印記的古老符石 (STR+1)" },
+    "敏捷符石": { type: "accessory", tier: "green", slot: "rune", ac: 0, dexBonus: 1, weight: 2, price: 50000, desc: "刻有疾風印記的古老符石 (DEX+1)" }
   },
 
   polymorphs: [

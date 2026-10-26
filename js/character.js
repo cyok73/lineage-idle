@@ -646,96 +646,278 @@ function getCalculatedStats() {
   return { ...base, mr, hpBonus, mpBonus };
 }
 
+const LINEAGE_EQUIP_LAYOUT = [
+  // 第 1 排 (耳環 | 頭盔 | 項鍊)
+  { key: "earring", name: "耳環", icon: "👂", type: "earring" },
+  { key: "head", name: "頭盔", icon: "🪖", type: "head" },
+  { key: "necklace", name: "項鍊", icon: "📿", type: "necklace" },
+
+  // 第 2 排 (內衣 | 盔甲 | 斗篷)
+  { key: "tshirt", name: "內衣", icon: "👕", type: "tshirt" },
+  { key: "body", name: "盔甲", icon: "🛡️", type: "body" },
+  { key: "cloak", name: "斗篷", icon: "🧣", type: "cloak" },
+
+  // 第 3 排 (手套 | 腰帶 | 盾牌)
+  { key: "glove", name: "手套", icon: "🧤", type: "glove" },
+  { key: "belt", name: "腰帶", icon: "🥋", type: "belt" },
+  { key: "shield", name: "盾牌", icon: "🛡️", type: "shield" },
+
+  // 第 4 排 (戒指1 | 靴子 | 戒指2)
+  { key: "ring1", name: "戒指一", icon: "💍", type: "ring" },
+  { key: "boots", name: "靴子", icon: "👢", type: "boots" },
+  { key: "ring2", name: "戒指二", icon: "💍", type: "ring" },
+
+  // 第 5 排 (戒指3(Lv.76) | 武器 | 戒指4(Lv.81))
+  { key: "ring3", name: "戒指三", icon: "💍", type: "ring", reqLv: 76 },
+  { key: "weapon", name: "武器", icon: "⚔️", type: "weapon" },
+  { key: "ring4", name: "戒指四", icon: "💍", type: "ring", reqLv: 81 },
+
+  // 第 6 排 (符石/輔助槽)
+  { key: "rune", name: "符石", icon: "🔮", type: "rune", isRuneBottom: true }
+];
+
 function renderCharTab() {
   if (!currentChar || !currentChar.stats) return;
   const stats = getCalculatedStats();
+  const curLv = currentChar.level || 1;
+  const maxExp = curLv * curLv * 100;
+  const expPercent = Math.min(100, Math.max(0, ((currentChar.exp || 0) / maxExp) * 100));
+  const hpPercent = Math.min(100, Math.max(0, ((currentChar.hp || 0) / (currentChar.maxHp || 1)) * 100));
+  const mpPercent = Math.min(100, Math.max(0, ((currentChar.mp || 0) / (currentChar.maxMp || 1)) * 100));
+  const weightPercent = (typeof getCurrentWeightPercent === "function") ? getCurrentWeightPercent() : 0;
 
-  const strEl = document.getElementById("attr-str");
-  const dexEl = document.getElementById("attr-dex");
-  const conEl = document.getElementById("attr-con");
-  const intEl = document.getElementById("attr-int");
-  const wisEl = document.getElementById("attr-wis");
+  // 1. 左側儀表槽更新
+  const expBar = document.getElementById("cwin-exp-bar");
+  const lvExp = document.getElementById("cwin-lv-exp");
+  if (expBar) expBar.style.width = `${expPercent}%`;
+  if (lvExp) lvExp.innerText = `Lv. ${curLv}  ${expPercent < 10 ? '0' : ''}${expPercent.toFixed(2)}%`;
 
-  if (strEl) strEl.innerHTML = `${stats.str} ${stats.str > currentChar.stats.str ? `<span style="color:#22c55e; font-size:11px;">(+${stats.str - currentChar.stats.str})</span>` : ''}`;
-  if (dexEl) dexEl.innerHTML = `${stats.dex} ${stats.dex > currentChar.stats.dex ? `<span style="color:#22c55e; font-size:11px;">(+${stats.dex - currentChar.stats.dex})</span>` : ''}`;
-  if (conEl) conEl.innerHTML = `${stats.con} ${stats.con > currentChar.stats.con ? `<span style="color:#22c55e; font-size:11px;">(+${stats.con - currentChar.stats.con})</span>` : ''}`;
-  if (intEl) intEl.innerHTML = `${stats.int} ${stats.int > currentChar.stats.int ? `<span style="color:#22c55e; font-size:11px;">(+${stats.int - currentChar.stats.int})</span>` : ''}`;
-  if (wisEl) wisEl.innerHTML = `${stats.wis} ${stats.wis > currentChar.stats.wis ? `<span style="color:#22c55e; font-size:11px;">(+${stats.wis - currentChar.stats.wis})</span>` : ''}`;
+  const hpBar = document.getElementById("cwin-hp-bar");
+  const hpVal = document.getElementById("cwin-hp");
+  if (hpBar) hpBar.style.width = `${hpPercent}%`;
+  if (hpVal) hpVal.innerText = `${currentChar.hp || 0} / ${currentChar.maxHp || 0}`;
 
-  const eqContainer = document.getElementById("equip-slots-container");
-  if (!eqContainer) return;
-  eqContainer.innerHTML = "";
+  const mpBar = document.getElementById("cwin-mp-bar");
+  const mpVal = document.getElementById("cwin-mp");
+  if (mpBar) mpBar.style.width = `${mpPercent}%`;
+  if (mpVal) mpVal.innerText = `${currentChar.mp || 0} / ${currentChar.maxMp || 0}`;
 
-  const slotDefinitions = [
-    { key: "weapon", name: "武器", icon: "⚔️" },
-    { key: "body", name: "盔甲", icon: "🛡️" },
-    { key: "head", name: "頭盔", icon: "🪖" },
-    { key: "shield", name: "盾牌", icon: "🛡️" },
-    { key: "cloak", name: "斗篷", icon: "🧣" },
-    { key: "glove", name: "手套", icon: "🧤" },
-    { key: "boots", name: "靴子", icon: "👢" },
-    { key: "necklace", name: "項鍊", icon: "📿" },
-    { key: "earring", name: "耳環", icon: "👂" },
-    { key: "ring1", name: "戒指一", icon: "💍" },
-    { key: "ring2", name: "戒指二", icon: "💍" },
-    { key: "belt", name: "腰帶", icon: "🥋" }
-  ];
+  const weightVal = document.getElementById("cwin-weight");
+  if (weightVal) {
+    weightVal.innerText = `${weightPercent}%`;
+    weightVal.style.color = weightPercent >= 82 ? "#ef4444" : (weightPercent >= 50 ? "#f59e0b" : "#e2e8f0");
+  }
 
-  if (!currentChar.equipped) currentChar.equipped = {};
-
-  const grid = document.createElement("div");
-  grid.style.cssText = "display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:6px; margin-top:4px;";
-
-  slotDefinitions.forEach(slot => {
-    const eq = currentChar.equipped[slot.key];
-    const itemDb = (eq && typeof DB !== "undefined" && DB.items) ? DB.items[eq.name] : null;
-
-    const slotCard = document.createElement("div");
-    slotCard.style.cssText = `
- display: flex;
- justify-content: space-between;
- align-items: center;
- background: #0f131a;
- border: 1px solid ${eq ? '#7f1d1d' : '#222834'};
- border-left: 3px solid ${eq ? '#dc2626' : '#475569'};
- border-radius: 4px;
- padding: 6px 10px;
- `;
-
-    let titleHtml = "";
-    if (eq) {
-      const enchantPrefix = (eq.enchant !== undefined && eq.enchant > 0) ? `+${eq.enchant} ` : '';
-      const tierColor = itemDb?.tier === "red" ? "#ef4444" : (itemDb?.tier === "blue" ? "#38bdf8" : (itemDb?.tier === "green" ? "#22c55e" : "#f1f5f9"));
-      titleHtml = `
- <div style="font-size:12px; font-weight:bold; color:${tierColor};">
- ${enchantPrefix}${eq.name}
- </div>
- <div style="font-size:10px; color:#94a3b8; margin-top:1px;">
- ${itemDb?.ac !== undefined ? `AC: ${itemDb.ac - (eq.enchant || 0)} ` : ''}
- ${itemDb?.desc || ''}
- </div>
- `;
+  // 2. 六維屬性更新
+  const setStat = (id, val, base) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (val > base) {
+      el.innerHTML = `${val} <span style="color:#22c55e; font-size:10px;">(+${val - base})</span>`;
     } else {
-      titleHtml = `<span style="color:#64748b; font-size:12px;">無裝備</span>`;
+      el.innerText = String(val);
+    }
+  };
+  setStat("cwin-str", stats.str, currentChar.stats.str || 10);
+  setStat("cwin-dex", stats.dex, currentChar.stats.dex || 10);
+  setStat("cwin-con", stats.con, currentChar.stats.con || 10);
+  setStat("cwin-int", stats.int, currentChar.stats.int || 10);
+  setStat("cwin-wis", stats.wis, currentChar.stats.wis || 10);
+  const chaEl = document.getElementById("cwin-cha");
+  if (chaEl) chaEl.innerText = String(currentChar.stats.cha || 10);
+
+  // 3. 魔法等級、正義與額外魔法點數
+  const magicLvEl = document.getElementById("cwin-magic-lv");
+  if (magicLvEl) magicLvEl.innerText = String(Math.max(1, Math.floor(curLv / 4)));
+
+  const alignEl = document.getElementById("cwin-align");
+  if (alignEl) alignEl.innerText = "32767";
+
+  const extraSpEl = document.getElementById("cwin-extra-sp");
+  if (extraSpEl) extraSpEl.innerText = String(Math.max(0, Math.floor(((stats.int || 10) - 12) / 2)));
+
+  // 4. 四屬性防禦與迴避
+  const erVal = Math.floor(curLv / 4) + Math.max(0, (stats.dex || 10) - 10);
+  const erEl = document.getElementById("cwin-er");
+  if (erEl) erEl.innerText = String(erVal);
+  const dgEl = document.getElementById("cwin-dg");
+  if (dgEl) dgEl.innerText = "0";
+
+  // 5. 右側經典 3x5+1 裝備矩陣更新
+  const matrixContainer = document.getElementById("lineage-equip-matrix");
+  if (matrixContainer) {
+    matrixContainer.innerHTML = "";
+    if (!currentChar.equipped) currentChar.equipped = {};
+
+    LINEAGE_EQUIP_LAYOUT.forEach(slot => {
+      const slotBox = document.createElement("div");
+      slotBox.className = "equip-slot-box";
+      if (slot.isRuneBottom) slotBox.classList.add("slot-rune-bottom");
+
+      const isLocked = slot.reqLv && curLv < slot.reqLv;
+      const eq = !isLocked ? currentChar.equipped[slot.key] : null;
+      const itemDb = (eq && typeof DB !== "undefined" && DB.items) ? DB.items[eq.name] : null;
+
+      if (isLocked) {
+        slotBox.classList.add("is-locked");
+        slotBox.innerHTML = `
+          <div class="slot-lock-overlay">
+            <span class="lock-ico">🔒</span>
+            <span class="lock-req-text">Lv.${slot.reqLv}</span>
+          </div>
+          <div class="slot-tag">${slot.name}</div>
+        `;
+        slotBox.onclick = () => {
+          alert(`🔒 此戒指欄位需角色等級達到 Lv.${slot.reqLv} 始可解鎖！`);
+        };
+      } else if (eq) {
+        const tier = itemDb?.tier || "white";
+        slotBox.classList.add("has-item", `tier-${tier}`);
+        const enchant = (eq.enchant !== undefined && eq.enchant > 0) ? `+${eq.enchant}` : '';
+
+        // 視覺圖示判斷
+        let itemIcon = slot.icon;
+        if (slot.key === "weapon") itemIcon = (itemDb?.weaponType === "bow") ? "🏹" : "🗡️";
+
+        slotBox.innerHTML = `
+          ${enchant ? `<div class="item-enchant-badge">${enchant}</div>` : ''}
+          <div class="item-visual-icon">${itemIcon}</div>
+          <div class="item-name-brief">${eq.name}</div>
+        `;
+        slotBox.onclick = () => {
+          openEquipDetailModal(slot.key);
+        };
+      } else {
+        slotBox.innerHTML = `
+          <div class="slot-watermark">${slot.icon}</div>
+          <div class="slot-tag">${slot.name}</div>
+        `;
+        slotBox.onclick = () => {
+          openEquipSelectModal(slot.key, slot.type || slot.key, slot.name);
+        };
+      }
+
+      matrixContainer.appendChild(slotBox);
+    });
+  }
+
+  renderPolymorphTable();
+}
+
+// 裝備詳細與卸除彈窗
+function openEquipDetailModal(slotKey) {
+  if (!currentChar || !currentChar.equipped || !currentChar.equipped[slotKey]) return;
+  const eq = currentChar.equipped[slotKey];
+  const itemDb = (typeof DB !== "undefined" && DB.items) ? DB.items[eq.name] : null;
+  const modal = document.getElementById("equip-action-modal");
+  const title = document.getElementById("equip-modal-title");
+  const body = document.getElementById("equip-modal-body");
+  if (!modal || !title || !body) return;
+
+  const enchant = (eq.enchant !== undefined && eq.enchant > 0) ? `+${eq.enchant} ` : '';
+  title.innerText = `裝備詳情：${enchant}${eq.name}`;
+
+  const tierColor = itemDb?.tier === "red" ? "#ef4444" : (itemDb?.tier === "blue" ? "#38bdf8" : (itemDb?.tier === "green" ? "#22c55e" : "#f1f5f9"));
+
+  body.innerHTML = `
+    <div style="background:#090a0d; border:1px solid #232730; border-radius:4px; padding:10px;">
+      <div style="font-size:14px; font-weight:bold; color:${tierColor}; margin-bottom:4px;">
+        ${enchant}${eq.name}
+      </div>
+      <div style="font-size:12px; color:#cbd5e1; display:flex; flex-direction:column; gap:3px;">
+        ${itemDb?.ac !== undefined ? `<div>防禦力 (AC): <b style="color:#60a5fa;">${itemDb.ac - (eq.enchant || 0)}</b></div>` : ''}
+        ${itemDb?.small !== undefined ? `<div>小型 / 大型傷害: <b>${itemDb.small + (eq.enchant || 0)} / ${itemDb.large + (eq.enchant || 0)}</b></div>` : ''}
+        ${itemDb?.hitBonus ? `<div>命中加成: <b style="color:#facc15;">+${itemDb.hitBonus}</b></div>` : ''}
+        ${itemDb?.strBonus ? `<div>力量 (STR): <b style="color:#22c55e;">+${itemDb.strBonus}</b></div>` : ''}
+        ${itemDb?.dexBonus ? `<div>敏捷 (DEX): <b style="color:#22c55e;">+${itemDb.dexBonus}</b></div>` : ''}
+        ${itemDb?.conBonus ? `<div>體質 (CON): <b style="color:#22c55e;">+${itemDb.conBonus}</b></div>` : ''}
+        ${itemDb?.intBonus ? `<div>智力 (INT): <b style="color:#22c55e;">+${itemDb.intBonus}</b></div>` : ''}
+        ${itemDb?.mrBonus ? `<div>抗魔 (MR): <b style="color:#a855f7;">+${itemDb.mrBonus}%</b></div>` : ''}
+        <div>重量: ${itemDb?.weight || 0}</div>
+        <div style="color:#94a3b8; font-size:11px; margin-top:4px;">${itemDb?.desc || ''}</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:8px; margin-top:8px;">
+      <button type="button" class="btn btn-danger" style="flex:1; padding:8px;" onclick="unequipSlot('${slotKey}'); closeEquipActionModal();">卸下裝備</button>
+      <button type="button" class="btn" style="flex:1; padding:8px;" onclick="closeEquipActionModal();">取消</button>
+    </div>
+  `;
+
+  modal.style.display = "flex";
+}
+window.openEquipDetailModal = openEquipDetailModal;
+
+// 挑選背包物品穿戴彈窗
+function openEquipSelectModal(slotKey, slotType, slotDisplayName) {
+  if (!currentChar || !currentChar.inventory) return;
+  const modal = document.getElementById("equip-action-modal");
+  const title = document.getElementById("equip-modal-title");
+  const body = document.getElementById("equip-modal-body");
+  if (!modal || !title || !body) return;
+
+  title.innerText = `穿戴裝備 - 【${slotDisplayName}】`;
+
+  // 篩選背包中符合該部位的物品
+  const matchingItems = [];
+  currentChar.inventory.forEach((item, invIdx) => {
+    const dbItem = (typeof DB !== "undefined" && DB.items) ? DB.items[item.name] : null;
+    if (!dbItem) return;
+
+    let isMatch = false;
+    if (slotType === "ring") {
+      isMatch = (dbItem.slot === "ring");
+    } else {
+      isMatch = (dbItem.slot === slotKey || dbItem.slot === slotType);
     }
 
-    slotCard.innerHTML = `
- <div>
- <div style="font-size:11px; color:#cbd5e1; display:flex; align-items:center; gap:4px;">
- <span>${slot.icon}</span>
- <span style="font-weight:bold; color:#e2e8f0;">${slot.name}</span>
- </div>
- <div style="margin-top:2px;">${titleHtml}</div>
- </div>
- <div>
- ${eq ? `<button type="button" class="btn btn-danger" style="padding:2px 8px; font-size:11px;" onclick="unequipSlot('${slot.key}')">卸下</button>` : ''}
- </div>
- `;
-
-    grid.appendChild(slotCard);
+    if (isMatch) {
+      matchingItems.push({ item, invIdx, dbItem });
+    }
   });
 
-  eqContainer.appendChild(grid);
+  if (matchingItems.length === 0) {
+    body.innerHTML = `
+      <div style="text-align:center; padding:16px 8px; color:#94a3b8; font-size:12px;">
+        🎒 背包內目前沒有可裝備於【${slotDisplayName}】的物品。<br>
+        可前往各大村莊商店購買，或在野外打怪掉落取得！
+      </div>
+      <div style="text-align:center; margin-top:8px;">
+        <button type="button" class="btn" onclick="closeEquipActionModal();">關閉</button>
+      </div>
+    `;
+  } else {
+    let listHtml = `<div style="display:flex; flex-direction:column; gap:6px; max-height:280px; overflow-y:auto;">`;
+    matchingItems.forEach(({ item, invIdx, dbItem }) => {
+      const enchant = (item.enchant !== undefined && item.enchant > 0) ? `+${item.enchant} ` : '';
+      const tierColor = dbItem.tier === "red" ? "#ef4444" : (dbItem.tier === "blue" ? "#38bdf8" : (dbItem.tier === "green" ? "#22c55e" : "#f1f5f9"));
+      listHtml += `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#0b0d12; border:1px solid #1f2430; padding:6px 10px; border-radius:4px;">
+          <div>
+            <div style="font-weight:bold; color:${tierColor}; font-size:12px;">${enchant}${item.name}</div>
+            <div style="font-size:10px; color:#94a3b8;">${dbItem.ac !== undefined ? `AC: ${dbItem.ac - (item.enchant||0)} ` : ''}${dbItem.desc || ''}</div>
+          </div>
+          <button type="button" class="btn btn-success" style="padding:4px 10px; font-size:11px;" onclick="equipItemFromInventory(${invIdx}, '${slotKey}'); closeEquipActionModal();">穿戴</button>
+        </div>
+      `;
+    });
+    listHtml += `</div>`;
+    listHtml += `
+      <div style="text-align:right; margin-top:8px;">
+        <button type="button" class="btn" onclick="closeEquipActionModal();">取消</button>
+      </div>
+    `;
+    body.innerHTML = listHtml;
+  }
+
+  modal.style.display = "flex";
+}
+window.openEquipSelectModal = openEquipSelectModal;
+
+function closeEquipActionModal() {
+  const modal = document.getElementById("equip-action-modal");
+  if (modal) modal.style.display = "none";
+}
+window.closeEquipActionModal = closeEquipActionModal;
   renderPolymorphTable();
 }
 

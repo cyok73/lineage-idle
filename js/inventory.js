@@ -274,7 +274,7 @@ function useItemByIndex(idx) {
   if (typeof updateStrategySelects === "function") updateStrategySelects();
 }
 
-function equipItemFromInventory(invIdx) {
+function equipItemFromInventory(invIdx, preferredSlot = null) {
   const item = currentChar.inventory[invIdx];
   if (!item) return;
   const dbItem = DB.items ? DB.items[item.name] : null;
@@ -283,21 +283,34 @@ function equipItemFromInventory(invIdx) {
   if (!currentChar.equipped) {
     currentChar.equipped = {
       weapon: null, body: null, head: null, shield: null, cloak: null,
-      glove: null, boots: null, necklace: null, earring: null, ring1: null, ring2: null, belt: null
+      glove: null, boots: null, necklace: null, earring: null, ring1: null, ring2: null, ring3: null, ring4: null, belt: null, tshirt: null, rune: null
     };
   }
 
-  let targetSlot = dbItem.slot;
+  let targetSlot = preferredSlot || dbItem.slot;
 
-  // 戒指智慧分配 (ring1 有裝備則嘗試戴在 ring2，兩個都有則頂替 ring1)
-  if (targetSlot === "ring") {
+  // 戒指智慧分配 (ring1 -> ring2 -> ring3(Lv76) -> ring4(Lv81))
+  if (dbItem.slot === "ring" && !preferredSlot) {
     if (!currentChar.equipped.ring1) {
       targetSlot = "ring1";
     } else if (!currentChar.equipped.ring2) {
       targetSlot = "ring2";
+    } else if ((currentChar.level || 1) >= 76 && !currentChar.equipped.ring3) {
+      targetSlot = "ring3";
+    } else if ((currentChar.level || 1) >= 81 && !currentChar.equipped.ring4) {
+      targetSlot = "ring4";
     } else {
       targetSlot = "ring1";
     }
+  }
+
+  if (targetSlot === "ring3" && (currentChar.level || 1) < 76) {
+    alert("⚠️ 戒指欄位三需角色等級達到 Lv.76 始可解鎖！");
+    return;
+  }
+  if (targetSlot === "ring4" && (currentChar.level || 1) < 81) {
+    alert("⚠️ 戒指欄位四需角色等級達到 Lv.81 始可解鎖！");
+    return;
   }
 
   // 雙手武器卸除盾牌檢查
