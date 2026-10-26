@@ -237,12 +237,18 @@ function triggerAutoRestock(reasonItem = "") {
 }
 
 function consumeScrollWithoutStopping(scrollName) {
-  if (!currentChar || !currentChar.inventory) return;
+  if (!currentChar || !currentChar.inventory) return false;
+  if (isScrollCooldownItem && isScrollCooldownItem(scrollName) && !canUseScroll(scrollName)) {
+    return false;
+  }
   const idx = currentChar.inventory.findIndex(i => i.name === scrollName && (i.count || 1) > 0);
   if (idx !== -1) {
     currentChar.inventory[idx].count--;
     if (currentChar.inventory[idx].count <= 0) currentChar.inventory.splice(idx, 1);
+    if (typeof markScrollUsed === "function") markScrollUsed(scrollName);
+    return true;
   }
+  return false;
 }
 
 // ---------------- 完全去步驟化流水線 (零 Alert 阻斷) ----------------
@@ -415,6 +421,7 @@ function executePipelineSOP(isStartup = false) {
   if (currentWeight >= maxAllowedWeight) {
     log(`🛑【安全中斷】整備後負重達 ${currentWeight}%（已超過設定上限）！已暫停掛機，請手動清理負重。`, "mob");
     if (typeof stopLoop === "function") stopLoop();
+    gameState.isRestocking = false;
     gameState.restockReasonItem = null;
     return;
   }
@@ -424,6 +431,7 @@ function executePipelineSOP(isStartup = false) {
     if (isGoldExhausted || !hasItem(reason)) {
       log(`🛑【安全中斷】金幣不足無法補齊基礎物資【${reason}】，已暫停掛機！`, "mob");
       if (typeof stopLoop === "function") stopLoop();
+      gameState.isRestocking = false;
       gameState.restockReasonItem = null;
       return;
     }

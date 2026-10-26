@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Lineage Idle - 天堂 1.82 經典復刻版</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=13">
 </head>
 
 <body>
@@ -173,6 +173,7 @@
         <button class="nav-btn" onclick="switchTab('village')">🏛️ 各大陸村莊</button>
         <button class="nav-btn" onclick="switchTab('storage')">🏦 個人倉庫</button>
         <button class="nav-btn" onclick="switchTab('strategy')">⚙️ 掛機戰術設定</button>
+        <button class="nav-btn" onclick="switchTab('skills')">✨ 技能與魔法</button>
         <button id="btn-nav-admin" class="nav-btn" style="border-color:var(--gold); color:var(--gold); display:none;"
           onclick="switchTab('admin')">👑 最高權限</button>
         <button class="nav-btn" style="border-color:#e74c3c; color:#e74c3c;" onclick="backToCharSelect()">選角選單</button>
@@ -267,6 +268,9 @@
                 <option value="windwood_desert">風木南部沙漠</option>
                 <option value="giran_1f">奇岩地監 1 樓</option>
                 <option value="giran_4f">奇岩地監 4 樓 (Boss 塞尼斯)</option>
+               <option value="silver_knight_field">銀騎士訓練場</option>
+               <option value="heine_water_dungeon">海音水底地監</option>
+               <option value="werden_fire_dragon">威頓火龍窟 (Boss 巴拉卡斯)</option>
               </select>
               <button type="button" class="btn btn-gold" onclick="exitVillageToField()">出發打怪</button>
             </div>
@@ -357,6 +361,10 @@
               <option value="elf_forest">妖精森林</option>
               <option value="windwood_village">風木村莊</option>
               <option value="werner_village_town">燃柳村莊</option>
+               <option value="giran_village">奇岩城鎮</option>
+               <option value="silver_knight_village">銀騎士村莊</option>
+               <option value="heine_village">海音村莊</option>
+               <option value="werden_village">威頓村莊</option>
             </select>
           </div>
           <h2>村莊 NPC 商店與設施</h2>
@@ -398,6 +406,12 @@
 
         <!-- 掛機戰術設定面板 (由 js/strategy.js 自動動態渲染) -->
         <div id="tab-strategy" class="tab-content"></div>
+
+        <!-- 技能與魔法分頁 -->
+        <div id="tab-skills" class="tab-content">
+          <h2>技能與魔法</h2>
+          <div id="skill-list-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap:8px;"></div>
+        </div>
 
         <!-- 👑 最高權限 (GM 管理面版) -->
         <div id="tab-admin" class="tab-content">
@@ -500,17 +514,17 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- 2. 資料設定 -->
-  <script src="js/data.js"></script>
+  <script src="js/data.js?v=13"></script>
 
   <!-- 3. 各功能模組（注意順序） -->
-  <script src="js/main.js"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/character.js"></script>
-  <script src="js/inventory.js"></script>
-  <script src="js/strategy.js"></script>
-  <script src="js/radar.js"></script>
-  <script src="js/battle.js"></script>
-  <script src="js/admin.js"></script>
+  <script src="js/main.js?v=13"></script>
+  <script src="js/supabase.js?v=13"></script>
+  <script src="js/character.js?v=13"></script>
+  <script src="js/inventory.js?v=13"></script>
+  <script src="js/strategy.js?v=13"></script>
+  <script src="js/radar.js?v=13"></script>
+  <script src="js/battle.js?v=13"></script>
+  <script src="js/admin.js?v=13"></script>
 </body>
 
 </html>

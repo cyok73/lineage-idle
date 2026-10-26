@@ -164,12 +164,12 @@ const DB = {
     // --- 武防強化卷軸與魔法書 ---
     "對武器施法的卷軸": { type: "enchant_w", tier: "scroll", weight: 2.0, price: 50000, desc: "強化武器攻擊力 (安定值+6)" },
     "對防具施法的卷軸": { type: "enchant_a", tier: "scroll", weight: 2.0, price: 25000, desc: "強化防具AC額外-1 (安定值+4)" },
-    "魔法書(火球術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 30000, desc: "習得二級火系魔法" },
-    "魔法書(極道落雷)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 80000, desc: "習得四級範圍雷電魔法" },
-    "魔法書(高級治癒術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 120000, desc: "習得五級單體急救神術" },
-    "魔法書(體魄強健術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 150000, desc: "力量+5 核心隊友增益魔法" },
-    "魔法書(聖結界)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 500000, desc: "法師神技：隊友受擊傷害減免 50%" },
-    "魔法書(究極光裂術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 2000000, desc: "法師終極單體毀滅魔法" },
+    "魔法書(火球術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 30000, skill: "火球術", desc: "習得二級火系魔法" },
+    "魔法書(極道落雷)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 80000, skill: "極道落雷", desc: "習得四級範圍雷電魔法" },
+    "魔法書(高級治癒術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 120000, skill: "高級治癒術", desc: "習得五級單體急救神術" },
+    "魔法書(體魄強健術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 150000, skill: "體魄強健術", desc: "力量+5 核心隊友增益魔法" },
+    "魔法書(聖結界)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 500000, skill: "聖結界", desc: "法師神技：隊友受擊傷害減免 50%" },
+    "魔法書(究極光裂術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 2000000, skill: "究極光裂術", desc: "法師終極單體毀滅魔法" },
 
     // --- 材料與收購產物 ---
     "妖魔圖騰": { type: "etc", tier: "mat", weight: 1.0, price: 200, desc: "燃柳村羅浮專用高價收購圖騰" },
@@ -259,12 +259,65 @@ const DB = {
     { name: "黑暗妖精弓箭手", reqLv: 52, speedInterval: 680, type: "遠程極速" }
   ],
 
+    silver_knight_field: {
+      name: "銀騎士訓練場 (Lv 30~40)", maxMobs: 26, reqLv: 30,
+      monsters: [
+        { name: "銀騎士", level: 32, hp: 360, ac: -6, size: "small", aggressive: true, undead: false, exp: 950, drops: [{ item: "金幣", min: 250, max: 700, chance: 0.9 }, { item: "銀原石", chance: 0.2 }, { item: "銀長劍", chance: 0.04 }] },
+        { name: "黑暗精靈", level: 35, hp: 420, ac: -8, size: "small", aggressive: true, undead: false, exp: 1150, drops: [{ item: "金幣", min: 300, max: 800, chance: 0.9 }, { item: "抗魔法斗篷", chance: 0.04 }, { item: "對防具施法的卷軸", chance: 0.06 }] },
+        { name: "銀騎守衛", level: 38, hp: 520, ac: -10, size: "small", aggressive: true, undead: false, exp: 1400, drops: [{ item: "金幣", min: 350, max: 900, chance: 0.9 }, { item: "力量手套", chance: 0.05 }, { item: "對武器施法的卷軸", chance: 0.06 }] }
+      ]
+    },
+    heine_water_dungeon: {
+      name: "海音水底地監 (Lv 40~50)", maxMobs: 24, reqLv: 40,
+      monsters: [
+        { name: "水元素", level: 40, hp: 600, ac: -12, size: "small", aggressive: true, undead: false, exp: 1700, drops: [{ item: "金幣", min: 400, max: 1000, chance: 0.9 }, { item: "藍色藥水", count: 1, chance: 0.25 }] },
+        { name: "海龍", level: 45, hp: 900, ac: -16, size: "large", aggressive: true, undead: false, exp: 2300, drops: [{ item: "金幣", min: 600, max: 1500, chance: 0.9 }, { item: "瑟魯基之劍", chance: 0.03 }, { item: "魔法書(高級治癒術)", chance: 0.05 }] },
+        { name: "深海魔獸", level: 48, hp: 1100, ac: -18, size: "large", aggressive: true, undead: false, exp: 2800, drops: [{ item: "金幣", min: 700, max: 1800, chance: 0.9 }, { item: "抗魔法斗篷", chance: 0.04 }, { item: "對防具施法的卷軸", chance: 0.07 }] }
+      ]
+    },
+    werden_fire_dragon: {
+      name: "威頓火龍窟 (Lv 50+)", maxMobs: 20, reqLv: 50, isBossMap: true,
+      monsters: [
+        { name: "火蜥蜴", level: 50, hp: 1200, ac: -20, size: "small", aggressive: true, undead: false, exp: 3200, drops: [{ item: "金幣", min: 800, max: 2000, chance: 0.9 }, { item: "翡翠藥水", count: 2, chance: 0.3 }] },
+        { name: "火焰魔人", level: 55, hp: 1800, ac: -24, size: "large", aggressive: true, undead: false, exp: 4200, drops: [{ item: "金幣", min: 1000, max: 2500, chance: 0.9 }, { item: "力量手套", chance: 0.05 }, { item: "對武器施法的卷軸", chance: 0.08 }] },
+        { name: "巴拉卡斯", level: 70, hp: 30000, ac: -60, size: "large", aggressive: true, undead: false, isBoss: true, exp: 30000, drops: [{ item: "金幣", min: 50000, max: 120000, chance: 1.0 }, { item: "瑟魯基之劍", chance: 0.2 }, { item: "力量手套", chance: 0.1 }, { item: "對武器施法的卷軸", count: 3, chance: 0.9 }, { item: "對防具施法的卷軸", count: 3, chance: 0.9 }] }
+      ]
+    },
+  skills: {
+    // 正統魔法 (法師/通用) 1~10 級
+    "初級治癒術": { name: "初級治癒術", school: "normal", tier: 1, mpCost: 10, cooldown: 2000, type: "heal", power: 60, desc: "回復少量 HP" },
+    "魔法飛彈": { name: "魔法飛彈", school: "normal", tier: 1, mpCost: 8, cooldown: 1500, type: "damage", power: 30, desc: "基礎單體魔法攻擊" },
+    "光箭術": { name: "光箭術", school: "normal", tier: 2, mpCost: 12, cooldown: 2000, type: "damage", power: 50, desc: "光屬性單體攻擊" },
+    "初級加速術": { name: "初級加速術", school: "normal", tier: 2, mpCost: 15, cooldown: 30000, type: "buff", stat: "dex", amount: 2, duration: 120, desc: "DEX+2" },
+    "火球術": { name: "火球術", school: "normal", tier: 3, mpCost: 15, cooldown: 3000, type: "damage", power: 80, desc: "單體火系傷害" },
+    "初級體力回復術": { name: "初級體力回復術", school: "normal", tier: 3, mpCost: 18, cooldown: 5000, type: "heal", power: 120, desc: "回復 HP" },
+    "極道落雷": { name: "極道落雷", school: "normal", tier: 4, mpCost: 25, cooldown: 4000, type: "damage", power: 140, desc: "範圍雷電魔法" },
+    "高級治癒術": { name: "高級治癒術", school: "normal", tier: 4, mpCost: 30, cooldown: 5000, type: "heal", power: 180, desc: "單體急救神術" },
+    "體魄強健術": { name: "體魄強健術", school: "normal", tier: 5, mpCost: 20, cooldown: 60000, type: "buff", stat: "str", amount: 5, duration: 300, desc: "STR+5" },
+    "聖結界": { name: "聖結界", school: "normal", tier: 5, mpCost: 40, cooldown: 120000, type: "buff", stat: "mr", amount: 20, duration: 300, desc: "受擊傷害減免" },
+    "究極光裂術": { name: "究極光裂術", school: "normal", tier: 6, mpCost: 60, cooldown: 8000, type: "damage", power: 320, desc: "終極單體毀滅魔法" },
+    // 精靈魔法 (妖精) 1~5 級
+    "屬性之火": { name: "屬性之火", school: "elf", tier: 1, mpCost: 10, cooldown: 2000, type: "damage", power: 40, desc: "火屬性攻擊" },
+    "屬性之水": { name: "屬性之水", school: "elf", tier: 1, mpCost: 10, cooldown: 2000, type: "damage", power: 40, desc: "水屬性攻擊" },
+    "屬性之風": { name: "屬性之風", school: "elf", tier: 2, mpCost: 12, cooldown: 2000, type: "damage", power: 55, desc: "風屬性攻擊" },
+    "屬性之地": { name: "屬性之地", school: "elf", tier: 2, mpCost: 12, cooldown: 2000, type: "damage", power: 55, desc: "地屬性攻擊" },
+    "三重矢": { name: "三重矢", school: "elf", tier: 3, mpCost: 15, cooldown: 2500, type: "damage", power: 90, desc: "連續三箭" },
+    "自然之祝福": { name: "自然之祝福", school: "elf", tier: 3, mpCost: 20, cooldown: 30000, type: "buff", stat: "dex", amount: 3, duration: 180, desc: "DEX+3" },
+    // 騎士技術
+    "衝擊之暈": { name: "衝擊之暈", school: "knight", tier: 1, mpCost: 15, cooldown: 10000, type: "damage", power: 60, desc: "暈眩攻擊" },
+    "堅固防護": { name: "堅固防護", school: "knight", tier: 1, mpCost: 20, cooldown: 60000, type: "buff", stat: "ac", amount: -2, duration: 300, desc: "AC-2" },
+    "反擊屏障": { name: "反擊屏障", school: "knight", tier: 2, mpCost: 25, cooldown: 45000, type: "buff", stat: "mr", amount: 10, duration: 200, desc: "反擊屏障" },
+    // 王族魔法
+    "精準目標": { name: "精準目標", school: "prince", tier: 1, mpCost: 10, cooldown: 20000, type: "buff", stat: "hit", amount: 5, duration: 180, desc: "命中+5" },
+    "皇家血統": { name: "皇家血統", school: "prince", tier: 1, mpCost: 15, cooldown: 30000, type: "buff", stat: "hp", amount: 50, duration: 300, desc: "HP+50" }
+  },
   villages: {
     ti_village: {
       name: "說話之島村莊",
       shops: [
         { title: "雜貨商・潘朵拉", desc: "新手冒險藥水、回捲與普通箭矢", items: ["紅色藥水", "澄色藥水", "藍色藥水", "綠色藥水", "傳送回家的卷軸", "瞬間移動卷軸", "箭"] },
-        { title: "鐵匠・亞特巴", desc: "基礎鋼鐵兵器與防具", items: ["短劍", "闊劍", "皮背心", "木盾", "侏儒圓盾"] }
+        { title: "鐵匠・亞特巴", desc: "基礎鋼鐵兵器與防具", items: ["短劍", "闊劍", "皮背心", "木盾", "侏儒圓盾"] },
+        { title: "技能導師・梅林", desc: "販售官方魔法書，使用後可學習技能", items: ["魔法書(火球術)", "魔法書(極道落雷)", "魔法書(高級治癒術)", "魔法書(體魄強健術)", "魔法書(聖結界)", "魔法書(究極光裂術)"] }
       ]
     },
     elf_forest: {
@@ -307,7 +360,28 @@ const DB = {
         { title: "奇岩名譽雜貨商・馬斯克", desc: "高級補給與每日限量武防卷軸", items: ["紅色藥水", "白色藥水", "勇敢藥水", "藍色藥水", "對武器施法的卷軸", "對防具施法的卷軸", "傳送回家的卷軸", "瞬間移動卷軸"] },
         { title: "工坊神兵大師・莫里", desc: "瑟魯基之劍、力量手套與稀世魔法書", items: ["瑟魯基之劍", "大馬士革刀", "雙手劍", "力量手套", "魔法書(高級治癒術)", "魔法書(體魄強健術)"] }
       ]
-    }
+    },
+     silver_knight_village: {
+       name: "銀騎士村莊",
+       shops: [
+         { title: "銀騎軍需官・蘭斯洛特", desc: "騎士訓練所補給與銀製裝備", items: ["紅色藥水", "白色藥水", "勇敢藥水", "傳送回家的卷軸", "瞬間移動卷軸", "銀長劍", "力量手套"] },
+         { title: "銀騎鐵匠・杜蘭", desc: "銀騎士專用武器與重甲", items: ["大馬士革刀", "雙手劍", "銀原石", "精靈金屬鎧甲", "抗魔法斗篷"] }
+       ]
+     },
+     heine_village: {
+       name: "海音村莊",
+       shops: [
+         { title: "海音雜貨商・瑪琳", desc: "水都補給與魔法書", items: ["紅色藥水", "白色藥水", "藍色藥水", "翡翠藥水", "傳送回家的卷軸", "瞬間移動卷軸", "魔法書(高級治癒術)"] },
+         { title: "海音武器坊・卡西", desc: "水底探險武器與防具", items: ["銀長劍", "十字弓", "瑟魯基之劍", "抗魔法斗篷", "精靈金屬鎧甲"] }
+       ]
+     },
+     werden_village: {
+       name: "威頓村莊",
+       shops: [
+         { title: "威頓補給商・阿格", desc: "火龍窟探險補給", items: ["紅色藥水", "白色藥水", "勇敢藥水", "翡翠藥水", "傳送回家的卷軸", "瞬間移動卷軸"] },
+         { title: "威頓鐵匠・凡恩", desc: "抗火裝備與高階武器", items: ["瑟魯基之劍", "大馬士革刀", "雙手劍", "力量手套", "抗魔法斗篷"] }
+       ]
+     }
   }
 };
 

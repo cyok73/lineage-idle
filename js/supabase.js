@@ -9,7 +9,27 @@ async function saveAccountData() {
   if (currentChar) {
     currentChar.botSettings = JSON.parse(JSON.stringify(gameState.botSettings));
     currentChar.potionThresholds = JSON.parse(JSON.stringify(gameState.potionThresholds));
+
+    // 🚨 同步掛機/地圖/座標狀態，確保 F5/登出後可恢復掛機
+    if (!currentChar.savedState) currentChar.savedState = {};
+    currentChar.savedState.isRunning = !!gameState.isRunning;
+    currentChar.savedState.botStatus = gameState.botStatus || (gameState.inVillage ? "village" : "idle");
+    currentChar.savedState.inVillage = !!gameState.inVillage;
+    currentChar.savedState.currentMap = gameState.currentMap || "talking_island";
+    currentChar.savedState.playerX = gameState.playerX || 1200;
+    currentChar.savedState.playerY = gameState.playerY || 800;
   }
+
+  // 同步角色陣列
+  if (currentChar && Array.isArray(currentUser.characters)) {
+    const idx = currentUser.characters.findIndex(c => c && c.name === currentChar.name);
+    if (idx !== -1) currentUser.characters[idx] = currentChar;
+  }
+
+  // 本地備份，避免雲端延遲時丟失
+  try {
+    localStorage.setItem("lineage_acc_" + currentUser.username, JSON.stringify(currentUser));
+  } catch (err) { }
   try {
     const { error } = await supabaseClient
       .from('game_accounts')
@@ -27,6 +47,36 @@ async function saveAccountData() {
   }
 }
 
+function logout() {
+  try {
+    if (typeof saveAccountData === "function") saveAccountData();
+  } catch (e) { }
+  localStorage.removeItem("lineage_remembered_user");
+  currentUser = null;
+  currentChar = null;
+  const boxLogin = document.getElementById("box-login");
+  const boxSelect = document.getElementById("box-select-char");
+  const boxCreate = document.getElementById("box-create-char");
+  const viewGame = document.getElementById("view-game");
+  const viewAuth = document.getElementById("view-auth");
+  if (boxSelect) boxSelect.style.display = "none";
+  if (boxCreate) boxCreate.style.display = "none";
+  if (boxLogin) boxLogin.style.display = "flex";
+  if (viewGame) {
+    viewGame.classList.remove("active");
+    viewGame.style.setProperty("display", "none", "important");
+  }
+  if (viewAuth) {
+    viewAuth.classList.add("active");
+    viewAuth.style.setProperty("display", "flex", "important");
+  }
+  const userElem = document.getElementById("login-user");
+  const passElem = document.getElementById("login-pass");
+  if (userElem) userElem.value = "";
+  if (passElem) passElem.value = "";
+}
+window.logout = logout;
+
 async function checkAutoLogin() {
   try {
     const rememberedUser = localStorage.getItem("lineage_remembered_user");
@@ -35,7 +85,7 @@ async function checkAutoLogin() {
         .from('game_accounts')
         .select('*')
         .eq('username', rememberedUser)
-        .single();
+        .maybeSingle();
 
       if (data && !error) {
         currentUser = {
@@ -87,7 +137,7 @@ async function handleLoginOrRegister() {
       .from('game_accounts')
       .select('*')
       .eq('username', user)
-      .single();
+      .maybeSingle();
 
     if (data) {
       if (data.password !== pass) {

@@ -140,6 +140,10 @@ function sanitizeCharacterData(char) {
     char.buffs = { green: 0, brave: 0 };
   }
 
+  if (!Array.isArray(char.skills)) {
+    char.skills = [];
+  }
+
   if (!char.botSettings || typeof char.botSettings !== "object") {
     char.botSettings = {
       weightLimit: 50,
@@ -273,7 +277,7 @@ function selectChar(index) {
     const tabBattle = document.getElementById("tab-battle");
     if (tabBattle) {
       tabBattle.classList.add("active");
-      tabBattle.style.setProperty("display", "block", "important");
+      tabBattle.style.setProperty("display", "flex", "important");
     }
 
     // E. 頂部資訊更新
@@ -580,6 +584,7 @@ function confirmCreateChar() {
     },
     storage: [],
     polymorph: "無變身",
+    skills: [],
     buffs: { green: 0, brave: 0 },
     botSettings: {
       weightLimit: 50,
@@ -765,4 +770,116 @@ function changePolymorph(polyName) {
   log(`已變身為【${polyName}】！攻速與射速同步提升！`, "sys");
   renderCharTab();
   updateLeftPanel();
+}
+
+// ---------------- 技能系統 ----------------
+function getSkillCooldownRemaining(skillName) {
+  if (!gameState.skillCooldowns) gameState.skillCooldowns = {};
+  const until = gameState.skillCooldowns[skillName] || 0;
+  return Math.max(0, until - Date.now());
+}
+
+function canUseSkill(skillName) {
+  return getSkillCooldownRemaining(skillName) <= 0;
+}
+
+function markSkillUsed(skillName, cooldown) {
+  if (!gameState.skillCooldowns) gameState.skillCooldowns = {};
+  gameState.skillCooldowns[skillName] = Date.now() + (cooldown || 2000);
+}
+
+function useSkill(skillName) {
+  if (!currentChar) return false;
+  if (!Array.isArray(currentChar.skills) || !currentChar.skills.includes(skillName)) {
+    log(`⚠️ 你尚未學會【${skillName}】。`, "sys");
+    return false;
+  }
+  const skill = (typeof DB !== "undefined" && DB.skills) ? DB.skills[skillName] : null;
+  if (!skill) {
+    log(`⚠️ 技能資料缺失：${skillName}`, "sys");
+    return false;
+  }
+  if ((currentChar.mp || 0) < skill.mpCost) {
+    log(`⚠️ MP 不足，無法使用【${skillName}】（需要 ${skill.mpCost} MP）。`, "sys");
+    return false;
+  }
+  if (!canUseSkill(skillName)) {
+    const remain = Math.ceil(getSkillCooldownRemaining(skillName) / 1000);
+    log(`⏳【技能冷卻中】${skillName} 需等待 ${remain} 秒。`, "sys");
+    return false;
+  }
+
+  // 套用效果
+  if (skill.type === "heal") {
+    const before = currentChar.hp;
+    currentChar.hp = Math.min(currentChar.maxHp, currentChar.hp + (skill.power || 0));
+    log(`✨ 使用【${skillName}】，HP 回復 +${currentChar.hp - before}！`, "heal");
+  } else if (skill.type === "damage") {
+    let target = gameState.targetMob;
+    if (!target) {
+      const candidates = (gameState.mobs || []).filter(m => Math.hypot(m.x - gameState.playerX, m.y - gameState.playerY) < 550);
+      if (candidates.length > 0) {
+        candidates.sort((a, b) => Math.hypot(a.x - gameState.playerX, a.y - gameState.playerY) - Math.hypot(b.x - gameState.playerX, b.y - gameState.playerY));
+        target = candidates[0];
+      }
+    }
+    if (target) {
+      target.currentHp = (target.currentHp || target.hp) - (skill.power || 0);
+      log(`🔥 使用【${skillName}】命中【${target.name}】，造成 ${skill.power} 傷害！`, "atk");
+      if (target.currentHp <= 0) {
+        target.currentHp = 0;
+        log(`💀 【${target.name}】被技能擊敗！`, "sys");
+        gameState.mobs = gameState.mobs.filter(m => m !== target);
+        gameState.targetMob = null;
+      }
+    } else {
+      log(`⚠️ 周圍沒有可攻擊的目標。`, "sys");
+    }
+  } else if (skill.type === "buff") {
+    if (!currentChar.buffs) currentChar.buffs = {};
+    currentChar.buffs[skill.stat] = (currentChar.buffs[skill.stat] || 0) + (skill.amount || 0);
+    log(`🛡️ 使用【${skillName}】，${skill.stat} +${skill.amount}（${skill.duration} 秒）`, "sys");
+    setTimeout(() => {
+      if (currentChar && currentChar.buffs) {
+        currentChar.buffs[skill.stat] = Math.max(0, (currentChar.buffs[skill.stat] || 0) - (skill.amount || 0));
+      }
+    }, (skill.duration || 60) * 1000);
+  }
+
+  currentChar.mp = Math.max(0, (currentChar.mp || 0) - skill.mpCost);
+  markSkillUsed(skillName, skill.cooldown || 2000);
+  updateLeftPanel();
+  if (typeof renderSkillTab === "function") renderSkillTab();
+  return true;
+}
+window.useSkill = useSkill;
+
+function renderSkillTab() {
+  const container = document.getElementById("skill-list-container");
+  if (!container) return;
+  container.innerHTML = "";
+
+  const learned = (currentChar && Array.isArray(currentChar.skills)) ? currentChar.skills : [];
+  if (learned.length === 0) {
+    container.innerHTML = `<div style="color:#7e889b; padding:12px;">尚未學會任何技能，使用魔法書即可學習。</div>`;
+  } else {
+    learned.forEach(skillName => {
+      const skill = (typeof DB !== "undefined" && DB.skills) ? DB.skills[skillName] : null;
+      if (!skill) return;
+      const cd = getSkillCooldownRemaining(skillName);
+      const card = document.createElement("div");
+      card.style.cssText = "background:#0f131a; border:1px solid #2e3440; border-radius:6px; padding:8px; display:flex; flex-direction:column; gap:4px;";
+      card.innerHTML = `
+        <div style="font-weight:bold; color:var(--gold); font-size:13px;">${skill.name}</div>
+        <div style="font-size:11px; color:#94a3b8;">${skill.desc || ""}</div>
+        <div style="font-size:11px; color:#38bdf8;">MP ${skill.mpCost} ｜ 冷卻 ${Math.ceil((skill.cooldown||0)/1000)}s</div>
+        <button class="btn btn-gold" ${cd > 0 ? "disabled" : ""} onclick="useSkill('${skill.name}')">
+          ${cd > 0 ? "冷卻中 " + Math.ceil(cd/1000) + "s" : "使用"}
+        </button>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  // 裝備欄位已移至人物狀態分頁，避免重複顯示
 }

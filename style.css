@@ -444,8 +444,9 @@ canvas {
 .log-box,
 #log-box {
   flex: 1 1 0 !important;
-  min-height: 120px !important;
-  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  height: auto !important;
   background: #07080a;
   border: 1px solid #1e293b;
   border-radius: 4px;

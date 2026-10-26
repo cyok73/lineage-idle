@@ -1,4 +1,4 @@
-// js/battle.js - 擬真戰場主迴圈、平滑收尾暫停、野外即時自動折現與不撿取判定
+// js/battle.js - 擬真戰場主迴圈、幽靈攻擊隔離、防重疊計時器與死亡懲罰修復版
 
 function getCurrentWeightPercent() {
   if (!currentChar) return 0;
@@ -54,19 +54,14 @@ function startLoop() {
 
   const btn = document.getElementById("toggle-btn");
   if (btn) {
-    btn.innerText = (gameState.botStatus === "running") ? "⏹ 停止掛機" : "▶ 開始掛機迴圈";
-    btn.className = (gameState.botStatus === "running") ? "btn btn-danger" : "btn btn-success";
+    btn.innerText = "⏹ 停止掛機";
+    btn.className = "btn btn-danger";
     btn.onclick = toggleLoop;
   }
 
-  // 確保登入時，戰鬥面板的標籤文字會對應正確的狀態
   const tag = document.getElementById("battle-mode-tag");
   if (tag) {
-    tag.innerText = (gameState.botStatus === "running") ? "[野外巡航中]" : (gameState.inVillage ? "[村莊休整中]" : "[野外待機中]");
-  }
-
-  if (!gameState.botStatus) {
-    gameState.botStatus = gameState.inVillage ? "village" : "idle";
+    tag.innerText = "[野外巡航中]";
   }
 
   log("▶ 啟動掛機！角色開始主動索敵巡邏...", "sys");
@@ -79,9 +74,9 @@ function startLoop() {
     }, 15000);
   }
 
-  // 🚨 核心防護：如果角色已經在野外掛機，絕對不要觸發回村 SOP！
+  // 若已經在野外，直接原地開始尋敵打怪，不執行村莊補給流水線
   if (!gameState.inVillage) {
-    return; // 直接中斷，讓下方的 gameTick() 就地接手打怪
+    return;
   }
 
   if (typeof executeStartupPipelineSOP === "function") {
@@ -101,7 +96,7 @@ function stopLoop() {
     btn.innerText = "▶ 開始掛機迴圈";
   }
 
-  if (gameState.targetMob && gameState.targetMob.currentHp > 0 && !gameState.inVillage) {
+  if (gameState.targetMob && gameState.targetMob.currentHp > 0 && !gameState.targetMob.isDead && !gameState.inVillage) {
     gameState.botStatus = "finishing";
     gameState.isRunning = false;
 
@@ -123,13 +118,21 @@ function stopLoop() {
 }
 window.stopLoop = stopLoop;
 
+// 計時器生命週期管理：確保計時器單一實例，防止多重加速
+function stopWorldTickTimer() {
+  if (gameState.loopTimer) {
+    clearInterval(gameState.loopTimer);
+    gameState.loopTimer = null;
+  }
+}
+window.stopWorldTickTimer = stopWorldTickTimer;
+
 function ensureWorldTickTimer() {
   if (!gameState.loopTimer) {
     gameState.loopTimer = setInterval(gameTick, 100);
   }
 }
 
-// 👈 關鍵修改：Canvas 寬高設定為 960x540
 function initGameUI() {
   canvas = document.getElementById("gameCanvas");
   if (canvas) {
@@ -335,10 +338,42 @@ function exitVillageToField() {
   if (typeof renderRadar === "function") renderRadar();
 }
 
+// 完善死亡流程：掉落經驗值懲罰與自動續掛判定
+function handlePlayerDeath(killerMob) {
+  gameState.deathCount = (gameState.deathCount || 0) + 1;
+  const curLv = currentChar.level || 1;
+  const maxExp = curLv * curLv * 100;
+  const lostExp = Math.floor(maxExp * 0.05); // 扣除當前等級 5% 經驗值
+
+  currentChar.exp = Math.max(0, (currentChar.exp || 0) - lostExp);
+  log(`💀 體力不支倒下！已被【${killerMob ? killerMob.name : "未知怪物"}】擊敗！失去 ${lostExp} 點經驗值 (5%)。`, "mob");
+
+  // 回復 30% 生命值送回村莊安全區
+  currentChar.hp = Math.floor(currentChar.maxHp * 0.3);
+
+  const maxLimit = gameState.botSettings?.maxDeathLimit || 3;
+  if (gameState.deathCount >= maxLimit) {
+    log(`🛑 今日累積死亡已達 ${gameState.deathCount}/${maxLimit} 次上限！已自動停止掛機，留置村莊安全區。`, "sys");
+    flyBackToVillage();
+  } else {
+    log(`⚠️ 角色於神殿復活 (累計死亡 ${gameState.deathCount}/${maxLimit} 次)！正在安全區補血整備...`, "sys");
+    flyBackToVillage();
+
+    // 依規格書：若掛機啟動中且未達上限，在村莊補滿血後自動重返戰場
+    if (gameState.isRunning) {
+      setTimeout(() => {
+        if (!currentChar) return;
+        currentChar.hp = currentChar.maxHp;
+        log("✨ 體力已在神殿完全恢復！自動重返獵場繼續巡航掛機！", "sys");
+        exitVillageToField();
+      }, 3000);
+    }
+  }
+}
+
 function flyBackToVillage() {
   gameState.inVillage = true;
   gameState.botStatus = "village";
-  gameState.isRunning = false;
   gameState.targetMob = null;
   gameState.surroundingMobs = 0;
   if (Array.isArray(gameState.mobs)) {
@@ -353,7 +388,7 @@ function flyBackToVillage() {
   const tag = document.getElementById("battle-mode-tag");
   if (tag) tag.innerText = "[村莊休整中]";
 
-  log("手動點擊返回村莊，掛機已暫停。", "sys");
+  log("已回到村莊安全區休整。", "sys");
   updateLeftPanel();
   if (typeof renderRadar === "function") renderRadar();
 }
@@ -445,6 +480,7 @@ function spawnWorldMonsterOrCluster() {
       y: finalY,
       isBoss: template.isBoss || BOSS_NAMES.includes(template.name),
       isAggroed: false,
+      isDead: false, // 嚴格死亡旗標
       wanderTarget: { x: finalX, y: finalY },
       lastWanderTime: Date.now()
     };
@@ -452,9 +488,13 @@ function spawnWorldMonsterOrCluster() {
   }
 }
 
+// 怪物行為更新：嚴格隔離已死亡怪物的幽靈反擊
 function updateWorldMobsBehavior() {
   const now = Date.now();
   gameState.mobs.forEach(mob => {
+    // 🚨 幽靈防護：若怪物已死亡或 HP 歸零，立刻停止一切移動與攻擊！
+    if (mob.isDead || mob.currentHp <= 0) return;
+
     const distToPlayer = Math.hypot(mob.x - gameState.playerX, mob.y - gameState.playerY);
 
     if (mob.aggressive && distToPlayer <= 180) mob.isAggroed = true;
@@ -469,9 +509,7 @@ function updateWorldMobsBehavior() {
           currentChar.hp = Math.max(0, currentChar.hp - mobDmg);
           log(`${mob.name} 攻擊命中！受到 ${mobDmg} 點傷害。`, "mob");
           if (currentChar.hp <= 0) {
-            log("💀 體力不支倒下！已被神殿救回村莊...", "sys");
-            currentChar.hp = Math.floor(currentChar.maxHp * 0.3);
-            flyBackToVillage();
+            handlePlayerDeath(mob);
           }
         }
       }
@@ -492,7 +530,7 @@ function updateWorldMobsBehavior() {
   });
 
   gameState.surroundingMobs = gameState.mobs.filter(m =>
-    m.isAggroed && Math.hypot(m.x - gameState.playerX, m.y - gameState.playerY) <= 45
+    !m.isDead && m.currentHp > 0 && m.isAggroed && Math.hypot(m.x - gameState.playerX, m.y - gameState.playerY) <= 45
   ).length;
 }
 
@@ -508,7 +546,8 @@ function handlePlayerMovementAndCombat() {
   const isBow = wpnData && wpnData.weaponType === "bow";
   const attackRange = isBow ? 190 : 32;
 
-  if (gameState.targetMob && (!gameState.mobs.includes(gameState.targetMob) || gameState.targetMob.currentHp <= 0)) {
+  // 目標死亡或已移出陣列時，立即清空鎖定，防止鞭屍
+  if (gameState.targetMob && (!gameState.mobs.includes(gameState.targetMob) || gameState.targetMob.isDead || gameState.targetMob.currentHp <= 0)) {
     gameState.targetMob = null;
   }
 
@@ -534,7 +573,8 @@ function handlePlayerMovementAndCombat() {
   if (gameState.botStatus === "running" && !gameState.targetMob) {
     const priorityElem = document.getElementById("cfg-target-priority");
     const priority = priorityElem ? priorityElem.value : "nearest";
-    let candidates = gameState.mobs.filter(m => Math.hypot(m.x - gameState.playerX, m.y - gameState.playerY) < 550);
+    // 嚴格只篩選存活且未死亡的怪物
+    let candidates = gameState.mobs.filter(m => !m.isDead && m.currentHp > 0 && Math.hypot(m.x - gameState.playerX, m.y - gameState.playerY) < 550);
 
     if (candidates.length > 0) {
       if (priority === "aggressive_first") {
@@ -576,8 +616,10 @@ function handlePlayerMovementAndCombat() {
   }
 }
 
-// ---------------- 執行攻擊與掉寶 (實裝就地變賣折現與不撿取規則) ----------------
+// 執行攻擊與掉寶 (加入 isDead 瞬時鎖定)
 function executePlayerAttack(mob, isBow, wpnData) {
+  if (mob.isDead || mob.currentHp <= 0) return;
+
   const weightPercent = getCurrentWeightPercent();
   if (weightPercent >= 82) {
     if (Math.random() < 0.25) {
@@ -675,6 +717,9 @@ function executePlayerAttack(mob, isBow, wpnData) {
 
   // 怪物擊殺與掉寶判定
   if (mob.currentHp <= 0) {
+    mob.currentHp = 0;
+    mob.isDead = true; // 🚨 核心防護：第一時間標記死亡，徹底阻斷反擊與重複結算
+
     const finalExp = Math.max(1, Math.floor(mob.exp * gmSettings.expRate));
     currentChar.exp = (currentChar.exp || 0) + finalExp;
     log(`討伐了 ${mob.name}！獲得 ${finalExp} 經驗值。`, "drop");
@@ -698,7 +743,7 @@ function executePlayerAttack(mob, isBow, wpnData) {
       if (typeof saveAccountData === 'function') saveAccountData();
     }
 
-    // 核心掉寶處理
+    // 掉寶結算
     if (mob.drops) {
       mob.drops.forEach(drop => {
         const effectiveChance = Math.min(1.0, drop.chance * gmSettings.dropRate);
@@ -733,6 +778,7 @@ function executePlayerAttack(mob, isBow, wpnData) {
       });
     }
 
+    // 將該怪移出陣列，清空鎖定
     gameState.mobs = gameState.mobs.filter(m => m !== mob);
     gameState.targetMob = null;
 

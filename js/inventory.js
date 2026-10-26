@@ -159,7 +159,31 @@ function hasItem(name) {
   return currentChar.inventory.some(i => i.name === name && (i.count || 1) > 0);
 }
 
+function isScrollCooldownItem(name) {
+  return name === "瞬間移動卷軸" || name === "傳送回家的卷軸";
+}
+
+function getScrollCooldownRemaining(name) {
+  if (!gameState.scrollCooldowns) gameState.scrollCooldowns = {};
+  const until = gameState.scrollCooldowns[name] || 0;
+  return Math.max(0, until - Date.now());
+}
+
+function canUseScroll(name) {
+  return getScrollCooldownRemaining(name) <= 0;
+}
+
+function markScrollUsed(name) {
+  if (!gameState.scrollCooldowns) gameState.scrollCooldowns = {};
+  gameState.scrollCooldowns[name] = Date.now() + 2000;
+}
+
 function useItemByName(name) {
+  if (isScrollCooldownItem(name) && !canUseScroll(name)) {
+    const remain = Math.ceil(getScrollCooldownRemaining(name) / 1000);
+    log(`⏳【卷軸冷卻中】${name} 需等待 ${remain} 秒後才能再次使用。`, "sys");
+    return false;
+  }
   const idx = currentChar.inventory.findIndex(i => i.name === name && (i.count || 1) > 0);
   if (idx !== -1) {
     useItemByIndex(idx);
@@ -171,6 +195,12 @@ function useItemByName(name) {
 function useItemByIndex(idx) {
   const item = currentChar.inventory[idx];
   if (!item) return;
+
+  if (isScrollCooldownItem(item.name) && !canUseScroll(item.name)) {
+    const remain = Math.ceil(getScrollCooldownRemaining(item.name) / 1000);
+    log(`⏳【卷軸冷卻中】${item.name} 需等待 ${remain} 秒後才能再次使用。`, "sys");
+    return;
+  }
 
   const dbItem = DB.items[item.name];
 
@@ -204,13 +234,34 @@ function useItemByIndex(idx) {
     gameState.playerY = Math.floor(Math.random() * (WORLD_HEIGHT - 200)) + 100;
     gameState.targetMob = null;
     gameState.patrolTarget = null;
-    gameState.mobs.forEach(m => m.isAggroed = false);
+    // 只在新位置補生成一般怪，保留原有怪物與 Boss 位置
+    if (typeof spawnMobsNearPlayer === "function") {
+      const nearby = gameState.mobs.filter(m => Math.hypot(m.x - gameState.playerX, m.y - gameState.playerY) < 550).length;
+      if (nearby < 3) spawnMobsNearPlayer(5);
+    } else {
+      gameState.mobs.forEach(m => m.isAggroed = false);
+    }
     log("使用瞬間移動卷軸，瞬間傳送至隨機區域！", "sys");
+    markScrollUsed(item.name);
   } else if (item.name === "傳送回家的卷軸") {
+    markScrollUsed(item.name);
     if (gameState.isRunning) {
       triggerAutoRestock("手動撕回家卷");
     } else {
       flyBackToVillage();
+    }
+  } else if (dbItem && dbItem.type === "spellbook") {
+    const skillName = dbItem.skill;
+    if (skillName && DB.skills && DB.skills[skillName]) {
+      if (!currentChar.skills) currentChar.skills = [];
+      if (!currentChar.skills.includes(skillName)) {
+        currentChar.skills.push(skillName);
+        log(`📖 學會技能【${skillName}】！`, "sys");
+      } else {
+        log(`📖 你已經學會【${skillName}】，此魔法書已無效。`, "sys");
+      }
+    } else {
+      log("📖 此魔法書無法解析。", "sys");
     }
   }
 
@@ -449,7 +500,7 @@ function renderInventoryTab() {
     let actionBtn = "";
     if (dbItem.type === "weapon" || dbItem.type === "armor" || dbItem.type === "accessory") {
       actionBtn = `<button class="btn btn-success" onclick="equipItemFromInventory(${idx})">裝備</button>`;
-    } else if (dbItem.type === "potion" || dbItem.type === "scroll") {
+    } else if (dbItem.type === "potion" || dbItem.type === "scroll" || dbItem.type === "spellbook") {
       actionBtn = `<button class="btn" onclick="useItemByIndex(${idx})">使用</button>`;
     } else if (dbItem.type === "enchant_w" || dbItem.type === "enchant_a") {
       actionBtn = `<button class="btn btn-gold" onclick="useItemByIndex(${idx})">✨ 點卷軸</button>`;

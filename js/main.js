@@ -26,6 +26,7 @@ let gameState = {
   viewingVillage: "ti_village",
   inVillage: false,
   isRestocking: false,
+  deathCount: 0, // 第一階段：累計死亡次數計數器
 
   playerX: 1200,
   playerY: 800,
@@ -44,6 +45,7 @@ let gameState = {
   },
 
   botSettings: {
+    maxDeathLimit: 3, // 預設死亡 3 次才停止掛機
     storeRules: [],
     sellRules: [],
     buyRules: [
@@ -167,7 +169,6 @@ function applyFilterToLogRow(row) {
   }
 }
 
-// 👈 關鍵修改：switchTab 切換至 battle 分頁時採用 flex 佈局
 function switchTab(tabId) {
   if (tabId === "admin" && (!currentUser || currentUser.roleLevel < 2)) {
     alert("⚠️ 您的帳號權限為【一級 一般玩家】，無權訪問 GM 控制台！");
@@ -185,7 +186,11 @@ function switchTab(tabId) {
   const targetTab = document.getElementById("tab-" + tabId);
   if (targetTab) {
     targetTab.classList.add("active");
-    targetTab.style.setProperty("display", "block", "important");
+    if (tabId === "battle") {
+      targetTab.style.setProperty("display", "flex", "important");
+    } else {
+      targetTab.style.setProperty("display", "block", "important");
+    }
   }
 
   const btn = Array.from(document.querySelectorAll(".nav-btn")).find(b => b.getAttribute("onclick")?.includes(`'${tabId}'`));
@@ -198,6 +203,7 @@ function switchTab(tabId) {
     if (tabId === "village" && typeof renderVillageTab === "function") renderVillageTab();
     if (tabId === "storage" && typeof renderStorageTab === "function") renderStorageTab();
     if (tabId === "strategy" && typeof renderStrategyTab === "function") renderStrategyTab();
+    if (tabId === "skills" && typeof renderSkillTab === "function") renderSkillTab();
     if (tabId === "admin" && typeof renderAdminTab === "function") renderAdminTab();
     if (tabId === "battle" && typeof renderRadar === "function") renderRadar();
   } catch (err) {
@@ -205,7 +211,7 @@ function switchTab(tabId) {
   }
 }
 
-// ---------------- 關鍵修復：全域角色與掛機狀態持久化 ----------------
+// ---------------- 全域角色與掛機狀態持久化 ----------------
 function saveAccountData() {
   if (!currentUser || !currentChar) return;
 
@@ -216,6 +222,7 @@ function saveAccountData() {
   currentChar.savedState.currentMap = gameState.currentMap || "talking_island";
   currentChar.savedState.playerX = gameState.playerX || 1200;
   currentChar.savedState.playerY = gameState.playerY || 800;
+  currentChar.savedState.deathCount = gameState.deathCount || 0;
 
   if (Array.isArray(currentUser.characters)) {
     const idx = currentUser.characters.findIndex(c => c && c.name === currentChar.name);
@@ -238,14 +245,11 @@ window.addEventListener("DOMContentLoaded", () => {
   if (typeof checkAutoLogin === "function") checkAutoLogin();
 });
 
-// 監聽重整與分頁關閉事件，確保 F5 時狀態不丟失
+// 監聽重整與分頁關閉事件，確保 F5 與背景切換時狀態不丟失
 window.addEventListener("beforeunload", () => {
-  if (typeof saveAccountData === "function") {
-    saveAccountData();
-  }
+  if (typeof saveAccountData === "function") saveAccountData();
 });
 
-// 🚨 新增：針對手機或部分嚴格瀏覽器 F5 不觸發 beforeunload 的終極防護機制
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") {
     if (typeof saveAccountData === "function") saveAccountData();
