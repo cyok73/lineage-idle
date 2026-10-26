@@ -411,6 +411,7 @@ function unequipSlot(slot) {
 window.unequipSlot = unequipSlot;
 
 function openEnchantModal(scrollInvIdx) {
+  if (!currentChar || !Array.isArray(currentChar.inventory)) return;
   currentEnchantScrollIdx = scrollInvIdx;
   const scrollItem = currentChar.inventory[scrollInvIdx];
   if (!scrollItem) return;
@@ -636,6 +637,7 @@ function renderVillageTab() {
     shop.items.forEach((itemName, iIdx) => {
       const dbItem = DB.items[itemName];
       if (dbItem) {
+        const inputId = `shop-qty-${sIdx}-${iIdx}`;
         let defaultQty = (itemName === "箭" || itemName === "銀箭") ? 500 : (itemName.includes("水") ? 50 : 1);
         const iconHtml = (typeof getItemIconHtml === "function") ? getItemIconHtml(itemName) : "";
         rowsHtml += `
@@ -750,6 +752,10 @@ function withdrawFromStorageCustom(storageIdx) {
 
 // ---------------- 渲染個人倉庫介面 ----------------
 function renderStorageTab() {
+  if (!currentChar) return;
+  if (!Array.isArray(currentChar.storage)) currentChar.storage = [];
+  if (!Array.isArray(currentChar.inventory)) currentChar.inventory = [];
+
   const depositBody = document.getElementById("storage-deposit-body");
   const storageBody = document.getElementById("storage-table-body");
   const warning = document.getElementById("storage-warning");
