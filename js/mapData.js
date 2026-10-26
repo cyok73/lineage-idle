@@ -6,165 +6,165 @@ window.mapData = {
     name: "話島東郊果園",
     theme: "forest",
     bg: "assets/maps/field_bg.jpg",
-    tileBase: "#14241b",
-    gridLine: "#1f3b2b",
-    grassColor: "rgba(34,139,34,0.12)",
-    treeDensity: 0.06,
-    bounds: { x: 0, y: 0, width: 2000, height: 2000 }
+    tileBase: "#224726",
+    gridLine: "#2d5e33",
+    grassColor: "rgba(46,160,56,0.35)",
+    treeDensity: 0.08,
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
   "ti_cave_1f": {
     name: "話島地監 1F",
     theme: "cave",
-    tileBase: "#111418",
-    gridLine: "#1c2028",
-    wallColor: "rgba(60,60,80,0.15)",
+    tileBase: "#222733",
+    gridLine: "#2e3646",
+    wallColor: "rgba(70,80,110,0.3)",
     treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 1600, height: 1600 }
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
   "ti_cave_2f": {
     name: "話島地監 2F",
     theme: "cave",
-    tileBase: "#0e1115",
-    gridLine: "#181c24",
-    wallColor: "rgba(50,50,75,0.18)",
+    tileBase: "#1c212c",
+    gridLine: "#283040",
+    wallColor: "rgba(65,75,105,0.3)",
     treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 1600, height: 1600 }
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
   "ti_boss_room": {
     name: "話島首領密室",
     theme: "boss",
-    tileBase: "#1a0a0a",
-    gridLine: "#2d1414",
-    wallColor: "rgba(120,20,20,0.12)",
+    tileBase: "#28151a",
+    gridLine: "#3d1e26",
+    wallColor: "rgba(160,30,40,0.3)",
     treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 1200, height: 1200 }
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
 
   // === 燃柳村區域 ===
   "werner_village_field": {
     name: "燃柳村妖魔森林",
     theme: "dark_forest",
-    tileBase: "#101a10",
-    gridLine: "#1a2d1a",
-    grassColor: "rgba(20,80,20,0.15)",
-    treeDensity: 0.1,
-    bounds: { x: 0, y: 0, width: 2400, height: 2000 }
+    tileBase: "#1c2e1f",
+    gridLine: "#29452e",
+    grassColor: "rgba(30,100,40,0.3)",
+    treeDensity: 0.12,
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
 
   // === 風木沙漠 ===
   "windwood_desert": {
     name: "風木南部沙漠",
     theme: "desert",
-    tileBase: "#292117",
-    gridLine: "#453825",
-    grassColor: "rgba(180,150,80,0.08)",
+    tileBase: "#6b5437",
+    gridLine: "#856945",
+    grassColor: "rgba(220,185,110,0.25)",
     treeDensity: 0.02,
-    bounds: { x: 0, y: 0, width: 2400, height: 2000 }
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
 
   // === 古魯丁地監 ===
   "gludio_1f": {
     name: "古魯丁地監 1F",
-    theme: "dungeon",
-    tileBase: "#111827",
-    gridLine: "#1f2937",
-    wallColor: "rgba(40,50,80,0.12)",
+    theme: "cave",
+    tileBase: "#222733",
+    gridLine: "#2e3646",
+    wallColor: "rgba(70,80,110,0.3)",
     treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 1800, height: 1600 }
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
   "gludio_2f": {
     name: "古魯丁地監 2F",
-    theme: "dungeon",
-    tileBase: "#0f1522",
-    gridLine: "#1a2535",
-    wallColor: "rgba(35,45,75,0.14)",
+    theme: "cave",
+    tileBase: "#1f2430",
+    gridLine: "#2a3243",
+    wallColor: "rgba(65,75,105,0.3)",
     treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 1800, height: 1600 }
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
   "gludio_3f": {
     name: "古魯丁地監 3F",
-    theme: "dungeon",
-    tileBase: "#0d1220",
-    gridLine: "#182030",
-    wallColor: "rgba(30,40,70,0.16)",
+    theme: "cave",
+    tileBase: "#1d212c",
+    gridLine: "#272e3d",
+    wallColor: "rgba(60,70,100,0.3)",
     treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 1800, height: 1600 }
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
   "gludio_4f": {
     name: "古魯丁地監 4F",
     theme: "dungeon",
-    tileBase: "#0b101d",
-    gridLine: "#151e2c",
-    wallColor: "rgba(25,35,65,0.18)",
+    tileBase: "#1b202c",
+    gridLine: "#262e3f",
+    wallColor: "rgba(55,65,95,0.3)",
     treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 2000, height: 1800 }
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
   "gludio_5f": {
     name: "古魯丁地監 5F",
     theme: "dungeon",
-    tileBase: "#090e1a",
-    gridLine: "#121c28",
-    wallColor: "rgba(20,30,60,0.2)",
+    tileBase: "#191e29",
+    gridLine: "#232a3a",
+    wallColor: "rgba(50,60,90,0.3)",
     treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 2000, height: 1800 }
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
   "gludio_6f": {
     name: "古魯丁地監 6F",
     theme: "dungeon",
-    tileBase: "#080c18",
-    gridLine: "#101a25",
-    wallColor: "rgba(18,25,55,0.22)",
+    tileBase: "#171b26",
+    gridLine: "#212736",
+    wallColor: "rgba(45,55,85,0.3)",
     treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 2000, height: 1800 }
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
   "gludio_7f": {
     name: "古監 7F 死騎巢穴",
     theme: "boss",
-    tileBase: "#120808",
-    gridLine: "#221212",
-    wallColor: "rgba(100,15,15,0.15)",
+    tileBase: "#2a1418",
+    gridLine: "#421d23",
+    wallColor: "rgba(180,30,40,0.35)",
     treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 2200, height: 2000 }
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
 
   // === 巨蟻洞穴 ===
   "ant_nest_1f": {
     name: "巨蟻洞穴 1F",
-    theme: "cave",
-    tileBase: "#161210",
-    gridLine: "#261e18",
-    wallColor: "rgba(80,60,40,0.12)",
+    theme: "ant_cave",
+    tileBase: "#3d2e20",
+    gridLine: "#543f2c",
+    wallColor: "rgba(120,80,45,0.3)",
     treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 2000, height: 1800 }
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
   "ant_nest_2f": {
     name: "巨蟻洞穴 2F",
-    theme: "cave",
-    tileBase: "#13100d",
-    gridLine: "#221a14",
-    wallColor: "rgba(70,50,35,0.15)",
+    theme: "ant_cave",
+    tileBase: "#37281a",
+    gridLine: "#4d3824",
+    wallColor: "rgba(110,70,40,0.3)",
     treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 2000, height: 1800 }
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
 
   // === 奇岩地監 ===
   "giran_1f": {
     name: "奇岩地監 1F",
     theme: "dungeon",
-    tileBase: "#101520",
-    gridLine: "#1a2535",
-    wallColor: "rgba(40,55,90,0.12)",
+    tileBase: "#1c2331",
+    gridLine: "#293448",
+    wallColor: "rgba(65,80,120,0.3)",
     treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 2200, height: 2000 }
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
   "giran_4f": {
     name: "奇岩地監 4F 典獄司",
     theme: "boss",
-    tileBase: "#0d0a18",
-    gridLine: "#181428",
-    wallColor: "rgba(60,30,100,0.12)",
+    tileBase: "#241830",
+    gridLine: "#38254b",
+    wallColor: "rgba(110,40,150,0.35)",
     treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 2200, height: 2000 }
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
 
   // === 銀騎士訓練場 ===
@@ -172,32 +172,32 @@ window.mapData = {
     name: "銀騎士訓練場",
     theme: "field",
     bg: "assets/maps/town_bg.jpg",
-    tileBase: "#121a14",
-    gridLine: "#1e2d20",
-    grassColor: "rgba(40,120,50,0.1)",
-    treeDensity: 0.04,
-    bounds: { x: 0, y: 0, width: 2400, height: 2000 }
+    tileBase: "#234a26",
+    gridLine: "#316435",
+    grassColor: "rgba(50,160,60,0.3)",
+    treeDensity: 0.06,
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
 
   // === 海音水底地監 ===
   "heine_water_dungeon": {
     name: "海音水底地監",
     theme: "water",
-    tileBase: "#081820",
-    gridLine: "#0e2835",
-    wallColor: "rgba(20,80,120,0.12)",
+    tileBase: "#0e2b3d",
+    gridLine: "#15425e",
+    wallColor: "rgba(30,110,160,0.35)",
     treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 2200, height: 2000 }
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
 
   // === 威頓火龍窟 ===
   "werden_fire_dragon": {
     name: "威頓火龍窟",
     theme: "fire",
-    tileBase: "#271212",
-    gridLine: "#451a1a",
-    wallColor: "rgba(180,40,20,0.1)",
+    tileBase: "#361815",
+    gridLine: "#54231e",
+    wallColor: "rgba(220,60,30,0.35)",
     treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 2400, height: 2200 }
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   }
 };

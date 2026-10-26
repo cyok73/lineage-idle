@@ -1175,8 +1175,9 @@ function onMapSelectChange() {
   const mapSelect = document.getElementById("map-select");
   if (!mapSelect) return;
   gameState.currentMap = mapSelect.value;
-  // 清除地表緩存，讓新地圖重新生成地表紋理
-  if (typeof _terrainCacheKey !== "undefined") _terrainCacheKey = "";
+  // 清除地表緩存，讓新地圖立即生成新專屬場景
+  window._terrainCacheKey = "";
+  window._terrainCache = null;
   const cfg = window.mapData && window.mapData[gameState.currentMap];
   if (cfg && cfg.bounds) {
     gameState.playerX = cfg.bounds.x + cfg.bounds.width / 2;
@@ -1187,4 +1188,6 @@ function onMapSelectChange() {
   log(`已切換前往獵場：${curName}！`, "sys");
   updateLeftPanel();
   if (typeof renderStrategyTab === 'function') renderStrategyTab();
+  if (typeof renderRadar === 'function') renderRadar();
 }
+window.onMapSelectChange = onMapSelectChange;

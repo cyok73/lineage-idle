@@ -374,12 +374,12 @@ function drawMonsterSprite(name, screenX, screenY, size = 38, isBoss = false) {
   }
 }
 
-// ===== 地表環境渲染引擎 =====
-// 緩存離屏 Canvas 用於避免每幀重繪整個世界地表
-let _terrainCache = null;
-let _terrainCacheKey = "";
+// ===== 經典亞丁風格地表環境渲染引擎 =====
+// 緩存離屏 Canvas 避免每幀重複繪製複雜世界場景
+window._terrainCache = null;
+window._terrainCacheKey = "";
 
-// 簡易偽隨機 (用種子保證同一地圖場景物件位置固定)
+// 簡易偽隨機 (種子固定保證場景物件位置固定不跳動)
 function _seededRand(seed) {
   let s = seed % 2147483647;
   if (s <= 0) s += 2147483646;
@@ -399,14 +399,19 @@ function _hashStr(str) {
 
 function drawBattlefieldTerrain(cw, ch, camX, camY) {
   const mapKey = gameState.currentMap || "talking_island";
-  const mapCfg = window.mapData && window.mapData[mapKey];
-  const theme = mapCfg ? mapCfg.theme : "forest";
-  const tileBase = mapCfg ? mapCfg.tileBase : "#14241b";
-  const gridLine = mapCfg ? mapCfg.gridLine : "#1f3b2b";
+  const mapCfg = (window.mapData && window.mapData[mapKey]) || {
+    name: "說話之島",
+    theme: "forest",
+    tileBase: "#224726",
+    gridLine: "#2d5e33"
+  };
+  const theme = mapCfg.theme || "forest";
+  const tileBase = mapCfg.tileBase || "#224726";
+  const gridLine = mapCfg.gridLine || "#2d5e33";
 
-  // --- 嘗試載入並繪製背景圖 ---
+  // --- 嘗試載入並繪製自訂背景圖 (若有配置) ---
   let bgDrawn = false;
-  if (mapCfg && mapCfg.bg) {
+  if (mapCfg.bg) {
     if (!mapCfg._img) {
       const img = new Image();
       img.src = mapCfg.bg;
@@ -418,226 +423,537 @@ function drawBattlefieldTerrain(cw, ch, camX, camY) {
     }
   }
 
-  // --- 無背景圖則繪製程序化地表 ---
+  // --- 若無背景圖或背景圖載入中，繪製高解析經典程序化場景 ---
   if (!bgDrawn) {
-    // 基底填色
-    ctx.fillStyle = tileBase;
-    ctx.fillRect(0, 0, cw, ch);
+    const cacheKey = mapKey + "_" + WORLD_WIDTH + "_" + WORLD_HEIGHT;
+    if (window._terrainCacheKey !== cacheKey || !window._terrainCache) {
+      window._terrainCacheKey = cacheKey;
 
-    // 主題化地表紋理 (緩存到離屏 Canvas)
-    const cacheKey = mapKey + "_" + WORLD_WIDTH;
-    if (_terrainCacheKey !== cacheKey) {
-      _terrainCacheKey = cacheKey;
       const offW = WORLD_WIDTH;
       const offH = WORLD_HEIGHT;
-      // 限制離屏畫布大小以節省記憶體
-      const scale = Math.min(1, 2048 / Math.max(offW, offH));
-      const sw = Math.round(offW * scale);
-      const sh = Math.round(offH * scale);
       const offCanvas = document.createElement("canvas");
-      offCanvas.width = sw;
-      offCanvas.height = sh;
+      offCanvas.width = offW;
+      offCanvas.height = offH;
       const oc = offCanvas.getContext("2d");
 
+      // 1. 全域基底填色
       oc.fillStyle = tileBase;
-      oc.fillRect(0, 0, sw, sh);
+      oc.fillRect(0, 0, offW, offH);
 
       const rand = _seededRand(_hashStr(mapKey));
 
-      if (theme === "forest" || theme === "dark_forest" || theme === "field") {
-        // 草地斑塊
-        const grassCount = Math.floor(sw * sh / 1200);
-        for (let i = 0; i < grassCount; i++) {
-          const gx = rand() * sw;
-          const gy = rand() * sh;
-          const gr = 8 + rand() * 20;
-          const alpha = 0.04 + rand() * 0.08;
-          oc.fillStyle = theme === "dark_forest"
-            ? `rgba(15,60,15,${alpha})`
-            : `rgba(34,120,40,${alpha})`;
+      // 2. 主題專屬地表紋理與物件渲染
+      if (theme === "cave" || theme === "dungeon") {
+        // ========== 地監 / 洞穴：古老石板磚地面與火把燭台 ==========
+        const tileSize = 48;
+        const cols = Math.ceil(offW / tileSize);
+        const rows = Math.ceil(offH / tileSize);
+
+        // 鋪設立體石板磚 (每塊磚微調深淺色調與邊縫陰影)
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const tx = c * tileSize;
+            const ty = r * tileSize;
+            const noise = (rand() - 0.5) * 16;
+            const rVal = Math.max(15, Math.min(60, 32 + noise));
+            const gVal = Math.max(20, Math.min(65, 38 + noise));
+            const bVal = Math.max(28, Math.min(80, 50 + noise));
+
+            oc.fillStyle = `rgb(${Math.round(rVal)},${Math.round(gVal)},${Math.round(bVal)})`;
+            oc.fillRect(tx + 1, ty + 1, tileSize - 2, tileSize - 2);
+
+            // 石板邊緣立體光影 (頂部高光 / 右底暗邊)
+            oc.strokeStyle = "rgba(255, 255, 255, 0.05)";
+            oc.lineWidth = 1;
+            oc.beginPath();
+            oc.moveTo(tx + 1, ty + tileSize - 1);
+            oc.lineTo(tx + 1, ty + 1);
+            oc.lineTo(tx + tileSize - 1, ty + 1);
+            oc.stroke();
+
+            oc.strokeStyle = "rgba(0, 0, 0, 0.45)";
+            oc.beginPath();
+            oc.moveTo(tx + tileSize - 1, ty + 1);
+            oc.lineTo(tx + tileSize - 1, ty + tileSize - 1);
+            oc.lineTo(tx + 1, ty + tileSize - 1);
+            oc.stroke();
+
+            // 隨機磚塊裂痕
+            if (rand() < 0.15) {
+              oc.strokeStyle = "rgba(0, 0, 0, 0.35)";
+              oc.lineWidth = 1;
+              oc.beginPath();
+              oc.moveTo(tx + 8 + rand() * 10, ty + 6);
+              oc.lineTo(tx + 20 + rand() * 12, ty + 24);
+              oc.lineTo(tx + 14 + rand() * 20, ty + 38);
+              oc.stroke();
+            }
+          }
+        }
+
+        // 散落青苔與積水斑
+        for (let i = 0; i < 40; i++) {
+          const px = rand() * offW;
+          const py = rand() * offH;
+          const pr = 12 + rand() * 24;
+          oc.fillStyle = (theme === "cave")
+            ? `rgba(20, 60, 40, ${0.15 + rand() * 0.15})`
+            : `rgba(20, 40, 70, ${0.12 + rand() * 0.12})`;
+          oc.beginPath();
+          oc.ellipse(px, py, pr, pr * 0.6, rand() * Math.PI, 0, Math.PI * 2);
+          oc.fill();
+        }
+
+        // 散落白骨與骷髏殘骸 (經典地下城氛圍)
+        for (let i = 0; i < 45; i++) {
+          const bx = rand() * offW;
+          const by = rand() * offH;
+          // 骷髏頭
+          oc.fillStyle = "#e2d9c8";
+          oc.beginPath();
+          oc.arc(bx, by, 4.5, 0, Math.PI * 2);
+          oc.fill();
+          oc.fillStyle = "#111827";
+          oc.fillRect(bx - 2, by - 1, 1.5, 2);
+          oc.fillRect(bx + 0.5, by - 1, 1.5, 2);
+          // 肋骨 / 碎骨
+          oc.strokeStyle = "#d6cbba";
+          oc.lineWidth = 1.5;
+          oc.beginPath();
+          oc.moveTo(bx + 4, by + 3);
+          oc.lineTo(bx + 12 + rand() * 6, by + 5 + (rand() - 0.5) * 6);
+          oc.stroke();
+        }
+
+        // 地牢立柱火把 (帶溫暖橘黃徑向光暈！)
+        for (let i = 0; i < 28; i++) {
+          const fx = 80 + rand() * (offW - 160);
+          const fy = 80 + rand() * (offH - 160);
+
+          // 火把光暈 (照亮周圍石板磚)
+          const radGrad = oc.createRadialGradient(fx, fy, 4, fx, fy, 110);
+          radGrad.addColorStop(0, "rgba(251, 146, 60, 0.45)");
+          radGrad.addColorStop(0.4, "rgba(234, 88, 12, 0.2)");
+          radGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+          oc.fillStyle = radGrad;
+          oc.beginPath();
+          oc.arc(fx, fy, 110, 0, Math.PI * 2);
+          oc.fill();
+
+          // 火把底座鐵台石柱
+          oc.fillStyle = "#1e2430";
+          oc.fillRect(fx - 4, fy, 8, 14);
+          oc.fillStyle = "#0f131a";
+          oc.fillRect(fx - 5, fy + 12, 10, 4);
+
+          // 火焰本體
+          oc.fillStyle = "#ea580c";
+          oc.beginPath();
+          oc.arc(fx, fy - 1, 5, 0, Math.PI * 2);
+          oc.fill();
+          oc.fillStyle = "#fef08a";
+          oc.beginPath();
+          oc.arc(fx, fy - 2, 2.5, 0, Math.PI * 2);
+          oc.fill();
+        }
+
+      } else if (theme === "forest" || theme === "field" || theme === "dark_forest") {
+        // ========== 森林 / 野外草地：鮮明草地、泥土小徑、立體大樹、彩色野花 ==========
+        const isDark = (theme === "dark_forest");
+
+        // 1. 穿梭在草地上的蜿蜒泥土小徑
+        const pathCount = 3;
+        for (let p = 0; p < pathCount; p++) {
+          oc.strokeStyle = isDark ? "#382d22" : "#5a452e";
+          oc.lineWidth = 42 + rand() * 18;
+          oc.lineCap = "round";
+          oc.lineJoin = "round";
+          oc.beginPath();
+          let px = rand() * offW;
+          let py = (p / pathCount) * offH + rand() * 100;
+          oc.moveTo(px, py);
+          for (let seg = 0; seg < 5; seg++) {
+            px += (rand() - 0.4) * 500;
+            py += (rand() - 0.5) * 300;
+            oc.lineTo(px, py);
+          }
+          oc.stroke();
+        }
+
+        // 2. 泥徑碎石與車轍微紋
+        for (let i = 0; i < 200; i++) {
+          const rx = rand() * offW;
+          const ry = rand() * offH;
+          oc.fillStyle = "rgba(70, 50, 35, 0.25)";
+          oc.beginPath();
+          oc.ellipse(rx, ry, 2 + rand() * 4, 1.5, rand() * Math.PI, 0, Math.PI * 2);
+          oc.fill();
+        }
+
+        // 3. 綠意盎然的草地斑塊
+        for (let i = 0; i < 180; i++) {
+          const gx = rand() * offW;
+          const gy = rand() * offH;
+          const gr = 18 + rand() * 32;
+          oc.fillStyle = isDark
+            ? `rgba(25, 65, 30, ${0.2 + rand() * 0.15})`
+            : `rgba(45, 120, 50, ${0.2 + rand() * 0.2})`;
           oc.beginPath();
           oc.ellipse(gx, gy, gr, gr * 0.6, rand() * Math.PI, 0, Math.PI * 2);
           oc.fill();
         }
-        // 小樹/灌木
-        const density = mapCfg ? mapCfg.treeDensity || 0.04 : 0.04;
-        const treeCount = Math.floor(sw * sh * density / 600);
-        for (let i = 0; i < treeCount; i++) {
-          const tx = rand() * sw;
-          const ty = rand() * sh;
-          const ts = 4 + rand() * 8;
-          // 樹幹
-          oc.fillStyle = `rgba(60,40,20,${0.15 + rand() * 0.1})`;
-          oc.fillRect(tx - 1, ty, 2, ts * 0.6);
-          // 樹冠
-          oc.fillStyle = theme === "dark_forest"
-            ? `rgba(20,50,15,${0.2 + rand() * 0.15})`
-            : `rgba(30,80,25,${0.15 + rand() * 0.12})`;
-          oc.beginPath();
-          oc.arc(tx, ty, ts, 0, Math.PI * 2);
-          oc.fill();
-        }
-        // 小石頭
-        const stoneCount = Math.floor(sw * sh / 8000);
-        for (let i = 0; i < stoneCount; i++) {
-          const sx2 = rand() * sw;
-          const sy2 = rand() * sh;
-          const sr = 2 + rand() * 5;
-          oc.fillStyle = `rgba(80,80,70,${0.12 + rand() * 0.08})`;
-          oc.beginPath();
-          oc.ellipse(sx2, sy2, sr, sr * 0.7, rand() * Math.PI, 0, Math.PI * 2);
-          oc.fill();
-        }
-      } else if (theme === "desert") {
-        // 沙丘波紋
-        const duneCount = Math.floor(sw * sh / 2000);
-        for (let i = 0; i < duneCount; i++) {
-          const dx = rand() * sw;
-          const dy = rand() * sh;
-          const dw = 20 + rand() * 60;
-          const alpha = 0.03 + rand() * 0.06;
-          oc.fillStyle = `rgba(200,170,100,${alpha})`;
-          oc.beginPath();
-          oc.ellipse(dx, dy, dw, dw * 0.3, rand() * Math.PI * 0.5, 0, Math.PI * 2);
-          oc.fill();
-        }
-        // 仙人掌/岩石
-        const cactusCount = Math.floor(sw * sh / 20000);
-        for (let i = 0; i < cactusCount; i++) {
-          const cx = rand() * sw;
-          const cy = rand() * sh;
-          oc.fillStyle = `rgba(60,90,40,${0.2 + rand() * 0.1})`;
-          oc.fillRect(cx - 2, cy - 8, 4, 12);
-          oc.beginPath();
-          oc.arc(cx, cy - 8, 3, 0, Math.PI * 2);
-          oc.fill();
-        }
-      } else if (theme === "cave" || theme === "dungeon") {
-        // 岩壁紋理
-        const crackCount = Math.floor(sw * sh / 1500);
-        for (let i = 0; i < crackCount; i++) {
-          const cx = rand() * sw;
-          const cy = rand() * sh;
-          const cl = 5 + rand() * 20;
-          const alpha = 0.04 + rand() * 0.06;
-          oc.strokeStyle = theme === "dungeon"
-            ? `rgba(50,60,100,${alpha})`
-            : `rgba(70,60,50,${alpha})`;
-          oc.lineWidth = 0.5 + rand() * 1.5;
-          oc.beginPath();
-          oc.moveTo(cx, cy);
-          oc.lineTo(cx + (rand() - 0.5) * cl, cy + (rand() - 0.5) * cl);
-          oc.stroke();
-        }
-        // 水窪/溼痕
-        const puddleCount = Math.floor(sw * sh / 12000);
-        for (let i = 0; i < puddleCount; i++) {
-          const px = rand() * sw;
-          const py = rand() * sh;
-          const pr = 3 + rand() * 8;
-          oc.fillStyle = theme === "dungeon"
-            ? `rgba(30,40,80,${0.06 + rand() * 0.04})`
-            : `rgba(40,50,60,${0.05 + rand() * 0.04})`;
-          oc.beginPath();
-          oc.ellipse(px, py, pr, pr * 0.5, rand() * Math.PI, 0, Math.PI * 2);
-          oc.fill();
-        }
-        // 骨頭散落 (地監)
-        if (theme === "dungeon") {
-          const boneCount = Math.floor(sw * sh / 30000);
-          for (let i = 0; i < boneCount; i++) {
-            const bx = rand() * sw;
-            const by = rand() * sh;
-            const bl = 3 + rand() * 6;
-            oc.strokeStyle = `rgba(180,170,150,${0.08 + rand() * 0.06})`;
-            oc.lineWidth = 1;
+
+        // 4. 彩色野花叢 (紅白黃藍花朵點綴草地，極度鮮活！)
+        const flowerColors = ["#ef4444", "#facc15", "#ffffff", "#38bdf8", "#f472b6"];
+        for (let i = 0; i < 140; i++) {
+          const fx = rand() * offW;
+          const fy = rand() * offH;
+          const fCol = flowerColors[Math.floor(rand() * flowerColors.length)];
+          // 花瓣
+          oc.fillStyle = fCol;
+          for (let petal = 0; petal < 4; petal++) {
+            const ang = (petal * Math.PI) / 2;
             oc.beginPath();
-            oc.moveTo(bx, by);
-            oc.lineTo(bx + bl, by + (rand() - 0.5) * 4);
-            oc.stroke();
+            oc.arc(fx + Math.cos(ang) * 2.2, fy + Math.sin(ang) * 2.2, 1.6, 0, Math.PI * 2);
+            oc.fill();
+          }
+          // 花蕊
+          oc.fillStyle = "#fbbf24";
+          oc.beginPath();
+          oc.arc(fx, fy, 1.2, 0, Math.PI * 2);
+          oc.fill();
+        }
+
+        // 5. 灰色青苔立體石塊
+        for (let i = 0; i < 40; i++) {
+          const rx = rand() * offW;
+          const ry = rand() * offH;
+          const rw = 10 + rand() * 16;
+          // 石塊陰影
+          oc.fillStyle = "rgba(0, 0, 0, 0.35)";
+          oc.beginPath();
+          oc.ellipse(rx + 2, ry + 4, rw * 0.7, rw * 0.35, 0, 0, Math.PI * 2);
+          oc.fill();
+          // 石塊本體
+          oc.fillStyle = "#525964";
+          oc.beginPath();
+          oc.ellipse(rx, ry, rw * 0.6, rw * 0.4, 0, 0, Math.PI * 2);
+          oc.fill();
+          // 石上青苔
+          oc.fillStyle = "#365314";
+          oc.beginPath();
+          oc.arc(rx - 2, ry - 1, rw * 0.25, 0, Math.PI * 2);
+          oc.fill();
+        }
+
+        // 6. 立體茂密大樹 (雙層樹冠、樹幹木紋與深色地面投影)
+        const treeCount = isDark ? 65 : 55;
+        for (let i = 0; i < treeCount; i++) {
+          const tx = rand() * offW;
+          const ty = rand() * offH;
+          const tr = 18 + rand() * 16;
+
+          // 地面大陰影
+          oc.fillStyle = "rgba(0, 0, 0, 0.35)";
+          oc.beginPath();
+          oc.ellipse(tx + 4, ty + tr * 0.8, tr * 1.1, tr * 0.5, 0, 0, Math.PI * 2);
+          oc.fill();
+
+          // 樹幹
+          oc.fillStyle = "#3e2716";
+          oc.fillRect(tx - 3, ty + tr * 0.2, 6, tr * 0.65);
+
+          if (isDark) {
+            // 枯死扭曲黑木 / 妖魔怪樹
+            oc.fillStyle = "#1e3020";
+            oc.beginPath();
+            oc.arc(tx, ty, tr, 0, Math.PI * 2);
+            oc.fill();
+            oc.fillStyle = "#142217";
+            oc.beginPath();
+            oc.arc(tx - 3, ty - 3, tr * 0.75, 0, Math.PI * 2);
+            oc.fill();
+          } else {
+            // 茂盛綠樹 (深底 + 亮綠頂冠)
+            oc.fillStyle = "#166534";
+            oc.beginPath();
+            oc.arc(tx, ty, tr, 0, Math.PI * 2);
+            oc.fill();
+
+            oc.fillStyle = "#22c55e";
+            oc.beginPath();
+            oc.arc(tx - 3, ty - 4, tr * 0.72, 0, Math.PI * 2);
+            oc.fill();
+
+            oc.fillStyle = "#86efac";
+            oc.beginPath();
+            oc.arc(tx - 5, ty - 6, tr * 0.38, 0, Math.PI * 2);
+            oc.fill();
           }
         }
-      } else if (theme === "water") {
-        // 水底波紋
-        const bubbleCount = Math.floor(sw * sh / 800);
-        for (let i = 0; i < bubbleCount; i++) {
-          const bx = rand() * sw;
-          const by = rand() * sh;
-          const br = 2 + rand() * 12;
-          const alpha = 0.03 + rand() * 0.05;
-          oc.strokeStyle = `rgba(60,160,200,${alpha})`;
-          oc.lineWidth = 0.5 + rand();
+
+      } else if (theme === "desert") {
+        // ========== 風木沙漠：金黃沙浪、立體仙人掌、巨獸骸骨 ==========
+        // 沙浪波紋
+        for (let i = 0; i < 40; i++) {
+          const dx = rand() * offW;
+          const dy = rand() * offH;
+          const dw = 50 + rand() * 90;
+          oc.fillStyle = "rgba(133, 105, 69, 0.3)";
           oc.beginPath();
-          oc.arc(bx, by, br, 0, Math.PI * 2);
+          oc.ellipse(dx, dy, dw, dw * 0.2, rand() * 0.5, 0, Math.PI * 2);
+          oc.fill();
+          oc.strokeStyle = "rgba(234, 179, 8, 0.15)";
+          oc.lineWidth = 1.5;
+          oc.beginPath();
+          oc.ellipse(dx, dy - 2, dw * 0.85, dw * 0.14, rand() * 0.5, 0, Math.PI * 2);
           oc.stroke();
         }
-        // 水藻
-        const seaweedCount = Math.floor(sw * sh / 10000);
-        for (let i = 0; i < seaweedCount; i++) {
-          const sx2 = rand() * sw;
-          const sy2 = rand() * sh;
-          const sl = 8 + rand() * 15;
-          oc.strokeStyle = `rgba(30,100,60,${0.1 + rand() * 0.08})`;
-          oc.lineWidth = 1 + rand() * 2;
+
+        // 巨獸肋骨骸骨
+        for (let i = 0; i < 20; i++) {
+          const bx = rand() * offW;
+          const by = rand() * offH;
+          oc.strokeStyle = "#e5e0d3";
+          oc.lineWidth = 3;
           oc.beginPath();
-          oc.moveTo(sx2, sy2);
-          oc.quadraticCurveTo(sx2 + (rand() - 0.5) * 10, sy2 - sl * 0.5, sx2 + (rand() - 0.5) * 6, sy2 - sl);
+          oc.arc(bx, by, 18 + rand() * 10, Math.PI * 0.8, Math.PI * 1.8);
           oc.stroke();
         }
-      } else if (theme === "fire" || theme === "boss") {
-        // 熔岩裂縫
-        const lavaCount = Math.floor(sw * sh / 2000);
-        for (let i = 0; i < lavaCount; i++) {
-          const lx = rand() * sw;
-          const ly = rand() * sh;
-          const ll = 6 + rand() * 25;
-          const alpha = theme === "fire"
-            ? 0.05 + rand() * 0.08
-            : 0.03 + rand() * 0.05;
-          oc.strokeStyle = theme === "fire"
-            ? `rgba(200,60,20,${alpha})`
-            : `rgba(150,30,30,${alpha})`;
-          oc.lineWidth = 0.5 + rand() * 2;
+
+        // 立體枝狀仙人掌
+        for (let i = 0; i < 35; i++) {
+          const cx = rand() * offW;
+          const cy = rand() * offH;
+          // 陰影
+          oc.fillStyle = "rgba(0, 0, 0, 0.25)";
+          oc.beginPath();
+          oc.ellipse(cx + 6, cy + 4, 12, 4, 0, 0, Math.PI * 2);
+          oc.fill();
+          // 主幹
+          oc.fillStyle = "#2d6a4f";
+          oc.fillRect(cx - 3, cy - 22, 6, 24);
+          // 側臂
+          oc.fillRect(cx - 9, cy - 14, 6, 3);
+          oc.fillRect(cx - 9, cy - 20, 3, 8);
+          oc.fillRect(cx + 3, cy - 10, 6, 3);
+          oc.fillRect(cx + 6, cy - 16, 3, 8);
+        }
+
+      } else if (theme === "boss") {
+        // ========== 首領密室：黑曜石磚、中心巨型血色召喚魔法陣、冥火四柱 ==========
+        // 鋪設深紅黑曜石板磚
+        const tileSize = 60;
+        const cols = Math.ceil(offW / tileSize);
+        const rows = Math.ceil(offH / tileSize);
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const tx = c * tileSize;
+            const ty = r * tileSize;
+            const n = (rand() - 0.5) * 10;
+            oc.fillStyle = `rgb(${Math.round(40 + n)},${Math.round(20 + n * 0.5)},${Math.round(25 + n * 0.5)})`;
+            oc.fillRect(tx + 1, ty + 1, tileSize - 2, tileSize - 2);
+            oc.strokeStyle = "rgba(0,0,0,0.5)";
+            oc.strokeRect(tx, ty, tileSize, tileSize);
+          }
+        }
+
+        // 中心震撼血色惡魔召喚魔法陣 (直徑 480px！)
+        const mx = offW / 2;
+        const my = offH / 2;
+
+        // 召喚陣紅光漸變
+        const magicGrad = oc.createRadialGradient(mx, my, 20, mx, my, 260);
+        magicGrad.addColorStop(0, "rgba(220, 38, 38, 0.45)");
+        magicGrad.addColorStop(0.6, "rgba(185, 28, 28, 0.2)");
+        magicGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+        oc.fillStyle = magicGrad;
+        oc.beginPath();
+        oc.arc(mx, my, 260, 0, Math.PI * 2);
+        oc.fill();
+
+        // 雙同心外環
+        oc.strokeStyle = "#ef4444";
+        oc.lineWidth = 3;
+        oc.beginPath();
+        oc.arc(mx, my, 200, 0, Math.PI * 2);
+        oc.stroke();
+        oc.lineWidth = 1.5;
+        oc.beginPath();
+        oc.arc(mx, my, 180, 0, Math.PI * 2);
+        oc.stroke();
+        oc.beginPath();
+        oc.arc(mx, my, 120, 0, Math.PI * 2);
+        oc.stroke();
+
+        // 五芒星刻痕
+        oc.strokeStyle = "#dc2626";
+        oc.lineWidth = 2.5;
+        oc.beginPath();
+        for (let p = 0; p < 5; p++) {
+          const ang = (p * 4 * Math.PI) / 5 - Math.PI / 2;
+          const px = mx + Math.cos(ang) * 180;
+          const py = my + Math.sin(ang) * 180;
+          if (p === 0) oc.moveTo(px, py);
+          else oc.lineTo(px, py);
+        }
+        oc.closePath();
+        oc.stroke();
+
+        // 四角冥火石柱 (燃燒紫色冥火)
+        const corners = [
+          { x: mx - 280, y: my - 240 },
+          { x: mx + 280, y: my - 240 },
+          { x: mx - 280, y: my + 240 },
+          { x: mx + 280, y: my + 240 }
+        ];
+        corners.forEach(cp => {
+          const pGrad = oc.createRadialGradient(cp.x, cp.y, 4, cp.x, cp.y, 120);
+          pGrad.addColorStop(0, "rgba(168, 85, 247, 0.5)");
+          pGrad.addColorStop(0.5, "rgba(126, 34, 206, 0.2)");
+          pGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+          oc.fillStyle = pGrad;
+          oc.beginPath();
+          oc.arc(cp.x, cp.y, 120, 0, Math.PI * 2);
+          oc.fill();
+
+          oc.fillStyle = "#1e1322";
+          oc.fillRect(cp.x - 6, cp.y, 12, 18);
+          oc.fillStyle = "#c084fc";
+          oc.beginPath();
+          oc.arc(cp.x, cp.y - 2, 6, 0, Math.PI * 2);
+          oc.fill();
+        });
+
+      } else if (theme === "fire") {
+        // ========== 威頓火龍窟：焦黑玄武岩石板、脈動鮮明熔岩裂縫 ==========
+        // 焦岩石板
+        const tileSize = 50;
+        const cols = Math.ceil(offW / tileSize);
+        const rows = Math.ceil(offH / tileSize);
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const tx = c * tileSize;
+            const ty = r * tileSize;
+            oc.fillStyle = (rand() < 0.5) ? "#2b1412" : "#361815";
+            oc.fillRect(tx + 1, ty + 1, tileSize - 2, tileSize - 2);
+          }
+        }
+
+        // 滾燙熾熱的熔岩裂隙河 (亮黃色中心 + 亮紅橙發光邊緣)
+        for (let i = 0; i < 18; i++) {
+          let lx = rand() * offW;
+          let ly = rand() * offH;
+          const segs = 6 + Math.floor(rand() * 6);
+
+          // 外層高溫橙紅光暈
+          oc.strokeStyle = "rgba(239, 68, 68, 0.6)";
+          oc.lineWidth = 10;
+          oc.lineCap = "round";
           oc.beginPath();
           oc.moveTo(lx, ly);
           let cx = lx, cy = ly;
-          const segs = 2 + Math.floor(rand() * 3);
+          const points = [[cx, cy]];
           for (let s = 0; s < segs; s++) {
-            cx += (rand() - 0.5) * ll;
-            cy += (rand() - 0.5) * ll;
+            cx += (rand() - 0.48) * 80;
+            cy += (rand() - 0.48) * 80;
+            points.push([cx, cy]);
             oc.lineTo(cx, cy);
           }
           oc.stroke();
-        }
-        // 熔岩光點
-        const glowCount = Math.floor(sw * sh / 6000);
-        for (let i = 0; i < glowCount; i++) {
-          const gx = rand() * sw;
-          const gy = rand() * sh;
-          const gr = 2 + rand() * 6;
-          const glowAlpha = 0.04 + rand() * 0.06;
-          oc.fillStyle = theme === "fire"
-            ? `rgba(255,100,20,${glowAlpha})`
-            : `rgba(200,50,50,${glowAlpha})`;
+
+          // 內層滾燙金黃岩漿核心
+          oc.strokeStyle = "#fef08a";
+          oc.lineWidth = 3.5;
           oc.beginPath();
-          oc.arc(gx, gy, gr, 0, Math.PI * 2);
+          points.forEach((pt, idx) => {
+            if (idx === 0) oc.moveTo(pt[0], pt[1]);
+            else oc.lineTo(pt[0], pt[1]);
+          });
+          oc.stroke();
+        }
+
+      } else if (theme === "water") {
+        // ========== 海音水底地監：沉船藍石磚、水底波光焦散、海藻水草 ==========
+        const tileSize = 48;
+        const cols = Math.ceil(offW / tileSize);
+        const rows = Math.ceil(offH / tileSize);
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const tx = c * tileSize;
+            const ty = r * tileSize;
+            oc.fillStyle = (rand() < 0.5) ? "#0e2b3d" : "#13374d";
+            oc.fillRect(tx + 1, ty + 1, tileSize - 2, tileSize - 2);
+          }
+        }
+
+        // 水光波紋網 (Caustics 折射光斑)
+        for (let i = 0; i < 60; i++) {
+          const cx = rand() * offW;
+          const cy = rand() * offH;
+          oc.strokeStyle = "rgba(56, 189, 248, 0.16)";
+          oc.lineWidth = 2;
+          oc.beginPath();
+          oc.ellipse(cx, cy, 25 + rand() * 35, 12 + rand() * 18, rand() * Math.PI, 0, Math.PI * 2);
+          oc.stroke();
+        }
+
+        // 深海長條水草
+        for (let i = 0; i < 40; i++) {
+          const sx = rand() * offW;
+          const sy = rand() * offH;
+          oc.strokeStyle = "#15803d";
+          oc.lineWidth = 3;
+          oc.beginPath();
+          oc.moveTo(sx, sy);
+          oc.quadraticCurveTo(sx + 15, sy - 20, sx - 5, sy - 40);
+          oc.stroke();
+        }
+
+      } else if (theme === "ant_cave") {
+        // ========== 巨蟻洞穴：黃褐黏土洞窟、蟻穴通道環紋、綠色螢光真菌 ==========
+        // 泥丘紋理
+        for (let i = 0; i < 70; i++) {
+          const ax = rand() * offW;
+          const ay = rand() * offH;
+          oc.fillStyle = (rand() < 0.5) ? "#4d3824" : "#322316";
+          oc.beginPath();
+          oc.ellipse(ax, ay, 20 + rand() * 35, 14 + rand() * 20, rand() * Math.PI, 0, Math.PI * 2);
+          oc.fill();
+        }
+
+        // 綠色螢光真菌菌斑 (洞穴自體發光生物)
+        for (let i = 0; i < 35; i++) {
+          const fx = rand() * offW;
+          const fy = rand() * offH;
+          const fGrad = oc.createRadialGradient(fx, fy, 2, fx, fy, 45);
+          fGrad.addColorStop(0, "rgba(132, 204, 22, 0.45)");
+          fGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+          oc.fillStyle = fGrad;
+          oc.beginPath();
+          oc.arc(fx, fy, 45, 0, Math.PI * 2);
+          oc.fill();
+
+          oc.fillStyle = "#bef264";
+          oc.beginPath();
+          oc.arc(fx, fy, 3, 0, Math.PI * 2);
           oc.fill();
         }
       }
 
-      _terrainCache = offCanvas;
+      window._terrainCache = offCanvas;
     }
 
-    // 繪製緩存的地表紋理
-    if (_terrainCache) {
-      ctx.drawImage(_terrainCache, -camX, -camY, WORLD_WIDTH, WORLD_HEIGHT);
+    // 繪製生成好的世界高畫質地表
+    if (window._terrainCache) {
+      ctx.drawImage(window._terrainCache, -camX, -camY, WORLD_WIDTH, WORLD_HEIGHT);
     }
   }
 
-  // --- 格線疊加 ---
+  // --- 3. 戰鬥輔助細格線 (半透明 0.12，融入地表不遮擋場景) ---
   ctx.strokeStyle = gridLine;
   ctx.lineWidth = 1;
-  ctx.globalAlpha = 0.4;
+  ctx.globalAlpha = 0.12;
   const startX = -(camX % 48);
   const startY = -(camY % 48);
   for (let x = startX; x < cw; x += 48) {
@@ -654,42 +970,39 @@ function drawBattlefieldTerrain(cw, ch, camX, camY) {
   }
   ctx.globalAlpha = 1.0;
 
-  // --- 動態環境特效 (每幀微動) ---
+  // --- 4. 動態環境光影粒子特效 (每幀賦予戰場生命力) ---
   const time = Date.now() * 0.001;
-  if (theme === "water") {
-    // 水面波光
-    ctx.globalAlpha = 0.03;
-    for (let i = 0; i < 8; i++) {
-      const wx = (Math.sin(time * 0.8 + i * 1.2) * 0.5 + 0.5) * cw;
-      const wy = (Math.cos(time * 0.6 + i * 0.9) * 0.5 + 0.5) * ch;
-      ctx.fillStyle = "rgba(100,200,255,0.5)";
+  if (theme === "fire") {
+    // 火龍窟升騰火星
+    for (let i = 0; i < 16; i++) {
+      const fx = ((Math.sin(time * 0.4 + i * 1.7) * 0.5 + 0.5) * cw);
+      const fy = (ch - ((time * 45 + i * 75) % ch));
+      ctx.fillStyle = `rgba(251, 146, 60, ${0.4 + Math.sin(time * 2 + i) * 0.3})`;
       ctx.beginPath();
-      ctx.arc(wx, wy, 20 + Math.sin(time + i) * 8, 0, Math.PI * 2);
+      ctx.arc(fx, fy, 2 + (i % 3), 0, Math.PI * 2);
       ctx.fill();
     }
-    ctx.globalAlpha = 1.0;
-  } else if (theme === "fire") {
-    // 火焰餘燼飄升
-    ctx.globalAlpha = 0.06;
-    for (let i = 0; i < 12; i++) {
-      const fx = (Math.sin(time * 0.3 + i * 2.1) * 0.5 + 0.5) * cw;
-      const fy = ch - ((time * 30 + i * 80) % ch);
-      ctx.fillStyle = `rgba(255,${100 + Math.floor(Math.sin(time + i) * 50)},20,0.6)`;
+  } else if (theme === "water") {
+    // 深海浮動氣泡
+    for (let i = 0; i < 14; i++) {
+      const bx = ((Math.cos(time * 0.3 + i * 2.3) * 0.5 + 0.5) * cw);
+      const by = (ch - ((time * 30 + i * 65) % ch));
+      ctx.strokeStyle = "rgba(186, 230, 253, 0.45)";
+      ctx.lineWidth = 1.2;
       ctx.beginPath();
-      ctx.arc(fx, fy, 2 + Math.sin(time * 2 + i) * 1, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.arc(bx, by, 3 + (i % 4), 0, Math.PI * 2);
+      ctx.stroke();
     }
-    ctx.globalAlpha = 1.0;
   } else if (theme === "boss") {
-    // Boss 房間脈動光暈
-    const pulse = Math.sin(time * 1.5) * 0.02 + 0.02;
-    ctx.fillStyle = `rgba(180,20,20,${pulse})`;
+    // 首領密室血色呼吸氛圍
+    const pulse = (Math.sin(time * 1.8) * 0.5 + 0.5) * 0.04;
+    ctx.fillStyle = `rgba(220, 38, 38, ${pulse})`;
     ctx.fillRect(0, 0, cw, ch);
   }
 
-  // --- 世界邊界線 ---
-  ctx.strokeStyle = "rgba(239, 68, 68, 0.4)";
-  ctx.lineWidth = 2;
+  // --- 5. 世界邊界石牆/暗黑邊緣線 ---
+  ctx.strokeStyle = "rgba(220, 38, 38, 0.5)";
+  ctx.lineWidth = 3;
   ctx.strokeRect(-camX, -camY, WORLD_WIDTH, WORLD_HEIGHT);
 }
 
