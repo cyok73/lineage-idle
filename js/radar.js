@@ -409,7 +409,11 @@ function drawBattlefieldTerrain(cw, ch, camX, camY) {
   const tileBase = mapCfg.tileBase || "#224726";
   const gridLine = mapCfg.gridLine || "#2d5e33";
 
-  // --- 嘗試載入並繪製自訂背景圖 (若有配置) ---
+  // 基底防邊緣閃爍填色
+  ctx.fillStyle = tileBase;
+  ctx.fillRect(0, 0, cw, ch);
+
+  // --- 嘗試載入並繪製經典天堂 2.5D 等角背景圖 (若有配置) ---
   let bgDrawn = false;
   if (mapCfg.bg) {
     if (!mapCfg._img) {
@@ -950,10 +954,10 @@ function drawBattlefieldTerrain(cw, ch, camX, camY) {
     }
   }
 
-  // --- 3. 戰鬥輔助細格線 (半透明 0.12，融入地表不遮擋場景) ---
+  // --- 3. 戰鬥輔助細格線 (在經典天堂背景圖上保持極淡，還原經典視覺) ---
   ctx.strokeStyle = gridLine;
   ctx.lineWidth = 1;
-  ctx.globalAlpha = 0.12;
+  ctx.globalAlpha = bgDrawn ? 0.03 : 0.12;
   const startX = -(camX % 48);
   const startY = -(camY % 48);
   for (let x = startX; x < cw; x += 48) {

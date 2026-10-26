@@ -15,6 +15,7 @@ window.mapData = {
   "ti_cave_1f": {
     name: "話島地監 1F",
     theme: "cave",
+    bg: "assets/maps/dungeon_bg.jpg",
     tileBase: "#222733",
     gridLine: "#2e3646",
     wallColor: "rgba(70,80,110,0.3)",
@@ -24,6 +25,7 @@ window.mapData = {
   "ti_cave_2f": {
     name: "話島地監 2F",
     theme: "cave",
+    bg: "assets/maps/dungeon_bg.jpg",
     tileBase: "#1c212c",
     gridLine: "#283040",
     wallColor: "rgba(65,75,105,0.3)",
@@ -33,6 +35,7 @@ window.mapData = {
   "ti_boss_room": {
     name: "話島首領密室",
     theme: "boss",
+    bg: "assets/maps/boss_bg.jpg",
     tileBase: "#28151a",
     gridLine: "#3d1e26",
     wallColor: "rgba(160,30,40,0.3)",
@@ -44,6 +47,7 @@ window.mapData = {
   "werner_village_field": {
     name: "燃柳村妖魔森林",
     theme: "dark_forest",
+    bg: "assets/maps/field_bg.jpg",
     tileBase: "#1c2e1f",
     gridLine: "#29452e",
     grassColor: "rgba(30,100,40,0.3)",
@@ -55,6 +59,7 @@ window.mapData = {
   "windwood_desert": {
     name: "風木南部沙漠",
     theme: "desert",
+    bg: "assets/maps/desert_bg.jpg",
     tileBase: "#6b5437",
     gridLine: "#856945",
     grassColor: "rgba(220,185,110,0.25)",
@@ -66,6 +71,7 @@ window.mapData = {
   "gludio_1f": {
     name: "古魯丁地監 1F",
     theme: "cave",
+    bg: "assets/maps/dungeon_bg.jpg",
     tileBase: "#222733",
     gridLine: "#2e3646",
     wallColor: "rgba(70,80,110,0.3)",
@@ -75,6 +81,7 @@ window.mapData = {
   "gludio_2f": {
     name: "古魯丁地監 2F",
     theme: "cave",
+    bg: "assets/maps/dungeon_bg.jpg",
     tileBase: "#1f2430",
     gridLine: "#2a3243",
     wallColor: "rgba(65,75,105,0.3)",
@@ -84,6 +91,7 @@ window.mapData = {
   "gludio_3f": {
     name: "古魯丁地監 3F",
     theme: "cave",
+    bg: "assets/maps/dungeon_bg.jpg",
     tileBase: "#1d212c",
     gridLine: "#272e3d",
     wallColor: "rgba(60,70,100,0.3)",
@@ -93,6 +101,7 @@ window.mapData = {
   "gludio_4f": {
     name: "古魯丁地監 4F",
     theme: "dungeon",
+    bg: "assets/maps/dungeon_bg.jpg",
     tileBase: "#1b202c",
     gridLine: "#262e3f",
     wallColor: "rgba(55,65,95,0.3)",
@@ -102,6 +111,7 @@ window.mapData = {
   "gludio_5f": {
     name: "古魯丁地監 5F",
     theme: "dungeon",
+    bg: "assets/maps/dungeon_bg.jpg",
     tileBase: "#191e29",
     gridLine: "#232a3a",
     wallColor: "rgba(50,60,90,0.3)",
@@ -111,6 +121,7 @@ window.mapData = {
   "gludio_6f": {
     name: "古魯丁地監 6F",
     theme: "dungeon",
+    bg: "assets/maps/dungeon_bg.jpg",
     tileBase: "#171b26",
     gridLine: "#212736",
     wallColor: "rgba(45,55,85,0.3)",
@@ -120,6 +131,7 @@ window.mapData = {
   "gludio_7f": {
     name: "古監 7F 死騎巢穴",
     theme: "boss",
+    bg: "assets/maps/boss_bg.jpg",
     tileBase: "#2a1418",
     gridLine: "#421d23",
     wallColor: "rgba(180,30,40,0.35)",
@@ -131,6 +143,7 @@ window.mapData = {
   "ant_nest_1f": {
     name: "巨蟻洞穴 1F",
     theme: "ant_cave",
+    bg: "assets/maps/dungeon_bg.jpg",
     tileBase: "#3d2e20",
     gridLine: "#543f2c",
     wallColor: "rgba(120,80,45,0.3)",
@@ -140,6 +153,7 @@ window.mapData = {
   "ant_nest_2f": {
     name: "巨蟻洞穴 2F",
     theme: "ant_cave",
+    bg: "assets/maps/dungeon_bg.jpg",
     tileBase: "#37281a",
     gridLine: "#4d3824",
     wallColor: "rgba(110,70,40,0.3)",
@@ -151,6 +165,7 @@ window.mapData = {
   "giran_1f": {
     name: "奇岩地監 1F",
     theme: "dungeon",
+    bg: "assets/maps/dungeon_bg.jpg",
     tileBase: "#1c2331",
     gridLine: "#293448",
     wallColor: "rgba(65,80,120,0.3)",
@@ -160,6 +175,7 @@ window.mapData = {
   "giran_4f": {
     name: "奇岩地監 4F 典獄司",
     theme: "boss",
+    bg: "assets/maps/boss_bg.jpg",
     tileBase: "#241830",
     gridLine: "#38254b",
     wallColor: "rgba(110,40,150,0.35)",
@@ -171,7 +187,7 @@ window.mapData = {
   "silver_knight_field": {
     name: "銀騎士訓練場",
     theme: "field",
-    bg: "assets/maps/town_bg.jpg",
+    bg: "assets/maps/field_bg.jpg",
     tileBase: "#234a26",
     gridLine: "#316435",
     grassColor: "rgba(50,160,60,0.3)",
@@ -183,6 +199,7 @@ window.mapData = {
   "heine_water_dungeon": {
     name: "海音水底地監",
     theme: "water",
+    bg: "assets/maps/dungeon_bg.jpg",
     tileBase: "#0e2b3d",
     gridLine: "#15425e",
     wallColor: "rgba(30,110,160,0.35)",
@@ -194,6 +211,7 @@ window.mapData = {
   "werden_fire_dragon": {
     name: "威頓火龍窟",
     theme: "fire",
+    bg: "assets/maps/boss_bg.jpg",
     tileBase: "#361815",
     gridLine: "#54231e",
     wallColor: "rgba(220,60,30,0.35)",
