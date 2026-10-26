@@ -29,9 +29,6 @@ function renderGMMonsterSettings() {
   const mapKey = gmMapSel.value;
   const cfg = getMapConfig(mapKey);
 
-  const totalElem = document.getElementById("gm-map-total-mobs");
-  if (totalElem) totalElem.value = cfg.totalMobs;
-
   const container = document.getElementById("gm-mob-species-list");
   if (!container) return;
   container.innerHTML = "";
@@ -39,9 +36,21 @@ function renderGMMonsterSettings() {
   const mapData = DB.maps[mapKey];
   if (!mapData || !mapData.monsters) return;
 
+  function updateSumDisplay() {
+    let sum = 0;
+    mapData.monsters.forEach(m => {
+      const input = document.getElementById(`gm-species-${mapKey}-${m.name}`);
+      sum += input ? Math.max(0, parseInt(input.value) || 0) : 0;
+    });
+    const totalDisp = document.getElementById("gm-map-total-display");
+    if (totalDisp) totalDisp.innerText = `${sum} 隻`;
+  }
+
   mapData.monsters.forEach(m => {
-    const currentWeight = (cfg.speciesCounts && cfg.speciesCounts[m.name] !== undefined) ? cfg.speciesCounts[m.name] : 5;
     const isBoss = m.isBoss || BOSS_NAMES.includes(m.name);
+    const defaultCount = isBoss ? 1 : 8;
+    const currentCount = (cfg.speciesCounts && cfg.speciesCounts[m.name] !== undefined) ? cfg.speciesCounts[m.name] : defaultCount;
+
     const row = document.createElement("div");
     row.style.display = "flex";
     row.style.justifyContent = "space-between";
@@ -52,28 +61,37 @@ function renderGMMonsterSettings() {
       <span style="color:${isBoss ? '#f472b6; font-weight:bold;' : '#e2e8f0;'}">
         ${isBoss ? '👑 ' : ''}${m.name} (Lv.${m.level})
       </span>
-      <div>
-        配額權重：<input type="number" id="gm-species-${mapKey}-${m.name}" value="${currentWeight}" min="0" max="50" style="width:55px; text-align:center;">
+      <div style="display:flex; align-items:center; gap:4px;">
+        生成數量：<input type="number" id="gm-species-${mapKey}-${m.name}" value="${currentCount}" min="0" max="100" style="width:60px; text-align:center;"> 隻
       </div>
     `;
     container.appendChild(row);
+
+    const inputElem = row.querySelector("input");
+    if (inputElem) {
+      inputElem.addEventListener("input", updateSumDisplay);
+    }
   });
+
+  updateSumDisplay();
 }
 
 function saveGMMonsterSettings() {
   const gmMapSel = document.getElementById("gm-map-select");
   if (!gmMapSel) return;
   const mapKey = gmMapSel.value;
-  const totalInput = document.getElementById("gm-map-total-mobs");
-  const total = totalInput ? parseInt(totalInput.value) || 28 : 28;
 
   const mapData = DB.maps[mapKey];
   if (!mapData || !mapData.monsters) return;
 
   const species = {};
+  let calculatedTotal = 0;
   mapData.monsters.forEach(m => {
     const input = document.getElementById(`gm-species-${mapKey}-${m.name}`);
-    species[m.name] = input ? Math.max(0, parseInt(input.value) || 0) : 5;
+    const isBoss = m.isBoss || BOSS_NAMES.includes(m.name);
+    const count = input ? Math.max(0, parseInt(input.value) || 0) : (isBoss ? 1 : 8);
+    species[m.name] = count;
+    calculatedTotal += count;
   });
 
   if (!gmSettings.customMapConfigs) {
@@ -81,7 +99,7 @@ function saveGMMonsterSettings() {
   }
 
   gmSettings.customMapConfigs[mapKey] = {
-    totalMobs: Math.min(120, Math.max(1, total)),
+    totalMobs: calculatedTotal,
     speciesCounts: species
   };
 
@@ -93,8 +111,8 @@ function saveGMMonsterSettings() {
     if (typeof renderRadar === "function") renderRadar();
   }
 
-  alert(`【${DB.maps[mapKey].name}】怪物生態更新完成！\n總怪物數：${gmSettings.customMapConfigs[mapKey].totalMobs} 隻`);
-  log(`👑 GM 調整了【${DB.maps[mapKey].name}】的怪物生態與出現頻率！`, "sys");
+  alert(`【${DB.maps[mapKey].name}】怪物生態更新完成！\n地圖怪物總數：${calculatedTotal} 隻`);
+  log(`👑 GM 調整了【${DB.maps[mapKey].name}】怪物生態，目前全圖精準常駐 ${calculatedTotal} 隻怪物！`, "sys");
 }
 
 function applyGMSettings() {

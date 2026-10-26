@@ -64,24 +64,40 @@ if (typeof window !== "undefined") {
 let canvas, ctx;
 
 function getMapConfig(mapId) {
-  const mapData = (typeof DB !== 'undefined' && DB.maps && DB.maps[mapId]) ? DB.maps[mapId] : ((typeof DB !== 'undefined' && DB.maps) ? DB.maps["talking_island"] : { monsters: [], maxMobs: 28 });
-  const defaultTotal = (mapData && mapData.maxMobs !== undefined) ? mapData.maxMobs : 28;
+  const mapData = (typeof DB !== 'undefined' && DB.maps && DB.maps[mapId]) ? DB.maps[mapId] : ((typeof DB !== 'undefined' && DB.maps) ? DB.maps["talking_island"] : { monsters: [] });
 
+  // 若 GM 有自訂過該地圖的各怪物數量設定
   if (gmSettings.customMapConfigs && gmSettings.customMapConfigs[mapId]) {
     const cfg = gmSettings.customMapConfigs[mapId];
+    const species = cfg.speciesCounts || {};
+    let total = 0;
+    if (mapData.monsters) {
+      mapData.monsters.forEach(m => {
+        const isBoss = m.isBoss || BOSS_NAMES.includes(m.name);
+        const count = (species[m.name] !== undefined) ? species[m.name] : (isBoss ? 1 : 8);
+        species[m.name] = count;
+        total += count;
+      });
+    }
     return {
-      totalMobs: (cfg.totalMobs !== undefined) ? cfg.totalMobs : defaultTotal,
-      speciesCounts: cfg.speciesCounts || {}
+      totalMobs: total,
+      speciesCounts: species
     };
   }
 
+  // 預設模式：小怪依地圖平均分配（每種約 6~8 隻，Boss 1 隻）
   const species = {};
+  let total = 0;
   if (mapData.monsters) {
-    mapData.monsters.forEach(m => {
-      species[m.name] = (m.isBoss || BOSS_NAMES.includes(m.name)) ? 1 : 5;
+    const mobList = mapData.monsters;
+    mobList.forEach(m => {
+      const isBoss = m.isBoss || BOSS_NAMES.includes(m.name);
+      let count = isBoss ? 1 : 8;
+      species[m.name] = count;
+      total += count;
     });
   }
-  return { totalMobs: defaultTotal, speciesCounts: species };
+  return { totalMobs: total, speciesCounts: species };
 }
 
 function generateUid() {

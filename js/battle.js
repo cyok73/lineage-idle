@@ -460,24 +460,21 @@ function initWorldMobs() {
   const mapData = (typeof DB !== 'undefined' && DB.maps && DB.maps[gameState.currentMap]) ? DB.maps[gameState.currentMap] : ((typeof DB !== 'undefined' && DB.maps) ? DB.maps["talking_island"] : null);
   if (!mapData || !mapData.monsters || mapData.monsters.length === 0) return;
 
-  // 建立怪物抽取權重池
-  let pool = [];
+  // 依照每一種怪物設定的指定數量，精準生成到地圖上
   mapData.monsters.forEach(tmpl => {
-    const weight = cfg.speciesCounts && cfg.speciesCounts[tmpl.name] !== undefined ? cfg.speciesCounts[tmpl.name] : 5;
-    for (let w = 0; w < weight; w++) pool.push(tmpl);
-  });
-  if (pool.length === 0) pool = mapData.monsters;
+    const isBoss = tmpl.isBoss || BOSS_NAMES.includes(tmpl.name);
+    const targetCount = (cfg.speciesCounts && cfg.speciesCounts[tmpl.name] !== undefined)
+      ? cfg.speciesCounts[tmpl.name]
+      : (isBoss ? 1 : 8);
 
-  // 初始生成怪物直到達到 cfg.totalMobs 隻
-  while (gameState.mobs.length < cfg.totalMobs) {
-    const template = pool[Math.floor(Math.random() * pool.length)];
-    spawnSingleMonster(template);
-  }
+    for (let i = 0; i < targetCount; i++) {
+      spawnSingleMonster(tmpl);
+    }
+  });
 }
 
 function spawnSingleMonster(template) {
-  const cfg = getMapConfig(gameState.currentMap);
-  if (gameState.mobs.length >= cfg.totalMobs) return;
+  if (!template) return;
 
   const angle = Math.random() * Math.PI * 2;
   const spawnDist = 180 + Math.random() * 320;

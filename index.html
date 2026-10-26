@@ -587,17 +587,17 @@
             </div>
           </div>
 
-          <h2 style="margin-top:16px;"><span>🗺️ 練功區域怪物密度與每種怪物數量調整</span><span style="font-size:11px; color:#38bdf8;">區域生態控制</span></h2>
+          <h2 style="margin-top:16px;"><span>🗺️ 練功區域各怪物生成數量設定</span><span style="font-size:11px; color:#38bdf8;">區域生態控制</span></h2>
           <div class="setting-group">
             <div class="setting-item">
               <span>選擇欲調整的練功區域：</span>
               <select id="gm-map-select" onchange="renderGMMonsterSettings()" style="width:220px;"></select>
             </div>
-            <div class="setting-item">
-              <span>該區怪物總上限數量：</span>
-              <div><input type="number" id="gm-map-total-mobs" value="28" min="1" max="120" style="width:70px;"> 隻</div>
+            <div class="setting-item" style="color:var(--gold); font-size:13px; font-weight:bold;">
+              <span>當前區域怪物總隻數：</span>
+              <span id="gm-map-total-display">0 隻</span>
             </div>
-            <h3 style="font-size:12px; color:var(--gold); margin:8px 0 4px 0;">區域內各怪物出現數量配額 (Weight/Count)：</h3>
+            <h3 style="font-size:12px; color:var(--text-muted); margin:8px 0 4px 0;">直接指定地圖上各種怪物的常駐數量（擊殺後依據冷卻時間精準重生該怪物）：</h3>
             <div id="gm-mob-species-list"
               style="display:flex; flex-direction:column; gap:6px; background:#080a0f; padding:8px; border-radius:4px; border:1px solid #1f2937;">
             </div>
@@ -646,19 +646,19 @@
 
   <!-- 腳本引用 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/data_monsters.js?v=38"></script>
-  <script src="js/data_items.js?v=38"></script>
-  <script src="js/data_skills.js?v=38"></script>
-  <script src="js/data.js?v=38"></script>
-  <script src="js/main.js?v=38"></script>
-  <script src="js/supabase.js?v=38"></script>
-  <script src="js/character.js?v=38"></script>
-  <script src="js/inventory.js?v=38"></script>
-  <script src="js/database.js?v=38"></script>
-  <script src="js/strategy.js?v=38"></script>
-  <script src="js/radar.js?v=38"></script>
-  <script src="js/battle.js?v=38"></script>
-  <script src="js/admin.js?v=38"></script>
+  <script src="js/data_monsters.js?v=39"></script>
+  <script src="js/data_items.js?v=39"></script>
+  <script src="js/data_skills.js?v=39"></script>
+  <script src="js/data.js?v=39"></script>
+  <script src="js/main.js?v=39"></script>
+  <script src="js/supabase.js?v=39"></script>
+  <script src="js/character.js?v=39"></script>
+  <script src="js/inventory.js?v=39"></script>
+  <script src="js/database.js?v=39"></script>
+  <script src="js/strategy.js?v=39"></script>
+  <script src="js/radar.js?v=39"></script>
+  <script src="js/battle.js?v=39"></script>
+  <script src="js/admin.js?v=39"></script>
 </body>
 
 </html>
