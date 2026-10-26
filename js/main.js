@@ -64,17 +64,24 @@ if (typeof window !== "undefined") {
 let canvas, ctx;
 
 function getMapConfig(mapId) {
+  const mapData = (typeof DB !== 'undefined' && DB.maps && DB.maps[mapId]) ? DB.maps[mapId] : ((typeof DB !== 'undefined' && DB.maps) ? DB.maps["talking_island"] : { monsters: [], maxMobs: 28 });
+  const defaultTotal = (mapData && mapData.maxMobs !== undefined) ? mapData.maxMobs : 28;
+
   if (gmSettings.customMapConfigs && gmSettings.customMapConfigs[mapId]) {
-    return gmSettings.customMapConfigs[mapId];
+    const cfg = gmSettings.customMapConfigs[mapId];
+    return {
+      totalMobs: (cfg.totalMobs !== undefined) ? cfg.totalMobs : defaultTotal,
+      speciesCounts: cfg.speciesCounts || {}
+    };
   }
-  const mapData = (typeof DB !== 'undefined' && DB.maps && DB.maps[mapId]) ? DB.maps[mapId] : (DB.maps["talking_island"] || { monsters: [] });
+
   const species = {};
   if (mapData.monsters) {
     mapData.monsters.forEach(m => {
       species[m.name] = (m.isBoss || BOSS_NAMES.includes(m.name)) ? 1 : 5;
     });
   }
-  return { totalMobs: 28, speciesCounts: species };
+  return { totalMobs: defaultTotal, speciesCounts: species };
 }
 
 function generateUid() {

@@ -410,10 +410,9 @@ function gameTick() {
   if (typeof handleStrategyAI === "function") handleStrategyAI();
   if (gameState.inVillage) return;
 
-  const cfg = getMapConfig(gameState.currentMap);
-  if (gameState.mobs.length < cfg.totalMobs) {
-    spawnWorldMonsterOrCluster();
-  }
+  // 處理怪物重生佇列（小怪 10 秒 / Boss 30 分鐘冷卻）
+  processRespawnQueue();
+
   updateWorldMobsBehavior();
 
   handlePlayerMovementAndCombat();
@@ -422,28 +421,46 @@ function gameTick() {
   updateLeftPanel();
 }
 
+// 怪物重生冷卻佇列
+if (!gameState.respawnQueue) {
+  gameState.respawnQueue = [];
+}
+
+function processRespawnQueue() {
+  if (!gameState.respawnQueue || gameState.respawnQueue.length === 0) return;
+  const cfg = getMapConfig(gameState.currentMap);
+  const now = Date.now();
+
+  // 若場上怪物已達到上限，暫緩生成
+  if (gameState.mobs.length >= cfg.totalMobs) return;
+
+  for (let i = 0; i < gameState.respawnQueue.length; i++) {
+    const item = gameState.respawnQueue[i];
+    if (gameState.mobs.length >= cfg.totalMobs) break;
+
+    // 檢查地圖是否一致以及冷卻時間是否到達
+    if (item.mapId === gameState.currentMap && now >= item.respawnTime) {
+      spawnSingleMonster(item.template);
+      gameState.respawnQueue.splice(i, 1);
+      i--;
+    }
+  }
+}
+
 function initWorldMobs() {
   gameState.mobs = [];
   gameState.targetMob = null;
+  gameState.respawnQueue = []; // 清空前一張地圖的重生佇列
 
   if (typeof DB !== 'undefined' && DB.maps && !DB.maps[gameState.currentMap]) {
     gameState.currentMap = "talking_island";
   }
 
   const cfg = getMapConfig(gameState.currentMap);
-  let loopCount = 0;
-
-  while (gameState.mobs.length < cfg.totalMobs && loopCount < 80) {
-    loopCount++;
-    spawnWorldMonsterOrCluster();
-  }
-}
-
-function spawnWorldMonsterOrCluster() {
   const mapData = (typeof DB !== 'undefined' && DB.maps && DB.maps[gameState.currentMap]) ? DB.maps[gameState.currentMap] : ((typeof DB !== 'undefined' && DB.maps) ? DB.maps["talking_island"] : null);
   if (!mapData || !mapData.monsters || mapData.monsters.length === 0) return;
 
-  const cfg = getMapConfig(gameState.currentMap);
+  // 建立怪物抽取權重池
   let pool = [];
   mapData.monsters.forEach(tmpl => {
     const weight = cfg.speciesCounts && cfg.speciesCounts[tmpl.name] !== undefined ? cfg.speciesCounts[tmpl.name] : 5;
@@ -451,41 +468,43 @@ function spawnWorldMonsterOrCluster() {
   });
   if (pool.length === 0) pool = mapData.monsters;
 
+  // 初始生成怪物直到達到 cfg.totalMobs 隻
+  while (gameState.mobs.length < cfg.totalMobs) {
+    const template = pool[Math.floor(Math.random() * pool.length)];
+    spawnSingleMonster(template);
+  }
+}
+
+function spawnSingleMonster(template) {
+  const cfg = getMapConfig(gameState.currentMap);
+  if (gameState.mobs.length >= cfg.totalMobs) return;
+
   const angle = Math.random() * Math.PI * 2;
-  const spawnDist = 200 + Math.random() * 250;
+  const spawnDist = 180 + Math.random() * 320;
 
   if (isNaN(gameState.playerX)) gameState.playerX = 1200;
   if (isNaN(gameState.playerY)) gameState.playerY = 800;
 
-  let centerX = Math.max(100, Math.min(WORLD_WIDTH - 100, gameState.playerX + Math.cos(angle) * spawnDist));
-  let centerY = Math.max(100, Math.min(WORLD_HEIGHT - 100, gameState.playerY + Math.sin(angle) * spawnDist));
+  const finalX = Math.max(60, Math.min(WORLD_WIDTH - 60, gameState.playerX + Math.cos(angle) * spawnDist));
+  const finalY = Math.max(60, Math.min(WORLD_HEIGHT - 60, gameState.playerY + Math.sin(angle) * spawnDist));
 
-  const isCluster = Math.random() < 0.45;
-  const count = isCluster ? (Math.floor(Math.random() * 3) + 2) : 1;
+  const isBossMob = template.isBoss || BOSS_NAMES.includes(template.name);
+  const mob = {
+    ...template,
+    id: Math.random().toString(36).substr(2, 9),
+    currentHp: template.hp,
+    x: finalX,
+    y: finalY,
+    isBoss: isBossMob,
+    isAggroed: false,
+    isDead: false,
+    wanderTarget: { x: finalX, y: finalY },
+    lastWanderTime: Date.now()
+  };
+  gameState.mobs.push(mob);
 
-  for (let i = 0; i < count; i++) {
-    if (gameState.mobs.length >= cfg.totalMobs) break;
-
-    const template = pool[Math.floor(Math.random() * pool.length)];
-    const offsetX = isCluster ? (Math.random() * 70 - 35) : 0;
-    const offsetY = isCluster ? (Math.random() * 70 - 35) : 0;
-
-    const finalX = Math.max(50, Math.min(WORLD_WIDTH - 50, centerX + offsetX));
-    const finalY = Math.max(50, Math.min(WORLD_HEIGHT - 50, centerY + offsetY));
-
-    const mob = {
-      ...template,
-      id: Math.random().toString(36).substr(2, 9),
-      currentHp: template.hp,
-      x: finalX,
-      y: finalY,
-      isBoss: template.isBoss || BOSS_NAMES.includes(template.name),
-      isAggroed: false,
-      isDead: false, // 嚴格死亡旗標
-      wanderTarget: { x: finalX, y: finalY },
-      lastWanderTime: Date.now()
-    };
-    gameState.mobs.push(mob);
+  if (isBossMob) {
+    log(`⚠️【首領降臨】${template.name} 已現身於獵場中！`, "sys");
   }
 }
 
@@ -775,6 +794,34 @@ function handleMobDeathAndRewards(mob) {
   // 將該怪移出陣列，清空鎖定
   gameState.mobs = gameState.mobs.filter(m => m !== mob);
   if (gameState.targetMob === mob) gameState.targetMob = null;
+
+  // 加入怪物重生冷卻佇列：小怪 10 秒 (10,000ms)，Boss 首領 30 分鐘 (1,800,000ms)
+  const isBossMob = mob.isBoss || BOSS_NAMES.includes(mob.name);
+  const respawnDelay = isBossMob ? 30 * 60 * 1000 : 10 * 1000;
+
+  if (!gameState.respawnQueue) gameState.respawnQueue = [];
+  gameState.respawnQueue.push({
+    mapId: gameState.currentMap,
+    template: {
+      name: mob.name,
+      level: mob.level,
+      hp: mob.hp,
+      ac: mob.ac,
+      size: mob.size,
+      aggressive: mob.aggressive,
+      undead: mob.undead,
+      hardSkin: mob.hardSkin,
+      poison: mob.poison,
+      isBoss: mob.isBoss,
+      exp: mob.exp,
+      drops: mob.drops
+    },
+    respawnTime: Date.now() + respawnDelay
+  });
+
+  if (isBossMob) {
+    log(`⏳【首領討伐】${mob.name} 已被擊敗！預計將於 30 分鐘後重生。`, "sys");
+  }
 
   if (gameState.botStatus === "finishing") {
     gameState.botStatus = "idle";
