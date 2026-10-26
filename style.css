@@ -1,7 +1,7 @@
 /* ==========================================================================
-《亞丁之息：天堂放置版》（Lineage Idle 1.82）完整樣式表 (Master v3.1)
-版面配置：左側角色面板固定 + 右側 16:9 寬螢幕雷達 + 底部滿版戰鬥日誌
-========================================================================== */
+   《亞丁之息：天堂放置版》（Lineage Idle 1.82）完整樣式表 (Master v3.1)
+   版面配置：左側角色面板固定 + 右側 16:9 寬螢幕雷達 + 底部滿版戰鬥日誌 (支援字體自訂)
+   ========================================================================== */
 
 :root {
   --bg-dark: #0a0b0e;
@@ -139,17 +139,6 @@ body {
 .char-select-card:hover {
   border-color: var(--gold);
   background: #181d26;
-}
-
-.inline-error-msg {
-  color: #f87171;
-  font-size: 12px;
-  background: rgba(127, 29, 29, 0.3);
-  border: 1px solid #7f1d1d;
-  padding: 6px 10px;
-  border-radius: 4px;
-  display: none;
-  text-align: center;
 }
 
 header {
@@ -326,8 +315,8 @@ h2 {
 }
 
 /* ==========================================================================
-戰鬥分頁專用：16:9 寬螢幕雷達 + 滿版下方日誌
-========================================================================== */
+   戰鬥分頁專用：16:9 寬螢幕雷達 + 滿版下方日誌
+   ========================================================================== */
 
 #tab-battle.tab-content.active {
   display: flex !important;
@@ -356,11 +345,6 @@ h2 {
   overflow: hidden;
 }
 
-/*
-  雷達固定 16:9：以 38vh 作為高度上限，並反推相應寬度。
-  不可同時設定 width:100% 與 max-height，否則高度受限時可能出現比例衝突。
-  畫布內部解析度由 radar.js 設為 960x540，這裡只控制實際顯示大小。
-*/
 #gameCanvas {
   display: block;
   flex: 0 1 auto;
@@ -381,6 +365,7 @@ canvas {
   display: block;
 }
 
+/* 日誌控制工具列 */
 .log-toolbar {
   flex-shrink: 0;
   display: flex;
@@ -440,7 +425,7 @@ canvas {
   color: #fff;
 }
 
-/* 日誌框：flex: 1 1 0 吃滿下方剩餘的所有高度 */
+/* 日誌框：flex: 1 1 0 填滿下方剩餘空間，支援動態字體 */
 .log-box,
 #log-box {
   flex: 1 1 0 !important;
@@ -457,7 +442,8 @@ canvas {
   flex-direction: column;
   gap: 2px;
   font-family: Consolas, monospace;
-  font-size: 11.5px;
+  font-size: 13px; /* 預設字體大小，將由 JS 動態控制 */
+  line-height: 1.45;
   scroll-behavior: smooth;
   box-sizing: border-box;
 }
@@ -600,78 +586,4 @@ input[type="number"] {
   justify-content: space-between;
   align-items: center;
   font-size: 12px;
-}
-
-.bot-section {
-  background: #131720;
-  border: 1px solid #2d3748;
-  border-radius: 4px;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-.bot-section-title {
-  font-size: 12px;
-  font-weight: bold;
-  color: #63b3ed;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.bot-item-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  max-height: 160px;
-  overflow-y: auto;
-  background: #0a0d14;
-  border: 1px solid #1a202c;
-  padding: 6px;
-  border-radius: 4px;
-  margin-bottom: 8px;
-}
-
-.bot-item-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-  padding: 2px 4px;
-  border-bottom: 1px solid #161b26;
-}
-
-.bot-item-name {
-  color: #e2e8f0;
-  flex: 1;
-}
-
-.bot-item-action {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.bot-del-btn {
-  background: #4a5568;
-  color: #fff;
-  border: none;
-  border-radius: 3px;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  font-size: 11px;
-  line-height: 20px;
-  text-align: center;
-}
-
-.bot-del-btn:hover {
-  background: #e53e3e;
-}
-
-.bot-add-bar {
-  display: flex;
-  gap: 6px;
-  align-items: center;
 }

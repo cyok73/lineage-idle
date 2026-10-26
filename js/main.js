@@ -1,4 +1,4 @@
-// js/main.js - 全域狀態與基礎配置
+// js/main.js - 全域狀態、日誌系統 (支援 12px~22px 字體調節) 與基礎配置
 let currentUser = null;
 let currentChar = null;
 
@@ -26,7 +26,7 @@ let gameState = {
   viewingVillage: "ti_village",
   inVillage: false,
   isRestocking: false,
-  deathCount: 0, // 第一階段：累計死亡次數計數器
+  deathCount: 0,
 
   playerX: 1200,
   playerY: 800,
@@ -45,7 +45,7 @@ let gameState = {
   },
 
   botSettings: {
-    maxDeathLimit: 3, // 預設死亡 3 次才停止掛機
+    maxDeathLimit: 3,
     storeRules: [],
     sellRules: [],
     buyRules: [
@@ -58,7 +58,6 @@ let gameState = {
 
 let canvas, ctx;
 
-// 地圖配置存取函式
 function getMapConfig(mapId) {
   if (gmSettings.customMapConfigs && gmSettings.customMapConfigs[mapId]) {
     return gmSettings.customMapConfigs[mapId];
@@ -88,8 +87,37 @@ function toggleMobileStats() {
   el.style.display = (el.style.display === "none") ? "block" : "none";
 }
 
-// ======================== 戰鬥日誌核心：智慧釘底、分流過濾與 200 筆上限 ========================
+// ======================== 戰鬥日誌核心：字體大小調節、智慧釘底、分流過濾 ========================
 let currentLogFilter = "all";
+
+// 實裝：戰鬥日誌字體大小調節 (12px ~ 22px)
+function setLogFontSize(size) {
+  const parsedSize = parseInt(size, 10);
+  if (isNaN(parsedSize) || parsedSize < 12 || parsedSize > 22) return;
+
+  const logBox = document.getElementById("log-box");
+  if (logBox) {
+    logBox.style.fontSize = parsedSize + "px";
+  }
+
+  const select = document.getElementById("log-font-size-select");
+  if (select && select.value !== String(parsedSize)) {
+    select.value = String(parsedSize);
+  }
+
+  // 持久化儲存使用者喜好
+  localStorage.setItem("lineage_log_font_size", String(parsedSize));
+}
+window.setLogFontSize = setLogFontSize;
+
+function initLogFontSize() {
+  const saved = localStorage.getItem("lineage_log_font_size");
+  if (saved) {
+    setLogFontSize(saved);
+  } else {
+    setLogFontSize(13); // 預設 13px
+  }
+}
 
 function appendLogMessage(logBox, rowElement) {
   const isNearBottom = (logBox.scrollHeight - logBox.scrollTop - logBox.clientHeight) <= 50;
@@ -175,7 +203,6 @@ function switchTab(tabId) {
     return;
   }
 
-  // 1. 強制隱藏所有分頁內容
   document.querySelectorAll(".tab-content").forEach(el => {
     el.classList.remove("active");
     el.style.setProperty("display", "none", "important");
@@ -239,10 +266,11 @@ function saveAccountData() {
 }
 window.saveAccountData = saveAccountData;
 
-// 頁面載入後先讀取 GM 設定與自動登入
+// 頁面載入後讀取設定與日誌字體
 window.addEventListener("DOMContentLoaded", () => {
   if (typeof loadGMSettings === "function") loadGMSettings();
   if (typeof checkAutoLogin === "function") checkAutoLogin();
+  initLogFontSize();
 });
 
 // 監聽重整與分頁關閉事件，確保 F5 與背景切換時狀態不丟失

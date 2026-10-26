@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Lineage Idle - 天堂 1.82 經典復刻版</title>
-  <link rel="stylesheet" href="style.css?v=13">
+  <link rel="stylesheet" href="style.css?v=14">
 </head>
 
 <body>
@@ -23,8 +23,7 @@
         <input type="password" id="login-pass" value="" placeholder="請輸入密碼">
       </div>
       <div class="auth-btn-row">
-        <button class="btn btn-gold" style="flex:1; padding:10px;" onclick="handleLoginOrRegister()">進入遊戲 /
-          自動註冊</button>
+        <button class="btn btn-gold" style="flex:1; padding:10px;" onclick="handleLoginOrRegister()">進入遊戲 / 自動註冊</button>
       </div>
     </div>
 
@@ -32,8 +31,7 @@
     <div id="box-select-char" class="auth-card" style="display:none; width:480px;">
       <div class="auth-title">選擇冒險人物</div>
       <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted);">
-        <span>當前帳號：<b id="lbl-current-user" style="color:var(--gold);">-</b> <span id="lbl-role-badge"
-            style="margin-left:4px; font-weight:bold;"></span></span>
+        <span>當前帳號：<b id="lbl-current-user" style="color:var(--gold);">-</b> <span id="lbl-role-badge" style="margin-left:4px; font-weight:bold;"></span></span>
         <a href="javascript:void(0)" onclick="logout()" style="color:#e74c3c; text-decoration:none;">登出帳號</a>
       </div>
       <div class="char-card-list" id="char-list-container"></div>
@@ -71,10 +69,8 @@
       </div>
 
       <!-- 點數分配區塊 -->
-      <div
-        style="background:#1e293b; border:1px solid #334155; padding:12px; border-radius:6px; display:flex; flex-direction:column; gap:8px;">
-        <div
-          style="font-size:13px; font-weight:bold; color:#cbd5e1; display:flex; justify-content:space-between; border-bottom:1px solid #334155; padding-bottom:6px;">
+      <div style="background:#1e293b; border:1px solid #334155; padding:12px; border-radius:6px; display:flex; flex-direction:column; gap:8px;">
+        <div style="font-size:13px; font-weight:bold; color:#cbd5e1; display:flex; justify-content:space-between; border-bottom:1px solid #334155; padding-bottom:6px;">
           <span>剩餘自由點數：</span>
           <span style="font-size:16px; color:#f59e0b;"><b id="create-remain-points">0</b> 點</span>
         </div>
@@ -83,13 +79,9 @@
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#e2e8f0;">
           <span style="width:130px;">力量 (STR) <small id="lbl-base-str" style="color:#94a3b8;">(底質13)</small></span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
-              onclick="adjustCreateStat('str', -1)">-</button>
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;" onclick="adjustCreateStat('str', -1)">-</button>
             <b id="val-str" style="width:24px; text-align:center; font-size:15px; color:#38bdf8;">13</b>
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
-              onclick="adjustCreateStat('str', 1)">+</button>
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;" onclick="adjustCreateStat('str', 1)">+</button>
           </div>
         </div>
 
@@ -97,13 +89,9 @@
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#e2e8f0;">
           <span style="width:130px;">敏捷 (DEX) <small id="lbl-base-dex" style="color:#94a3b8;">(底質10)</small></span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
-              onclick="adjustCreateStat('dex', -1)">-</button>
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;" onclick="adjustCreateStat('dex', -1)">-</button>
             <b id="val-dex" style="width:24px; text-align:center; font-size:15px; color:#38bdf8;">10</b>
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
-              onclick="adjustCreateStat('dex', 1)">+</button>
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;" onclick="adjustCreateStat('dex', 1)">+</button>
           </div>
         </div>
 
@@ -111,13 +99,9 @@
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#e2e8f0;">
           <span style="width:130px;">體質 (CON) <small id="lbl-base-con" style="color:#94a3b8;">(底質10)</small></span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
-              onclick="adjustCreateStat('con', -1)">-</button>
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;" onclick="adjustCreateStat('con', -1)">-</button>
             <b id="val-con" style="width:24px; text-align:center; font-size:15px; color:#38bdf8;">10</b>
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
-              onclick="adjustCreateStat('con', 1)">+</button>
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;" onclick="adjustCreateStat('con', 1)">+</button>
           </div>
         </div>
 
@@ -125,13 +109,9 @@
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#e2e8f0;">
           <span style="width:130px;">智力 (INT) <small id="lbl-base-int" style="color:#94a3b8;">(底質10)</small></span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
-              onclick="adjustCreateStat('int', -1)">-</button>
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;" onclick="adjustCreateStat('int', -1)">-</button>
             <b id="val-int" style="width:24px; text-align:center; font-size:15px; color:#38bdf8;">10</b>
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
-              onclick="adjustCreateStat('int', 1)">+</button>
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;" onclick="adjustCreateStat('int', 1)">+</button>
           </div>
         </div>
 
@@ -139,21 +119,16 @@
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#e2e8f0;">
           <span style="width:130px;">精神 (WIS) <small id="lbl-base-wis" style="color:#94a3b8;">(底質11)</small></span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
-              onclick="adjustCreateStat('wis', -1)">-</button>
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;" onclick="adjustCreateStat('wis', -1)">-</button>
             <b id="val-wis" style="width:24px; text-align:center; font-size:15px; color:#38bdf8;">11</b>
-            <button type="button" class="btn"
-              style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;"
-              onclick="adjustCreateStat('wis', 1)">+</button>
+            <button type="button" class="btn" style="width:28px; height:28px; padding:0; line-height:26px; text-align:center; font-weight:bold;" onclick="adjustCreateStat('wis', 1)">+</button>
           </div>
         </div>
       </div>
 
       <!-- 操作按鈕 -->
       <div style="display:flex; gap:12px; margin-top:4px;">
-        <button type="button" class="btn btn-gold" style="flex:1; padding:8px 0; font-weight:bold;"
-          onclick="confirmCreateChar()">確定創建</button>
+        <button type="button" class="btn btn-gold" style="flex:1; padding:8px 0; font-weight:bold;" onclick="confirmCreateChar()">確定創建</button>
         <button type="button" class="btn" style="flex:1; padding:8px 0;" onclick="cancelCreateChar()">取消</button>
       </div>
 
@@ -174,9 +149,9 @@
         <button class="nav-btn" onclick="switchTab('storage')">🏦 個人倉庫</button>
         <button class="nav-btn" onclick="switchTab('strategy')">⚙️ 掛機戰術設定</button>
         <button class="nav-btn" onclick="switchTab('skills')">✨ 技能與魔法</button>
-        <button id="btn-nav-admin" class="nav-btn" style="border-color:var(--gold); color:var(--gold); display:none;"
-          onclick="switchTab('admin')">👑 最高權限</button>
+        <button id="btn-nav-admin" class="nav-btn" style="border-color:var(--gold); color:var(--gold); display:none;" onclick="switchTab('admin')">👑 最高權限</button>
         <button class="nav-btn" style="border-color:#e74c3c; color:#e74c3c;" onclick="backToCharSelect()">選角選單</button>
+        <button class="nav-btn" style="border-color:#e74c3c; color:#e74c3c;" onclick="logout()">登出帳號</button>
       </div>
     </header>
 
@@ -218,8 +193,7 @@
           <div class="stat-row"><span>攻速間隔</span><b id="stat-speed">1.20 秒/次</b></div>
           <div class="stat-row"><span>當前所在位置</span><b id="stat-location" style="color:var(--gold);">說話之島地表</b></div>
           <div class="stat-row"><span>箭矢存量</span><b id="stat-arrows" style="color:#86efac;">普:0 / 銀:0</b></div>
-          <div class="stat-row"><span>正被攻擊隻數 / 鎖定中</span><b id="stat-surround-info" style="color:#f87171;">0 隻 / 無</b>
-          </div>
+          <div class="stat-row"><span>正被攻擊隻數 / 鎖定中</span><b id="stat-surround-info" style="color:#f87171;">0 隻 / 無</b></div>
           <div class="stat-row"><span>狀態效果</span><span id="stat-buffs" style="font-size:11px;">無</span></div>
           <h2 style="margin-top:6px;">當前佩帶武器</h2>
           <div class="stat-row"><span>主手武器</span><b id="eq-summary-wpn" style="color:var(--gold);">無</b></div>
@@ -227,21 +201,19 @@
         </div>
 
         <div style="margin-top:auto; padding-top:6px;">
-          <button id="toggle-btn" class="btn btn-success" style="width:100%; padding:8px; font-weight:bold;"
-            onclick="toggleLoop()">開始掛機迴圈</button>
+          <button id="toggle-btn" class="btn btn-success" style="width:100%; padding:8px; font-weight:bold;" onclick="toggleLoop()">開始掛機迴圈</button>
         </div>
       </div>
 
       <!-- 右側內容面板 -->
       <div class="panel main-content" id="main-content-panel">
-        <!-- 戰鬥面板 (單一視窗鎖定：固定雷達區 + 彈性釘底日誌區) -->
+        <!-- 戰鬥面板 -->
         <div id="tab-battle" class="tab-content active">
 
           <!-- 上方雷達與操作固定區 -->
           <div class="radar-fixed-section">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
-              <h2><span>實時戰場雷達</span><span id="battle-mode-tag"
-                  style="font-size:11px; color:var(--text-muted); margin-left:6px;">[野外待機中]</span></h2>
+              <h2><span>實時戰場雷達</span><span id="battle-mode-tag" style="font-size:11px; color:var(--text-muted); margin-left:6px;">[野外待機中]</span></h2>
               <div style="font-size:11px; color:var(--text-muted);">藍:玩家 | 金框:鎖定 | 紅:主動 | 綠:被動 | 👑:Boss</div>
             </div>
 
@@ -268,22 +240,34 @@
                 <option value="windwood_desert">風木南部沙漠</option>
                 <option value="giran_1f">奇岩地監 1 樓</option>
                 <option value="giran_4f">奇岩地監 4 樓 (Boss 塞尼斯)</option>
-               <option value="silver_knight_field">銀騎士訓練場</option>
-               <option value="heine_water_dungeon">海音水底地監</option>
-               <option value="werden_fire_dragon">威頓火龍窟 (Boss 巴拉卡斯)</option>
+                <option value="silver_knight_field">銀騎士訓練場</option>
+                <option value="heine_water_dungeon">海音水底地監</option>
+                <option value="werden_fire_dragon">威頓火龍窟 (Boss 巴拉卡斯)</option>
               </select>
               <button type="button" class="btn btn-gold" onclick="exitVillageToField()">出發打怪</button>
             </div>
           </div>
 
-          <!-- 日誌資訊分流與控制工具列 -->
+          <!-- 日誌資訊分流、字體控制與置底工具列 -->
           <div class="log-toolbar">
-            <div style="font-weight:bold; color:var(--gold); font-size:12px;">即時戰鬥日誌 (Battle Log)</div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div style="font-weight:bold; color:var(--gold); font-size:12px;">即時戰鬥日誌</div>
+              <div class="log-font-control" style="display:flex; align-items:center; gap:3px;">
+                <span style="font-size:11px; color:var(--text-muted);">字體:</span>
+                <select id="log-font-size-select" onchange="setLogFontSize(this.value)" style="padding:1px 4px; font-size:11px; height:22px;">
+                  <option value="12">12px (極小)</option>
+                  <option value="13" selected>13px (預設)</option>
+                  <option value="14">14px (標準)</option>
+                  <option value="16">16px (清晰)</option>
+                  <option value="18">18px (特大)</option>
+                  <option value="20">20px (巨幅)</option>
+                  <option value="22">22px (超大)</option>
+                </select>
+              </div>
+            </div>
             <div class="log-filters">
-              <button type="button" class="log-filter-btn active" data-filter="all"
-                onclick="setLogFilter('all')">全部</button>
-              <button type="button" class="log-filter-btn" data-filter="battle"
-                onclick="setLogFilter('battle')">戰鬥</button>
+              <button type="button" class="log-filter-btn active" data-filter="all" onclick="setLogFilter('all')">全部</button>
+              <button type="button" class="log-filter-btn" data-filter="battle" onclick="setLogFilter('battle')">戰鬥</button>
               <button type="button" class="log-filter-btn" data-filter="sys" onclick="setLogFilter('sys')">系統</button>
               <button type="button" class="log-filter-btn" data-filter="drop" onclick="setLogFilter('drop')">掉落</button>
             </div>
@@ -301,8 +285,7 @@
         <!-- 角色狀態面板 -->
         <div id="tab-char" class="tab-content">
           <h2>六維屬性詳細</h2>
-          <div
-            style="background:#0d0f12; padding:8px 12px; border-radius:4px; display:flex; flex-direction:column; gap:4px;">
+          <div style="background:#0d0f12; padding:8px 12px; border-radius:4px; display:flex; flex-direction:column; gap:4px;">
             <div class="stat-row"><span>力量 (STR)</span><b id="attr-str">16</b></div>
             <div class="stat-row"><span>敏捷 (DEX)</span><b id="attr-dex">12</b></div>
             <div class="stat-row"><span>體質 (CON)</span><b id="attr-con">18</b></div>
@@ -361,10 +344,10 @@
               <option value="elf_forest">妖精森林</option>
               <option value="windwood_village">風木村莊</option>
               <option value="werner_village_town">燃柳村莊</option>
-               <option value="giran_village">奇岩城鎮</option>
-               <option value="silver_knight_village">銀騎士村莊</option>
-               <option value="heine_village">海音村莊</option>
-               <option value="werden_village">威頓村莊</option>
+              <option value="giran_village">奇岩城鎮</option>
+              <option value="silver_knight_village">銀騎士村莊</option>
+              <option value="heine_village">海音村莊</option>
+              <option value="werden_village">威頓村莊</option>
             </select>
           </div>
           <h2>村莊 NPC 商店與設施</h2>
@@ -373,8 +356,7 @@
 
         <!-- 個人倉庫面板 -->
         <div id="tab-storage" class="tab-content">
-          <h2><span>🏦 個人倉庫</span><span id="storage-lock-status"
-              style="font-size:11px; color:var(--green);">安全區：可隨時存取</span></h2>
+          <h2><span>🏦 個人倉庫</span><span id="storage-lock-status" style="font-size:11px; color:var(--green);">安全區：可隨時存取</span></h2>
           <div id="storage-warning"
             style="display:none; background:#2c1515; border:1px solid var(--red); color:#fca5a5; padding:8px 12px; border-radius:4px; font-size:12px;">
             ⚠️ 需在村莊安全區中方可存取倉庫。</div>
@@ -449,8 +431,7 @@
             </div>
           </div>
 
-          <h2 style="margin-top:16px;"><span>🗺️ 練功區域怪物密度與每種怪物數量調整</span><span
-              style="font-size:11px; color:#38bdf8;">區域生態控制</span></h2>
+          <h2 style="margin-top:16px;"><span>🗺️ 練功區域怪物密度與每種怪物數量調整</span><span style="font-size:11px; color:#38bdf8;">區域生態控制</span></h2>
           <div class="setting-group">
             <div class="setting-item">
               <span>選擇欲調整的練功區域：</span>
@@ -465,13 +446,11 @@
               style="display:flex; flex-direction:column; gap:6px; background:#080a0f; padding:8px; border-radius:4px; border:1px solid #1f2937;">
             </div>
             <div style="margin-top:8px;">
-              <button class="btn btn-gold" style="width:100%; padding:8px;"
-                onclick="saveGMMonsterSettings()">套用並立即重新生成該區怪物生態</button>
+              <button class="btn btn-gold" style="width:100%; padding:8px;" onclick="saveGMMonsterSettings()">套用並立即重新生成該區怪物生態</button>
             </div>
           </div>
 
-          <h2 style="margin-top:16px;"><span>👥 伺服器註冊冒險者名冊與權限管理</span><span
-              style="font-size:11px; color:var(--gold);">等級分級</span></h2>
+          <h2 style="margin-top:16px;"><span>👥 伺服器註冊冒險者名冊與權限管理</span><span style="font-size:11px; color:var(--gold);">等級分級</span></h2>
           <table>
             <thead>
               <tr>
@@ -495,8 +474,7 @@
     style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.75); z-index:9999; justify-content:center; align-items:center;">
     <div
       style="background:var(--panel-bg); border:2px solid var(--gold); border-radius:8px; width:440px; max-width:92vw; padding:18px; box-shadow:0 10px 30px #000;">
-      <div
-        style="color:var(--gold); font-size:16px; font-weight:bold; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+      <div style="color:var(--gold); font-size:16px; font-weight:bold; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
         <span id="enchant-modal-title">✨ 使用強化卷軸</span>
         <button class="btn" onclick="closeEnchantModal()">✕</button>
       </div>
@@ -510,21 +488,17 @@
     </div>
   </div>
 
-  <!-- 1. Supabase 官方套件 -->
+  <!-- 腳本引用 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- 2. 資料設定 -->
-  <script src="js/data.js?v=13"></script>
-
-  <!-- 3. 各功能模組（注意順序） -->
-  <script src="js/main.js?v=13"></script>
-  <script src="js/supabase.js?v=13"></script>
-  <script src="js/character.js?v=13"></script>
-  <script src="js/inventory.js?v=13"></script>
-  <script src="js/strategy.js?v=13"></script>
-  <script src="js/radar.js?v=13"></script>
-  <script src="js/battle.js?v=13"></script>
-  <script src="js/admin.js?v=13"></script>
+  <script src="js/data.js?v=14"></script>
+  <script src="js/main.js?v=14"></script>
+  <script src="js/supabase.js?v=14"></script>
+  <script src="js/character.js?v=14"></script>
+  <script src="js/inventory.js?v=14"></script>
+  <script src="js/strategy.js?v=14"></script>
+  <script src="js/radar.js?v=14"></script>
+  <script src="js/battle.js?v=14"></script>
+  <script src="js/admin.js?v=14"></script>
 </body>
 
 </html>
