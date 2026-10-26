@@ -602,54 +602,59 @@ const CLASS_PRESETS = {
 };
 
 // ---------------- 經典天堂 1 像素圖標對應系統 (16-bit 32x32 Pixel Icons) ----------------
+// ---------------- 經典天堂 1 純淨像素圖標對應系統 (16-bit 32x32 Pixel Icons, 無任何中英文字) ----------------
 const ITEM_SPRITE_CONFIG = {
-  // ⚔️ 武器 (items: 7x4)
-  "短劍": { sheet: "items", c: 0, r: 0 },
-  "闊劍": { sheet: "items", c: 0, r: 0 },
+  // ⚔️ 武器 (items: 6x6)
+  "短劍": { sheet: "items", c: 2, r: 0 },
+  "闊劍": { sheet: "items", c: 1, r: 0 },
   "長劍": { sheet: "items", c: 0, r: 0 },
   "銀長劍": { sheet: "items", c: 0, r: 0 },
   "雙手劍": { sheet: "items", c: 3, r: 0 },
-  "大馬士革刀": { sheet: "items", c: 1, r: 0 },
-  "瑟魯基之劍": { sheet: "items", c: 2, r: 0 },
+  "大馬士革刀": { sheet: "items", c: 3, r: 0 },
+  "瑟魯基之劍": { sheet: "items", c: 1, r: 0 },
   "獵人之弓": { sheet: "items", c: 4, r: 0 },
-  "十字弓": { sheet: "items", c: 5, r: 0 },
-  "巴風特魔杖": { sheet: "items", c: 6, r: 0 },
+  "十字弓": { sheet: "items", c: 0, r: 1 },
+  "巴風特魔杖": { sheet: "items", c: 3, r: 1 },
 
-  // 🛡️ 盔甲防具 (items: 7x4)
-  "皮背心": { sheet: "items", c: 2, r: 1 },
-  "鎖子甲": { sheet: "items", c: 2, r: 1 },
-  "骷髏盔甲": { sheet: "items", c: 1, r: 1 },
-  "精靈金屬鎧甲": { sheet: "items", c: 0, r: 1 },
-  "棉質T恤": { sheet: "items", c: 0, r: 1 },
-  "精靈T恤": { sheet: "items", c: 0, r: 1 },
+  // 🏹 箭矢與彈藥
+  "箭": { sheet: "items", c: 1, r: 1 },
+  "銀箭": { sheet: "items", c: 2, r: 1 },
 
-  // 🪖 頭盔 (acc / items)
-  "皮頭盔": { sheet: "acc", c: 2, r: 1 },
+  // 🛡️ 盔甲防具 (items: 6x6)
+  "皮背心": { sheet: "items", c: 3, r: 2 },
+  "鎖子甲": { sheet: "items", c: 2, r: 2 },
+  "骷髏盔甲": { sheet: "items", c: 4, r: 2 },
+  "精靈金屬鎧甲": { sheet: "items", c: 1, r: 2 },
+  "棉質T恤": { sheet: "items", c: 5, r: 2 },
+  "精靈T恤": { sheet: "items", c: 5, r: 2 },
+
+  // 🪖 頭盔
+  "皮頭盔": { sheet: "items", c: 3, r: 3 },
   "骷髏頭盔": { sheet: "acc", c: 3, r: 1 },
-  "抗魔法頭盔": { sheet: "items", c: 4, r: 1 },
-  "死騎頭盔": { sheet: "items", c: 3, r: 1 },
+  "抗魔法頭盔": { sheet: "items", c: 0, r: 3 },
+  "死騎頭盔": { sheet: "items", c: 2, r: 3 },
 
   // 🛡️ 盾牌
-  "木盾": { sheet: "items", c: 5, r: 1 },
-  "侏儒圓盾": { sheet: "items", c: 5, r: 1 },
-  "骷髏盾牌": { sheet: "items", c: 6, r: 1 },
-  "鋼鐵盾牌": { sheet: "items", c: 6, r: 1 },
+  "木盾": { sheet: "items", c: 5, r: 3 },
+  "侏儒圓盾": { sheet: "items", c: 0, r: 4 },
+  "骷髏盾牌": { sheet: "items", c: 1, r: 4 },
+  "鋼鐵盾牌": { sheet: "items", c: 4, r: 3 },
 
-  // 🥋 斗篷
-  "抗魔法斗篷": { sheet: "items", c: 2, r: 2 },
-  "保護者斗篷": { sheet: "items", c: 2, r: 2 },
-  "隱身斗篷": { sheet: "items", c: 1, r: 2 },
+  // 🥋 斗篷 (acc)
+  "抗魔法斗篷": { sheet: "acc", c: 4, r: 4 },
+  "保護者斗篷": { sheet: "acc", c: 5, r: 4 },
+  "隱身斗篷": { sheet: "acc", c: 4, r: 5 },
 
   // 🧤 手套與靴子
-  "皮手套": { sheet: "items", c: 0, r: 2 },
-  "腕甲": { sheet: "items", c: 0, r: 2 },
-  "力量手套": { sheet: "items", c: 0, r: 2 },
+  "皮手套": { sheet: "acc", c: 4, r: 5 },
+  "腕甲": { sheet: "acc", c: 4, r: 5 },
+  "力量手套": { sheet: "acc", c: 4, r: 5 },
   "塞尼斯手套": { sheet: "acc", c: 4, r: 5 },
   "皮長靴": { sheet: "acc", c: 0, r: 1 },
   "鐵高跟靴": { sheet: "acc", c: 0, r: 1 },
   "敏捷魔法長靴": { sheet: "acc", c: 1, r: 1 },
 
-  // 💍 飾品配件
+  // 💍 飾品配件 (acc: 6x6)
   "力量項鍊": { sheet: "acc", c: 0, r: 3 },
   "敏捷項鍊": { sheet: "acc", c: 1, r: 3 },
   "智力項鍊": { sheet: "acc", c: 2, r: 3 },
@@ -666,22 +671,20 @@ const ITEM_SPRITE_CONFIG = {
   "敏捷符石": { sheet: "acc", c: 3, r: 5 },
 
   // 🧪 藥水與卷軸
-  "紅色藥水": { sheet: "items", c: 3, r: 2 },
-  "澄色藥水": { sheet: "items", c: 5, r: 2 },
-  "橙色藥水": { sheet: "items", c: 5, r: 2 },
-  "白色藥水": { sheet: "items", c: 6, r: 2 },
-  "綠色藥水": { sheet: "items", c: 4, r: 2 },
+  "紅色藥水": { sheet: "items", c: 2, r: 4 },
+  "澄色藥水": { sheet: "items", c: 0, r: 5 },
+  "橙色藥水": { sheet: "items", c: 0, r: 5 },
+  "白色藥水": { sheet: "items", c: 1, r: 5 },
+  "綠色藥水": { sheet: "items", c: 4, r: 4 },
   "勇敢藥水": { sheet: "acc", c: 0, r: 0 },
   "藍色藥水": { sheet: "acc", c: 1, r: 0 },
   "翡翠藥水": { sheet: "acc", c: 2, r: 0 },
-  "傳送回家的卷軸": { sheet: "items", c: 0, r: 3 },
-  "瞬間移動卷軸": { sheet: "items", c: 1, r: 3 },
-  "對武器施法的卷軸": { sheet: "items", c: 2, r: 3 },
-  "對防具施法的卷軸": { sheet: "items", c: 3, r: 3 },
-  "箭": { sheet: "items", c: 6, r: 3 },
-  "銀箭": { sheet: "items", c: 6, r: 3 },
-  "精靈玉": { sheet: "items", c: 4, r: 3 },
-  "魔力之石": { sheet: "items", c: 5, r: 3 },
+  "傳送回家的卷軸": { sheet: "items", c: 3, r: 5 },
+  "瞬間移動卷軸": { sheet: "items", c: 3, r: 5 },
+  "對武器施法的卷軸": { sheet: "items", c: 2, r: 5 },
+  "對防具施法的卷軸": { sheet: "items", c: 3, r: 5 },
+  "精靈玉": { sheet: "items", c: 4, r: 5 },
+  "魔力之石": { sheet: "items", c: 5, r: 5 },
 
   // 🪵 原料材料 (materials: 5x5)
   "粗糙皮革": { sheet: "mat", c: 4, r: 2 },
@@ -735,9 +738,9 @@ function getItemIconStyle(itemName) {
   }
 
   let sheetUrl = "assets/items/items_spritesheet.jpg";
-  let bgSize = "700% 400%";
-  let xPct = (cfg.c / 6) * 100;
-  let yPct = (cfg.r / 3) * 100;
+  let bgSize = "600% 600%";
+  let xPct = (cfg.c / 5) * 100;
+  let yPct = (cfg.r / 5) * 100;
 
   if (cfg.sheet === "acc") {
     sheetUrl = "assets/items/accessories_spritesheet.jpg";
@@ -754,104 +757,10 @@ function getItemIconStyle(itemName) {
   return `background-image: url('${sheetUrl}'); background-size: ${bgSize}; background-position: ${xPct.toFixed(2)}% ${yPct.toFixed(2)}%;`;
 }
 
-function getItemShortLabel(itemName) {
-  if (!itemName) return "";
-  let clean = itemName.replace(/^\+\d+\s*/, "").trim();
-
-  const dict = {
-    "紅色藥水": "紅",
-    "澄色藥水": "澄",
-    "橙色藥水": "澄",
-    "白色藥水": "白",
-    "綠色藥水": "綠",
-    "勇敢藥水": "勇",
-    "藍色藥水": "藍",
-    "翡翠藥水": "翡",
-    "對武器施法的卷軸": "武",
-    "對防具施法的卷軸": "防",
-    "瞬間移動卷軸": "瞬",
-    "傳送回家的卷軸": "回",
-    "精靈玉": "玉",
-    "魔力之石": "石",
-    "箭": "箭",
-    "銀箭": "銀箭",
-    "短劍": "短劍",
-    "闊劍": "闊劍",
-    "長劍": "長劍",
-    "銀長劍": "銀劍",
-    "雙手劍": "雙手",
-    "大馬士革刀": "大馬",
-    "瑟魯基之劍": "瑟劍",
-    "獵人之弓": "獵弓",
-    "十字弓": "十字",
-    "巴風特魔杖": "巴杖",
-    "皮背心": "皮甲",
-    "鎖子甲": "鎖甲",
-    "骷髏盔甲": "骨甲",
-    "精靈金屬鎧甲": "精甲",
-    "棉質T恤": "T恤",
-    "精靈T恤": "精T",
-    "皮頭盔": "皮盔",
-    "骷髏頭盔": "骨盔",
-    "抗魔法頭盔": "抗盔",
-    "死騎頭盔": "死盔",
-    "木盾": "木盾",
-    "侏儒圓盾": "圓盾",
-    "骷髏盾牌": "骨盾",
-    "鋼鐵盾牌": "鋼盾",
-    "抗魔法斗篷": "抗斗",
-    "保護者斗篷": "保斗",
-    "隱身斗篷": "隱斗",
-    "皮手套": "皮套",
-    "腕甲": "腕甲",
-    "力量手套": "力套",
-    "塞尼斯手套": "塞套",
-    "皮長靴": "皮靴",
-    "鐵高跟靴": "鐵靴",
-    "敏捷魔法長靴": "敏靴",
-    "力量項鍊": "力鍊",
-    "敏捷項鍊": "敏鍊",
-    "智力項鍊": "智鍊",
-    "骷髏項鍊": "骨鍊",
-    "妖魔戰士耳環": "妖耳",
-    "骷髏耳環": "骨耳",
-    "抗魔戒指": "抗戒",
-    "巨蟻女皇戒指": "蟻戒",
-    "瞬間移動控制戒指": "瞬戒",
-    "皮腰帶": "皮帶",
-    "多羅皮帶": "多羅",
-    "歐吉皮帶": "歐帶",
-    "力量符石": "力符",
-    "敏捷符石": "敏符",
-    "粗糙皮革": "皮",
-    "強化皮革": "強皮",
-    "狼皮": "狼皮",
-    "骨頭": "骨",
-    "鐵塊": "鐵",
-    "銀原石": "銀",
-    "純銀原石": "純銀",
-    "黑寶石": "黑寶",
-    "米索莉原石": "米石",
-    "溶解液": "溶液",
-    "妖魔圖騰": "圖騰",
-    "金幣": "金幣"
-  };
-
-  if (dict[clean]) return dict[clean];
-
-  const match = clean.match(/\((.*?)\)/);
-  if (match && match[1]) {
-    return match[1].slice(0, 2);
-  }
-
-  return clean.slice(0, 2);
-}
-
 function getItemIconHtml(itemName, extraClass = "") {
   if (!itemName) return "";
   const style = getItemIconStyle(itemName);
-  const label = getItemShortLabel(itemName);
-  return `<span class="item-pixel-icon ${extraClass}" style="${style}" title="${itemName}"><span class="item-pixel-label">${label}</span></span>`;
+  return `<span class="item-pixel-icon ${extraClass}" style="${style}" title="${itemName}"></span>`;
 }
 
 if (typeof window !== "undefined") {
@@ -859,6 +768,5 @@ if (typeof window !== "undefined") {
   window.CLASS_PRESETS = CLASS_PRESETS;
   window.ITEM_SPRITE_CONFIG = ITEM_SPRITE_CONFIG;
   window.getItemIconStyle = getItemIconStyle;
-  window.getItemShortLabel = getItemShortLabel;
   window.getItemIconHtml = getItemIconHtml;
 }
