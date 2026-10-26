@@ -161,15 +161,38 @@ const DB = {
     "箭": { type: "ammo", tier: "white", weight: 0.03, price: 1, desc: "普通箭矢" },
     "銀箭": { type: "ammo", tier: "white", material: "silver", weight: 0.04, price: 3, desc: "銀質箭矢，對不死系追加破邪傷害" },
 
-    // --- 武防強化卷軸與魔法書 ---
+    // --- 武防強化卷軸與技能書 ---
     "對武器施法的卷軸": { type: "enchant_w", tier: "scroll", weight: 2.0, price: 50000, desc: "強化武器攻擊力 (安定值+6)" },
     "對防具施法的卷軸": { type: "enchant_a", tier: "scroll", weight: 2.0, price: 25000, desc: "強化防具AC額外-1 (安定值+4)" },
-    "魔法書(火球術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 30000, skill: "火球術", desc: "習得二級火系魔法" },
+    // 騎士技術書
+    "技術書(衝擊之暈)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 60000, skill: "衝擊之暈", desc: "習得騎士專屬技術：衝擊之暈" },
+    "技術書(堅固防護)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 40000, skill: "堅固防護", desc: "習得騎士被動防護：堅固防護 (AC-2)" },
+    "技術書(反擊屏障)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 300000, skill: "反擊屏障", desc: "習得騎士神技：反擊屏障" },
+    "技術書(增幅防禦)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 80000, skill: "增幅防禦", desc: "習得騎士被動技術：增幅防禦 (AC-3)" },
+    "技術書(狂暴將軍)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 150000, skill: "狂暴將軍", desc: "習得騎士主動技術：狂暴將軍 (STR+3)" },
+    // 妖精精靈水晶
+    "精靈水晶(三重矢)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 250000, skill: "三重矢", desc: "習得妖精標誌神技：三重矢" },
+    "精靈水晶(屬性之火)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 35000, skill: "屬性之火", desc: "習得精靈火系魔法：屬性之火" },
+    "精靈水晶(屬性之水)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 35000, skill: "屬性之水", desc: "習得精靈水系魔法：屬性之水" },
+    "精靈水晶(屬性之風)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 50000, skill: "屬性之風", desc: "習得精靈風系魔法：屬性之風" },
+    "精靈水晶(屬性之地)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 50000, skill: "屬性之地", desc: "習得精靈地系魔法：屬性之地" },
+    "精靈水晶(自然之祝福)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 120000, skill: "自然之祝福", desc: "習得精靈被動印記：自然之祝福 (DEX+3)" },
+    // 法師正統魔法書
+    "魔法書(初級治癒術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 5000, skill: "初級治癒術", desc: "習得一級神聖回復魔法" },
+    "魔法書(魔法飛彈)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 3000, skill: "魔法飛彈", desc: "習得一級秘術飛彈" },
+    "魔法書(光箭術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 10000, skill: "光箭術", desc: "習得二級光箭術" },
+    "魔法書(初級加速術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 20000, skill: "初級加速術", desc: "習得二級敏捷加速魔法" },
+    "魔法書(火球術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 30000, skill: "火球術", desc: "習得三級火系爆裂魔法" },
+    "魔法書(初級體力回復術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 40000, skill: "初級體力回復術", desc: "習得三級體力回復術" },
     "魔法書(極道落雷)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 80000, skill: "極道落雷", desc: "習得四級範圍雷電魔法" },
-    "魔法書(高級治癒術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 120000, skill: "高級治癒術", desc: "習得五級單體急救神術" },
-    "魔法書(體魄強健術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 150000, skill: "體魄強健術", desc: "力量+5 核心隊友增益魔法" },
-    "魔法書(聖結界)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 500000, skill: "聖結界", desc: "法師神技：隊友受擊傷害減免 50%" },
+    "魔法書(高級治癒術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 120000, skill: "高級治癒術", desc: "習得四級單體急救神術" },
+    "魔法書(體魄強健術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 150000, skill: "體魄強健術", desc: "習得五級強化魔法 (力量 STR+5)" },
+    "魔法書(聖結界)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 500000, skill: "聖結界", desc: "法師神技：受擊傷害減免 50%" },
     "魔法書(究極光裂術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 2000000, skill: "究極光裂術", desc: "法師終極單體毀滅魔法" },
+    // 王族皇家魔典
+    "皇家魔典(精準目標)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 30000, skill: "精準目標", desc: "習得王族鎖定技術：精準目標 (命中+5)" },
+    "皇家魔典(皇家血統)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 60000, skill: "皇家血統", desc: "習得王族被動體魄：皇家血統 (HP+50)" },
+    "皇家魔典(激勵士氣)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 80000, skill: "激勵士氣", desc: "習得王族戰術光環：激勵士氣" },
 
     // --- 材料與收購產物 ---
     "妖魔圖騰": { type: "etc", tier: "mat", weight: 1.0, price: 200, desc: "燃柳村羅浮專用高價收購圖騰" },
@@ -292,32 +315,38 @@ const DB = {
       ]
     },
   skills: {
-    // 正統魔法 (法師/通用) 1~10 級
-    "初級治癒術": { name: "初級治癒術", school: "normal", tier: 1, mpCost: 10, cooldown: 2000, type: "heal", power: 60, desc: "回復少量 HP" },
-    "魔法飛彈": { name: "魔法飛彈", school: "normal", tier: 1, mpCost: 8, cooldown: 1500, type: "damage", power: 30, desc: "基礎單體魔法攻擊" },
-    "光箭術": { name: "光箭術", school: "normal", tier: 2, mpCost: 12, cooldown: 2000, type: "damage", power: 50, desc: "光屬性單體攻擊" },
-    "初級加速術": { name: "初級加速術", school: "normal", tier: 2, mpCost: 15, cooldown: 30000, type: "buff", stat: "dex", amount: 2, duration: 120, desc: "DEX+2" },
-    "火球術": { name: "火球術", school: "normal", tier: 3, mpCost: 15, cooldown: 3000, type: "damage", power: 80, desc: "單體火系傷害" },
-    "初級體力回復術": { name: "初級體力回復術", school: "normal", tier: 3, mpCost: 18, cooldown: 5000, type: "heal", power: 120, desc: "回復 HP" },
-    "極道落雷": { name: "極道落雷", school: "normal", tier: 4, mpCost: 25, cooldown: 4000, type: "damage", power: 140, desc: "範圍雷電魔法" },
-    "高級治癒術": { name: "高級治癒術", school: "normal", tier: 4, mpCost: 30, cooldown: 5000, type: "heal", power: 180, desc: "單體急救神術" },
-    "體魄強健術": { name: "體魄強健術", school: "normal", tier: 5, mpCost: 20, cooldown: 60000, type: "buff", stat: "str", amount: 5, duration: 300, desc: "STR+5" },
-    "聖結界": { name: "聖結界", school: "normal", tier: 5, mpCost: 40, cooldown: 120000, type: "buff", stat: "mr", amount: 20, duration: 300, desc: "受擊傷害減免" },
-    "究極光裂術": { name: "究極光裂術", school: "normal", tier: 6, mpCost: 60, cooldown: 8000, type: "damage", power: 320, desc: "終極單體毀滅魔法" },
-    // 精靈魔法 (妖精) 1~5 級
-    "屬性之火": { name: "屬性之火", school: "elf", tier: 1, mpCost: 10, cooldown: 2000, type: "damage", power: 40, desc: "火屬性攻擊" },
-    "屬性之水": { name: "屬性之水", school: "elf", tier: 1, mpCost: 10, cooldown: 2000, type: "damage", power: 40, desc: "水屬性攻擊" },
-    "屬性之風": { name: "屬性之風", school: "elf", tier: 2, mpCost: 12, cooldown: 2000, type: "damage", power: 55, desc: "風屬性攻擊" },
-    "屬性之地": { name: "屬性之地", school: "elf", tier: 2, mpCost: 12, cooldown: 2000, type: "damage", power: 55, desc: "地屬性攻擊" },
-    "三重矢": { name: "三重矢", school: "elf", tier: 3, mpCost: 15, cooldown: 2500, type: "damage", power: 90, desc: "連續三箭" },
-    "自然之祝福": { name: "自然之祝福", school: "elf", tier: 3, mpCost: 20, cooldown: 30000, type: "buff", stat: "dex", amount: 3, duration: 180, desc: "DEX+3" },
-    // 騎士技術
-    "衝擊之暈": { name: "衝擊之暈", school: "knight", tier: 1, mpCost: 15, cooldown: 10000, type: "damage", power: 60, desc: "暈眩攻擊" },
-    "堅固防護": { name: "堅固防護", school: "knight", tier: 1, mpCost: 20, cooldown: 60000, type: "buff", stat: "ac", amount: -2, duration: 300, desc: "AC-2" },
-    "反擊屏障": { name: "反擊屏障", school: "knight", tier: 2, mpCost: 25, cooldown: 45000, type: "buff", stat: "mr", amount: 10, duration: 200, desc: "反擊屏障" },
-    // 王族魔法
-    "精準目標": { name: "精準目標", school: "prince", tier: 1, mpCost: 10, cooldown: 20000, type: "buff", stat: "hit", amount: 5, duration: 180, desc: "命中+5" },
-    "皇家血統": { name: "皇家血統", school: "prince", tier: 1, mpCost: 15, cooldown: 30000, type: "buff", stat: "hp", amount: 50, duration: 300, desc: "HP+50" }
+    // 🛡️ 騎士技術 (Knight)
+    "衝擊之暈": { name: "衝擊之暈", school: "knight", tier: 1, mpCost: 15, cooldown: 10000, type: "damage", power: 60, mode: "active", iconKey: "shock_stun", desc: "主動重劈打擊，對目標造成傷害並使目標陷入暈眩" },
+    "堅固防護": { name: "堅固防護", school: "knight", tier: 1, mpCost: 20, cooldown: 60000, type: "buff", stat: "ac", amount: -2, duration: 300, mode: "passive", iconKey: "solid_carriage", desc: "騎士防護技術，自身防禦 AC-2" },
+    "反擊屏障": { name: "反擊屏障", school: "knight", tier: 2, mpCost: 25, cooldown: 45000, type: "buff", stat: "mr", amount: 10, duration: 200, mode: "active", iconKey: "counter_barrier", desc: "近戰防禦神技，提升魔防並有機率反彈近身攻擊" },
+    "增幅防禦": { name: "增幅防禦", school: "knight", tier: 2, mpCost: 20, cooldown: 60000, type: "buff", stat: "ac", amount: -3, duration: 300, mode: "passive", iconKey: "reduction_armor", desc: "強化盾牌堅定格擋，AC額外-3" },
+    "狂暴將軍": { name: "狂暴將軍", school: "knight", tier: 3, mpCost: 25, cooldown: 30000, type: "buff", stat: "str", amount: 3, duration: 180, mode: "active", iconKey: "brave_aura", desc: "激發騎士狂暴之魂，力量 STR+3" },
+
+    // 🏹 精靈魔法 (Elf)
+    "三重矢": { name: "三重矢", school: "elf", tier: 3, mpCost: 15, cooldown: 2500, type: "damage", power: 90, mode: "active", iconKey: "triple_arrow", desc: "妖精標誌神技，瞬間連續射出三支強烈魔法箭矢" },
+    "屬性之火": { name: "屬性之火", school: "elf", tier: 1, mpCost: 10, cooldown: 2000, type: "damage", power: 40, mode: "active", iconKey: "elemental_fire", desc: "引導火鳳凰烈焰之力，造成強烈火屬性傷害" },
+    "屬性之水": { name: "屬性之水", school: "elf", tier: 1, mpCost: 10, cooldown: 2000, type: "damage", power: 40, mode: "active", iconKey: "elemental_water", desc: "凝聚神聖水元素漩渦打擊目標" },
+    "屬性之風": { name: "屬性之風", school: "elf", tier: 2, mpCost: 12, cooldown: 2000, type: "damage", power: 55, mode: "active", iconKey: "elemental_wind", desc: "召喚銳利疾風風刃破空打擊" },
+    "屬性之地": { name: "屬性之地", school: "elf", tier: 2, mpCost: 12, cooldown: 2000, type: "damage", power: 55, mode: "active", iconKey: "elemental_earth", desc: "引動大地剛石結晶重壓目標" },
+    "自然之祝福": { name: "自然之祝福", school: "elf", tier: 3, mpCost: 20, cooldown: 30000, type: "buff", stat: "dex", amount: 3, duration: 180, mode: "passive", iconKey: "nature_blessing", desc: "自然精靈永恆印記，敏捷 DEX+3" },
+
+    // 🧙‍♂️ 正統魔法 (Mage)
+    "初級治癒術": { name: "初級治癒術", school: "normal", tier: 1, mpCost: 10, cooldown: 2000, type: "heal", power: 60, mode: "active", iconKey: "heal", desc: "回復少量生命值" },
+    "魔法飛彈": { name: "魔法飛彈", school: "normal", tier: 1, mpCost: 8, cooldown: 1500, type: "damage", power: 30, mode: "active", iconKey: "energy_bolt", desc: "基礎單體秘術飛彈攻擊" },
+    "光箭術": { name: "光箭術", school: "normal", tier: 2, mpCost: 12, cooldown: 2000, type: "damage", power: 50, mode: "active", iconKey: "light_arrow", desc: "光屬性單體破魔箭矢打擊" },
+    "初級加速術": { name: "初級加速術", school: "normal", tier: 2, mpCost: 15, cooldown: 30000, type: "buff", stat: "dex", amount: 2, duration: 120, mode: "active", iconKey: "haste", desc: "疾行雷電祝福，DEX+2" },
+    "火球術": { name: "火球術", school: "normal", tier: 3, mpCost: 15, cooldown: 3000, type: "damage", power: 80, mode: "active", iconKey: "fireball", desc: "凝聚熾熱爆炎火球轟擊目標" },
+    "初級體力回復術": { name: "初級體力回復術", school: "normal", tier: 3, mpCost: 18, cooldown: 5000, type: "heal", power: 120, mode: "active", iconKey: "extra_heal", desc: "中度體力回復術" },
+    "極道落雷": { name: "極道落雷", school: "normal", tier: 4, mpCost: 25, cooldown: 4000, type: "damage", power: 140, mode: "active", iconKey: "lightning", desc: "召喚黑紫狂雷貫穿目標" },
+    "高級治癒術": { name: "高級治癒術", school: "normal", tier: 4, mpCost: 30, cooldown: 5000, type: "heal", power: 180, mode: "active", iconKey: "greater_heal", desc: "神聖高級急救神術，大量回復生命值" },
+    "體魄強健術": { name: "體魄強健術", school: "normal", tier: 5, mpCost: 20, cooldown: 60000, type: "buff", stat: "str", amount: 5, duration: 300, mode: "passive", iconKey: "physical_enchant", desc: "肌肉力量爆發，STR+5" },
+    "聖結界": { name: "聖結界", school: "normal", tier: 5, mpCost: 40, cooldown: 120000, type: "buff", stat: "mr", amount: 20, duration: 300, mode: "active", iconKey: "immune_to_harm", desc: "神聖守護屏障，受擊傷害大幅減免" },
+    "究極光裂術": { name: "究極光裂術", school: "normal", tier: 6, mpCost: 60, cooldown: 8000, type: "damage", power: 320, mode: "active", iconKey: "disintegrate", desc: "天界裁決之毀滅光芒，終極單體神術" },
+
+    // 👑 王族魔法 (Prince)
+    "精準目標": { name: "精準目標", school: "prince", tier: 1, mpCost: 10, cooldown: 20000, type: "buff", stat: "hit", amount: 5, duration: 180, mode: "active", iconKey: "true_target", desc: "王族集火目標印記，命中+5" },
+    "皇家血統": { name: "皇家血統", school: "prince", tier: 1, mpCost: 15, cooldown: 30000, type: "buff", stat: "hp", amount: 50, duration: 300, mode: "passive", iconKey: "royal_blood", desc: "帝國皇族血統威嚴，HP上限+50" },
+    "激勵士氣": { name: "激勵士氣", school: "prince", tier: 2, mpCost: 15, cooldown: 40000, type: "buff", stat: "hit", amount: 3, duration: 180, mode: "active", iconKey: "brave_mental", desc: "鼓舞全軍戰意，命中率提升" }
   },
   villages: {
     ti_village: {

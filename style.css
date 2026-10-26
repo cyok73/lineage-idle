@@ -1108,3 +1108,375 @@ input[type="number"] {
   padding: 14px;
   box-shadow: 0 10px 30px #000;
 }
+
+/* ==========================================================================
+   天堂經典 5x5 矩陣技能欄 (Lineage Skill Book Matrix)
+   重現附圖規格：5欄式深邃金屬凹槽、A/P 角標、高精細職業圖騰、+號未習得、金色發光學習按鈕
+   ========================================================================== */
+
+.lineage-skill-book-wrapper {
+  display: flex;
+  gap: 16px;
+  background: #101217;
+  border: 2px solid #2e3440;
+  border-radius: 6px;
+  padding: 14px;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8), 0 4px 16px rgba(0, 0, 0, 0.5);
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+@media (max-width: 820px) {
+  .lineage-skill-book-wrapper {
+    flex-direction: column;
+  }
+}
+
+.skill-main-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+/* 技能學派分類頁籤 */
+.skill-category-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  background: #090a0d;
+  padding: 6px;
+  border: 1px solid #1f232b;
+  border-radius: 4px;
+}
+
+.skill-cat-btn {
+  background: #161920;
+  border: 1px solid #2d3340;
+  color: #94a3b8;
+  padding: 5px 12px;
+  font-size: 11.5px;
+  font-weight: bold;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.skill-cat-btn:hover {
+  background: #1f242e;
+  color: #f1f5f9;
+  border-color: #475569;
+}
+
+.skill-cat-btn.active {
+  background: linear-gradient(180deg, #374151 0%, #1f2937 100%);
+  color: #fcd34d;
+  border-color: #d4af37;
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.3);
+}
+
+/* 5 欄經典技能矩陣網格 */
+.skill-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 68px);
+  grid-auto-rows: 68px;
+  gap: 6px;
+  padding: 10px;
+  background: #090a0d;
+  border: 2px solid #1d212a;
+  border-radius: 4px;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.85);
+  min-height: 360px;
+}
+
+/* 單一技能格子槽位 */
+.skill-slot-box {
+  width: 68px;
+  height: 68px;
+  position: relative;
+  background: radial-gradient(circle at 50% 35%, #181b22 0%, #0d0f13 100%);
+  border: 1.5px solid #2c313d;
+  border-radius: 3px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), inset 0 0 6px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  overflow: hidden;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+}
+
+.skill-slot-box:hover {
+  border-color: #d4af37;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.5), inset 0 0 6px rgba(0, 0, 0, 0.8);
+  transform: translateY(-1px);
+}
+
+.skill-slot-box.selected {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.7), inset 0 0 6px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* A (主動) / P (被動) 頂部角標 (符合截圖橙色/綠色小標籤) */
+.skill-badge {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  font-size: 9.5px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1;
+  z-index: 5;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.skill-badge.badge-a {
+  background: linear-gradient(180deg, #9a3412 0%, #431407 100%);
+  color: #fdba74;
+  border: 1px solid #c2410c;
+  text-shadow: 0 1px 1px #000;
+}
+
+.skill-badge.badge-p {
+  background: linear-gradient(180deg, #166534 0%, #052e16 100%);
+  color: #86efac;
+  border: 1px solid #15803d;
+  text-shadow: 0 1px 1px #000;
+}
+
+/* 技能圖示內部容器 */
+.skill-art-container {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: filter 0.2s, opacity 0.2s;
+}
+
+.skill-art-container svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+}
+
+/* 狀態：未習得 (圖示半透明暗化 + 底部亮綠色「+」加號) */
+.skill-slot-box.state-unlearned .skill-art-container {
+  opacity: 0.45;
+  filter: grayscale(85%) brightness(0.65);
+}
+
+.skill-plus-sign {
+  position: absolute;
+  bottom: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #22c55e;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 0 6px rgba(34, 197, 94, 0.9), 0 0 2px #000;
+  pointer-events: none;
+  z-index: 6;
+  animation: pulsePlus 2s infinite ease-in-out;
+}
+
+@keyframes pulsePlus {
+  0%, 100% { transform: translateX(-50%) scale(1); filter: drop-shadow(0 0 2px #22c55e); }
+  50% { transform: translateX(-50%) scale(1.15); filter: drop-shadow(0 0 6px #4ade80); }
+}
+
+/* 狀態：背包已有魔法書，可學習！(金黃光框 + 底部青綠「學習」字體，完美符合附圖左上角) */
+.skill-slot-box.state-can-learn {
+  border: 2px solid #eab308 !important;
+  box-shadow: 0 0 8px rgba(234, 179, 8, 0.7), inset 0 0 10px rgba(234, 179, 8, 0.25) !important;
+  animation: goldenBlink 1.8s infinite alternate ease-in-out;
+}
+
+@keyframes goldenBlink {
+  0% { box-shadow: 0 0 6px rgba(234, 179, 8, 0.4), inset 0 0 4px rgba(234, 179, 8, 0.2); }
+  100% { box-shadow: 0 0 12px rgba(234, 179, 8, 0.85), inset 0 0 10px rgba(234, 179, 8, 0.35); }
+}
+
+.skill-slot-box.state-can-learn .skill-art-container {
+  opacity: 0.9;
+  filter: brightness(0.9);
+}
+
+.skill-learn-text {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid #22c55e;
+  border-radius: 2px;
+  color: #4ade80;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  padding: 0 4px;
+  text-shadow: 0 0 5px rgba(74, 222, 128, 0.9), 0 1px 1px #000;
+  pointer-events: none;
+  z-index: 6;
+  white-space: nowrap;
+}
+
+/* 狀態：已習得 (亮麗全彩，無遮蔽) */
+.skill-slot-box.state-learned .skill-art-container {
+  opacity: 1;
+  filter: none;
+}
+
+/* 冷卻中遮罩 */
+.skill-cooldown-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f87171;
+  font-size: 13px;
+  font-weight: bold;
+  font-family: Consolas, monospace;
+  z-index: 8;
+  backdrop-filter: blur(1px);
+}
+
+/* 右側：技能詳細檢視窗 (Inspector) */
+.skill-detail-inspector {
+  flex: 1;
+  min-width: 260px;
+  background: #0c0e12;
+  border: 1px solid #232731;
+  border-radius: 4px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: inset 0 1px 6px rgba(0,0,0,0.6);
+}
+
+.skill-insp-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border-bottom: 1px solid #1f232b;
+  padding-bottom: 10px;
+}
+
+.skill-insp-art {
+  width: 58px;
+  height: 58px;
+  background: #14171d;
+  border: 1.5px solid var(--gold);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+}
+
+.skill-insp-art svg {
+  width: 48px;
+  height: 48px;
+}
+
+.skill-insp-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.skill-insp-name {
+  font-size: 15px;
+  font-weight: bold;
+  color: #f1f5f9;
+}
+
+.skill-insp-tags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.skill-tag-pill {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 2px;
+  font-weight: bold;
+}
+
+.skill-tag-active {
+  background: #431407;
+  color: #fdba74;
+  border: 1px solid #ea580c;
+}
+
+.skill-tag-passive {
+  background: #052e16;
+  color: #86efac;
+  border: 1px solid #16a34a;
+}
+
+.skill-tag-school {
+  background: #1e1b4b;
+  color: #c7d2fe;
+  border: 1px solid #4338ca;
+}
+
+.skill-insp-props {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background: #12151b;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #1a1e27;
+  font-size: 11.5px;
+}
+
+.insp-prop-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.insp-prop-lbl {
+  color: #64748b;
+}
+
+.insp-prop-val {
+  color: #e2e8f0;
+  font-weight: bold;
+}
+
+.skill-insp-desc {
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.5;
+  background: #08090c;
+  padding: 8px 10px;
+  border-left: 3px solid var(--gold);
+  border-radius: 2px;
+}
+
+.skill-insp-source {
+  font-size: 11px;
+  color: #71717a;
+}
+
+.skill-insp-actions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}

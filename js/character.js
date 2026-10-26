@@ -1035,32 +1035,579 @@ function useSkill(skillName) {
 }
 window.useSkill = useSkill;
 
-function renderSkillTab() {
-  const container = document.getElementById("skill-list-container");
-  if (!container) return;
-  container.innerHTML = "";
+// ==========================================================================
+// 天堂經典 5x5 矩陣技能欄與職業專屬技能圖示 (Lineage Skill Matrix & Icons)
+// ==========================================================================
 
-  const learned = (currentChar && Array.isArray(currentChar.skills)) ? currentChar.skills : [];
-  if (learned.length === 0) {
-    container.innerHTML = `<div style="color:#7e889b; padding:12px;">尚未學會任何技能，使用魔法書即可學習。</div>`;
-  } else {
-    learned.forEach(skillName => {
-      const skill = (typeof DB !== "undefined" && DB.skills) ? DB.skills[skillName] : null;
-      if (!skill) return;
-      const cd = getSkillCooldownRemaining(skillName);
-      const card = document.createElement("div");
-      card.style.cssText = "background:#0f131a; border:1px solid #2e3440; border-radius:6px; padding:8px; display:flex; flex-direction:column; gap:4px;";
-      card.innerHTML = `
-        <div style="font-weight:bold; color:var(--gold); font-size:13px;">${skill.name}</div>
-        <div style="font-size:11px; color:#94a3b8;">${skill.desc || ""}</div>
-        <div style="font-size:11px; color:#38bdf8;">MP ${skill.mpCost} ｜ 冷卻 ${Math.ceil((skill.cooldown||0)/1000)}s</div>
-        <button class="btn btn-gold" ${cd > 0 ? "disabled" : ""} onclick="useSkill('${skill.name}')">
-          ${cd > 0 ? "冷卻中 " + Math.ceil(cd/1000) + "s" : "使用"}
-        </button>
-      `;
-      container.appendChild(card);
-    });
+const SKILL_ICONS = {
+  // 衝擊之暈 (Shock Stun) - 雙劍交鋒衝擊波與電弧
+  shock_stun: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="28" fill="#451a03" fill-opacity="0.6"/>
+      <path d="M10 10 L32 32 L26 38 L4 16 Z" fill="#94a3b8" stroke="#cbd5e1" stroke-width="1.5"/>
+      <path d="M54 10 L32 32 L38 38 L60 16 Z" fill="#cbd5e1" stroke="#f8fafc" stroke-width="1.5"/>
+      <circle cx="32" cy="32" r="7" fill="#fef08a"/>
+      <path d="M32 14 L35 25 L46 20 L38 32 L50 35 L37 38 L42 49 L32 40 L22 49 L27 38 L14 35 L26 32 L18 20 L29 25 Z" fill="#fbbf24"/>
+      <path d="M30 4 L34 16 L28 22 L32 30" stroke="#67e8f9" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+  `,
+
+  // 堅固防護 (Solid Carriage) - 重裝堅石塔盾
+  solid_carriage: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 12 L50 12 L46 44 L32 56 L18 44 Z" fill="#1e293b" stroke="#475569" stroke-width="3"/>
+      <path d="M20 16 L44 16 L41 41 L32 50 L23 41 Z" fill="#334155" stroke="#d4af37" stroke-width="1.5"/>
+      <path d="M32 16 L32 50 M20 28 L44 28" stroke="#d4af37" stroke-width="2.5"/>
+      <circle cx="32" cy="28" r="4.5" fill="#fbbf24"/>
+      <circle cx="23" cy="19" r="2" fill="#94a3b8"/>
+      <circle cx="41" cy="19" r="2" fill="#94a3b8"/>
+    </svg>
+  `,
+
+  // 反擊屏障 (Counter Barrier) - 紫光騎士反擊力場
+  counter_barrier: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="26" stroke="#c084fc" stroke-width="2.5" stroke-dasharray="5 3" fill="#581c87" fill-opacity="0.4"/>
+      <path d="M32 10 L48 22 L42 46 L32 54 L22 46 L16 22 Z" fill="#7e22ce" stroke="#d8b4fe" stroke-width="2"/>
+      <path d="M32 16 L42 25 L38 42 L32 47 L26 42 L22 25 Z" fill="#a855f7"/>
+      <path d="M28 22 L36 34 M36 22 L28 34" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="32" cy="28" r="3.5" fill="#fef08a"/>
+    </svg>
+  `,
+
+  // 增幅防禦 (Reduction Armor) - 鋼鐵板甲重裝護胸
+  reduction_armor: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 12 L32 18 L44 12 L50 24 L46 44 L32 54 L18 44 L14 24 Z" fill="#334155" stroke="#94a3b8" stroke-width="2.5"/>
+      <path d="M24 16 L32 20 L40 16 L44 26 L40 40 L32 47 L24 40 L20 26 Z" fill="#475569" stroke="#d4af37" stroke-width="1.5"/>
+      <path d="M32 20 L32 47" stroke="#d4af37" stroke-width="2"/>
+      <path d="M22 28 L42 28 M24 34 L40 34" stroke="#64748b" stroke-width="1.5"/>
+      <circle cx="32" cy="28" r="3" fill="#fbbf24"/>
+    </svg>
+  `,
+
+  // 狂暴將軍 (Brave Aura) - 烈火戰刃握於鐵拳
+  brave_aura: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M24 54 C20 40 16 30 26 18 C30 24 32 14 36 8 C42 20 48 24 46 36 C52 30 50 44 44 54 Z" fill="#dc2626"/>
+      <path d="M28 52 C26 42 24 34 30 24 C33 28 34 20 37 14 C40 24 44 28 42 38 C46 34 44 44 40 52 Z" fill="#f59e0b"/>
+      <path d="M32 16 L32 46" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+      <rect x="25" y="46" width="14" height="4" rx="1" fill="#475569" stroke="#cbd5e1"/>
+      <rect x="30" y="50" width="4" height="8" rx="1" fill="#78350f"/>
+    </svg>
+  `,
+
+  // 三重矢 (Triple Arrow) - 妖精三道翠綠疾光箭
+  triple_arrow: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g transform="rotate(-30 32 32)">
+        <line x1="8" y1="32" x2="52" y2="32" stroke="#4ade80" stroke-width="3" stroke-linecap="round"/>
+        <polygon points="56,32 44,26 48,32 44,38" fill="#86efac"/>
+        <line x1="12" y1="28" x2="8" y2="32" stroke="#22c55e" stroke-width="2"/>
+        <line x1="12" y1="36" x2="8" y2="32" stroke="#22c55e" stroke-width="2"/>
+        <line x1="12" y1="18" x2="48" y2="18" stroke="#86efac" stroke-width="2.5" stroke-linecap="round"/>
+        <polygon points="52,18 42,13 45,18 42,23" fill="#bbf7d0"/>
+        <line x1="12" y1="46" x2="48" y2="46" stroke="#86efac" stroke-width="2.5" stroke-linecap="round"/>
+        <polygon points="52,46 42,41 45,46 42,51" fill="#bbf7d0"/>
+      </g>
+      <circle cx="48" cy="18" r="3" fill="#fef08a"/>
+      <circle cx="56" cy="30" r="2.5" fill="#fef08a"/>
+    </svg>
+  `,
+
+  // 屬性之火 (Elemental Fire) - 火鳳凰展開熾炎雙翼
+  elemental_fire: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M32 14 C28 24 12 28 8 44 C18 42 22 48 32 58 C42 48 46 42 56 44 C52 28 36 24 32 14 Z" fill="#b91c1c"/>
+      <path d="M32 20 C29 28 18 32 14 42 C22 40 25 44 32 52 C39 44 42 40 50 42 C46 32 35 28 32 20 Z" fill="#ea580c"/>
+      <path d="M32 26 C30 32 24 36 20 42 C26 40 28 42 32 48 C36 42 38 40 44 42 C40 36 34 32 32 26 Z" fill="#facc15"/>
+      <circle cx="32" cy="30" r="2.5" fill="#ffffff"/>
+    </svg>
+  `,
+
+  // 屬性之水 (Elemental Water) - 水藍聖十字漩渦
+  elemental_water: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="25" stroke="#38bdf8" stroke-width="3" stroke-dasharray="8 4" fill="#0c4a6e" fill-opacity="0.4"/>
+      <circle cx="32" cy="32" r="18" stroke="#0ea5e9" stroke-width="2"/>
+      <path d="M32 12 L32 52 M12 32 L52 32" stroke="#7dd3fc" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="32" cy="32" r="6" fill="#38bdf8"/>
+      <circle cx="32" cy="32" r="3" fill="#ffffff"/>
+      <circle cx="20" cy="20" r="2" fill="#bae6fd"/>
+      <circle cx="44" cy="44" r="2" fill="#bae6fd"/>
+    </svg>
+  `,
+
+  // 屬性之風 (Elemental Wind) - 疾風雙刃螺旋
+  elemental_wind: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M32 10 C46 10 54 22 54 32 C54 36 50 36 48 32 C44 24 38 18 32 18 C22 18 16 26 18 34 C20 40 28 44 34 42 C38 40 40 36 38 34" stroke="#34d399" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M32 54 C18 54 10 42 10 32 C10 28 14 28 16 32 C20 40 26 46 32 46 C42 46 48 38 46 30 C44 24 36 20 30 22 C26 24 24 28 26 30" stroke="#6ee7b7" stroke-width="3.5" stroke-linecap="round"/>
+      <circle cx="32" cy="32" r="4" fill="#a7f3d0"/>
+    </svg>
+  `,
+
+  // 屬性之地 (Elemental Earth) - 浮空剛石稜柱
+  elemental_earth: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="32,8 52,22 44,48 32,56 20,48 12,22" fill="#14532d" stroke="#22c55e" stroke-width="2.5"/>
+      <polygon points="32,14 46,24 40,44 32,50 24,44 18,24" fill="#16a34a"/>
+      <polygon points="32,18 40,26 36,40 32,44 28,40 24,26" fill="#4ade80"/>
+      <line x1="32" y1="18" x2="32" y2="44" stroke="#bbf7d0" stroke-width="2"/>
+      <circle cx="48" cy="16" r="2.5" fill="#86efac"/>
+      <circle cx="16" cy="46" r="2.5" fill="#86efac"/>
+    </svg>
+  `,
+
+  // 自然之祝福 (Nature Blessing) - 妖精世界樹聖葉星光
+  nature_blessing: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M32 10 C20 22 14 36 22 48 C28 54 40 54 48 44 C52 34 46 20 32 10 Z" fill="#15803d" stroke="#86efac" stroke-width="2"/>
+      <path d="M22 48 Q32 34 38 18" stroke="#fef08a" stroke-width="2" stroke-linecap="round"/>
+      <path d="M28 36 Q34 32 42 34" stroke="#fef08a" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="38" cy="18" r="3" fill="#fef08a"/>
+      <circle cx="18" cy="24" r="1.5" fill="#fef08a"/>
+      <circle cx="48" cy="38" r="2" fill="#fef08a"/>
+    </svg>
+  `,
+
+  // 初級治癒術 (Heal) - 柔光治癒之手與生命光點
+  heal: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="24" r="10" fill="#22c55e" fill-opacity="0.8"/>
+      <circle cx="32" cy="24" r="5" fill="#fef08a"/>
+      <path d="M14 48 C14 38 22 34 30 38 L32 40 L34 38 C42 34 50 38 50 48 Z" fill="#b45309" stroke="#f59e0b" stroke-width="2"/>
+      <path d="M18 48 C18 40 24 38 32 44 C40 38 46 40 46 48 Z" fill="#d97706"/>
+      <line x1="32" y1="8" x2="32" y2="14" stroke="#86efac" stroke-width="2"/>
+      <line x1="22" y1="14" x2="26" y2="18" stroke="#86efac" stroke-width="2"/>
+      <line x1="42" y1="14" x2="38" y2="18" stroke="#86efac" stroke-width="2"/>
+    </svg>
+  `,
+
+  // 魔法飛彈 (Energy Bolt) - 藍光秘術星弧飛彈
+  energy_bolt: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 50 Q28 42 46 18" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="48" cy="16" r="8" fill="#38bdf8"/>
+      <circle cx="48" cy="16" r="4" fill="#ffffff"/>
+      <polygon points="48,6 51,13 58,16 51,19 48,26 45,19 38,16 45,13" fill="#f0f9ff"/>
+      <circle cx="28" cy="34" r="3" fill="#7dd3fc"/>
+      <circle cx="16" cy="44" r="2" fill="#bae6fd"/>
+    </svg>
+  `,
+
+  // 光箭術 (Light Arrow) - 耀眼破魔銀光之箭
+  light_arrow: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="10" y1="54" x2="52" y2="12" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
+      <polygon points="56,8 42,12 46,18 52,14" fill="#fef08a"/>
+      <circle cx="52" cy="12" r="6" fill="#fef08a" fill-opacity="0.6"/>
+      <line x1="16" y1="52" x2="12" y2="44" stroke="#94a3b8" stroke-width="2"/>
+      <line x1="20" y1="56" x2="12" y2="48" stroke="#94a3b8" stroke-width="2"/>
+    </svg>
+  `,
+
+  // 初級加速術 (Haste) - 疾走雷電法杖
+  haste: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="18" y1="52" x2="44" y2="16" stroke="#b45309" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="44" cy="16" r="7" fill="#f59e0b" stroke="#fef08a" stroke-width="2"/>
+      <path d="M42 6 L46 14 L52 14 L46 20 L48 28 L40 22 L34 26 L38 18 L34 12 L42 12 Z" fill="#67e8f9"/>
+      <line x1="12" y1="36" x2="28" y2="36" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="8" y1="42" x2="24" y2="42" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  `,
+
+  // 火球術 (Fireball) - 熾熱滾燙爆裂火球
+  fireball: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="36" cy="30" r="18" fill="#b91c1c"/>
+      <circle cx="36" cy="30" r="14" fill="#ea580c"/>
+      <circle cx="36" cy="30" r="9" fill="#facc15"/>
+      <circle cx="36" cy="30" r="4" fill="#ffffff"/>
+      <path d="M12 52 C18 42 22 36 26 38" stroke="#ea580c" stroke-width="4" stroke-linecap="round"/>
+      <path d="M8 44 C16 38 20 32 24 34" stroke="#facc15" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="16" cy="22" r="2" fill="#fef08a"/>
+      <circle cx="50" cy="48" r="2" fill="#fef08a"/>
+    </svg>
+  `,
+
+  // 初級體力回復術 (Extra Heal) - 雙掌翡翠生命光環
+  extra_heal: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="22" stroke="#22c55e" stroke-width="2" stroke-dasharray="4 2"/>
+      <circle cx="32" cy="32" r="14" fill="#15803d" fill-opacity="0.6"/>
+      <path d="M28 20 L36 20 L36 28 L44 28 L44 36 L36 36 L36 44 L28 44 L28 36 L20 36 L20 28 L28 28 Z" fill="#86efac"/>
+      <circle cx="32" cy="32" r="3" fill="#ffffff"/>
+    </svg>
+  `,
+
+  // 極道落雷 (Lightning) - 烏雲與狂暴暗紫落雷
+  lightning: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16 20 C16 14 24 10 32 12 C38 8 50 12 50 20 C54 22 56 28 50 32 C44 34 16 34 16 20 Z" fill="#334155"/>
+      <polygon points="36,22 24,36 32,36 26,54 44,34 34,34" fill="#c084fc" stroke="#f3e8ff" stroke-width="1.5"/>
+      <circle cx="28" cy="48" r="2" fill="#67e8f9"/>
+      <circle cx="42" cy="40" r="1.5" fill="#67e8f9"/>
+    </svg>
+  `,
+
+  // 高級治癒術 (Greater Heal) - 天使羽翼守護聖十字
+  greater_heal: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M32 38 C24 24 10 20 8 36 C14 38 22 42 32 50 Z" fill="#fef08a" fill-opacity="0.8"/>
+      <path d="M32 38 C40 24 54 20 56 36 C50 38 42 42 32 50 Z" fill="#fef08a" fill-opacity="0.8"/>
+      <path d="M29 14 L35 14 L35 23 L44 23 L44 29 L35 29 L35 44 L29 44 L29 29 L20 29 L20 23 L29 23 Z" fill="#fbbf24" stroke="#fef08a" stroke-width="1.5"/>
+      <circle cx="32" cy="26" r="4" fill="#ffffff"/>
+      <circle cx="32" cy="8" r="3" fill="#fef08a"/>
+    </svg>
+  `,
+
+  // 體魄強健術 (Physical Enchant) - 雄渾金色肌肉力魄
+  physical_enchant: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="25" fill="#78350f" fill-opacity="0.5" stroke="#f59e0b" stroke-width="2"/>
+      <path d="M24 16 L32 20 L40 16 L48 24 L42 46 L32 52 L22 46 L16 24 Z" fill="#d97706" stroke="#fbbf24" stroke-width="2"/>
+      <path d="M24 28 C28 32 36 32 40 28 M32 32 L32 46" stroke="#fef08a" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="24" cy="24" r="2" fill="#fff"/>
+      <circle cx="40" cy="24" r="2" fill="#fff"/>
+    </svg>
+  `,
+
+  // 聖結界 (Immune to Harm) - 神聖八芒水晶護盾
+  immune_to_harm: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="32,8 48,14 56,30 50,48 32,56 14,48 8,30 16,14" fill="#1e1b4b" stroke="#818cf8" stroke-width="3"/>
+      <polygon points="32,14 44,18 50,30 46,44 32,50 18,44 14,30 20,18" fill="#312e81" stroke="#a5b4fc" stroke-width="1.5"/>
+      <circle cx="32" cy="32" r="8" fill="#c7d2fe"/>
+      <circle cx="32" cy="32" r="4" fill="#ffffff"/>
+      <line x1="32" y1="14" x2="32" y2="50" stroke="#c7d2fe" stroke-width="1.5"/>
+      <line x1="14" y1="32" x2="50" y2="32" stroke="#c7d2fe" stroke-width="1.5"/>
+    </svg>
+  `,
+
+  // 究極光裂術 (Disintegrate) - 終極神聖天罰烈芒
+  disintegrate: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="32" y1="4" x2="32" y2="52" stroke="#fef08a" stroke-width="6" stroke-linecap="round"/>
+      <line x1="32" y1="4" x2="32" y2="52" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+      <ellipse cx="32" cy="52" rx="20" ry="6" fill="#f59e0b"/>
+      <ellipse cx="32" cy="52" rx="14" ry="4" fill="#fef08a"/>
+      <ellipse cx="32" cy="52" rx="6" ry="2" fill="#ffffff"/>
+      <line x1="18" y1="36" x2="46" y2="36" stroke="#fef08a" stroke-width="2"/>
+      <line x1="22" y1="24" x2="42" y2="24" stroke="#fef08a" stroke-width="2"/>
+    </svg>
+  `,
+
+  // 精準目標 (True Target) - 獵鷹十字鎖定準星
+  true_target: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="22" stroke="#ef4444" stroke-width="2.5" fill="#7f1d1d" fill-opacity="0.3"/>
+      <circle cx="32" cy="32" r="14" stroke="#f87171" stroke-width="1.5"/>
+      <circle cx="32" cy="32" r="4" fill="#ef4444"/>
+      <line x1="32" y1="6" x2="32" y2="22" stroke="#ef4444" stroke-width="2.5"/>
+      <line x1="32" y1="42" x2="32" y2="58" stroke="#ef4444" stroke-width="2.5"/>
+      <line x1="6" y1="32" x2="22" y2="32" stroke="#ef4444" stroke-width="2.5"/>
+      <line x1="42" y1="32" x2="58" y2="32" stroke="#ef4444" stroke-width="2.5"/>
+    </svg>
+  `,
+
+  // 皇家血統 (Royal Blood) - 帝國王者黃金皇冠
+  royal_blood: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 44 L16 22 L26 32 L32 16 L38 32 L48 22 L52 44 Z" fill="#b45309" stroke="#fbbf24" stroke-width="2.5"/>
+      <path d="M16 44 L19 26 L26 34 L32 20 L38 34 L45 26 L48 44 Z" fill="#f59e0b"/>
+      <rect x="12" y="44" width="40" height="6" rx="2" fill="#78350f" stroke="#fbbf24" stroke-width="2"/>
+      <circle cx="16" cy="22" r="3" fill="#38bdf8"/>
+      <circle cx="32" cy="16" r="3.5" fill="#ef4444"/>
+      <circle cx="48" cy="22" r="3" fill="#38bdf8"/>
+      <circle cx="26" cy="47" r="1.5" fill="#fff"/>
+      <circle cx="32" cy="47" r="1.5" fill="#fff"/>
+      <circle cx="38" cy="47" r="1.5" fill="#fff"/>
+    </svg>
+  `,
+
+  // 激勵士氣 (Brave Mental) - 王族戰旗與號角金光
+  brave_mental: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="16" y1="10" x2="16" y2="54" stroke="#d4af37" stroke-width="3" stroke-linecap="round"/>
+      <path d="M16 12 L46 20 L38 28 L46 36 L16 42 Z" fill="#b91c1c" stroke="#f59e0b" stroke-width="2"/>
+      <circle cx="26" cy="26" r="5" fill="#fbbf24"/>
+      <polygon points="16,8 14,12 18,12" fill="#fbbf24"/>
+      <path d="M48 20 C54 24 54 32 48 36" stroke="#fef08a" stroke-width="2" stroke-linecap="round"/>
+      <path d="M52 16 C60 22 60 34 52 40" stroke="#fef08a" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  `
+};
+
+function getSkillIconSvg(iconKey) {
+  if (SKILL_ICONS && SKILL_ICONS[iconKey]) {
+    return SKILL_ICONS[iconKey];
+  }
+  return `<svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="24" fill="#334155"/><text x="32" y="38" font-size="20" text-anchor="middle" fill="#d4af37">✨</text></svg>`;
+}
+
+function getSkillBookItemName(skillName) {
+  if (typeof DB !== "undefined" && DB.items) {
+    for (let itemName in DB.items) {
+      const item = DB.items[itemName];
+      if (item && item.type === "spellbook" && item.skill === skillName) {
+        return itemName;
+      }
+    }
+  }
+  return null;
+}
+
+let currentSkillFilter = "all";
+let selectedSkillName = null;
+
+function filterSkillCategory(cat) {
+  currentSkillFilter = cat;
+  const btns = document.querySelectorAll(".skill-cat-btn");
+  btns.forEach(b => {
+    if (b.getAttribute("data-cat") === cat) b.classList.add("active");
+    else b.classList.remove("active");
+  });
+  renderSkillTab();
+}
+window.filterSkillCategory = filterSkillCategory;
+
+function selectSkillInInspector(skillName) {
+  selectedSkillName = skillName;
+  renderSkillTab();
+}
+window.selectSkillInInspector = selectSkillInInspector;
+
+function learnSkillByBook(skillName) {
+  const bookName = getSkillBookItemName(skillName);
+  if (!bookName) {
+    alert("查無對應之技能書！");
+    return;
+  }
+  if (typeof useItemByName === "function") {
+    useItemByName(bookName);
+  }
+  renderSkillTab();
+  if (typeof updateLeftPanel === "function") updateLeftPanel();
+}
+window.learnSkillByBook = learnSkillByBook;
+
+function useSkillFromTab(skillName) {
+  if (typeof useSkill === "function") {
+    useSkill(skillName);
+  }
+  renderSkillTab();
+}
+window.useSkillFromTab = useSkillFromTab;
+
+function renderSkillTab() {
+  const gridContainer = document.getElementById("skill-matrix-grid");
+  const inspector = document.getElementById("skill-detail-inspector");
+
+  // 若不在技能矩陣結構中，嘗試後備相容
+  if (!gridContainer) {
+    const legacyContainer = document.getElementById("skill-list-container");
+    if (!legacyContainer) return;
+    legacyContainer.innerHTML = "";
+    const learned = (currentChar && Array.isArray(currentChar.skills)) ? currentChar.skills : [];
+    if (learned.length === 0) {
+      legacyContainer.innerHTML = `<div style="color:#7e889b; padding:12px;">尚未學會任何技能，使用魔法書即可學習。</div>`;
+    } else {
+      learned.forEach(sn => {
+        const sk = (typeof DB !== "undefined" && DB.skills) ? DB.skills[sn] : null;
+        if (!sk) return;
+        const cd = getSkillCooldownRemaining(sn);
+        const card = document.createElement("div");
+        card.style.cssText = "background:#0f131a; border:1px solid #2e3440; border-radius:6px; padding:8px;";
+        card.innerHTML = `<div style="color:var(--gold); font-weight:bold;">${sk.name}</div><div style="font-size:11px;">MP ${sk.mpCost}</div>`;
+        legacyContainer.appendChild(card);
+      });
+    }
+    return;
   }
 
-  // 裝備欄位已移至人物狀態分頁，避免重複顯示
+  gridContainer.innerHTML = "";
+
+  if (typeof DB === "undefined" || !DB.skills) return;
+
+  const allSkills = Object.values(DB.skills);
+  const filteredSkills = allSkills.filter(sk => {
+    if (currentSkillFilter === "all") return true;
+    return sk.school === currentSkillFilter;
+  });
+
+  // 如果當前選取的技能不在目前過濾結果中，重設為第一個技能
+  if (!selectedSkillName || !filteredSkills.some(s => s.name === selectedSkillName)) {
+    selectedSkillName = filteredSkills.length > 0 ? filteredSkills[0].name : null;
+  }
+
+  // 取得角色當前背包與已學會技能
+  const learnedList = (currentChar && Array.isArray(currentChar.skills)) ? currentChar.skills : [];
+  const inventoryList = (currentChar && Array.isArray(currentChar.inventory)) ? currentChar.inventory : [];
+
+  filteredSkills.forEach(skill => {
+    const isLearned = learnedList.includes(skill.name);
+    const bookName = getSkillBookItemName(skill.name);
+    const hasBook = inventoryList.some(i => i.name === bookName && (i.count || 1) > 0);
+    const cd = getSkillCooldownRemaining(skill.name);
+    const isSelected = skill.name === selectedSkillName;
+
+    const slot = document.createElement("div");
+    let stateClass = "state-unlearned";
+    if (isLearned) stateClass = "state-learned";
+    else if (hasBook) stateClass = "state-can-learn";
+
+    slot.className = `skill-slot-box ${stateClass} ${isSelected ? "selected" : ""}`;
+    slot.onclick = () => selectSkillInInspector(skill.name);
+    slot.title = `${skill.name} (${skill.mode === "passive" ? "被動技術" : "主動技能"})`;
+
+    const isPassive = skill.mode === "passive";
+    const badgeText = isPassive ? "P" : "A";
+    const badgeClass = isPassive ? "badge-p" : "badge-a";
+
+    let bottomIndicator = "";
+    if (!isLearned && hasBook) {
+      bottomIndicator = `<div class="skill-learn-text">學習</div>`;
+    } else if (!isLearned && !hasBook) {
+      bottomIndicator = `<div class="skill-plus-sign">+</div>`;
+    }
+
+    let cdOverlay = "";
+    if (isLearned && cd > 0) {
+      cdOverlay = `<div class="skill-cooldown-overlay">${Math.ceil(cd / 1000)}s</div>`;
+    }
+
+    slot.innerHTML = `
+      <div class="skill-badge ${badgeClass}">${badgeText}</div>
+      <div class="skill-art-container">
+        ${getSkillIconSvg(skill.iconKey)}
+      </div>
+      ${bottomIndicator}
+      ${cdOverlay}
+    `;
+
+    gridContainer.appendChild(slot);
+  });
+
+  // 補充空槽使視覺填滿 5 的倍數 (至少滿 25 格，與附圖 5x5 完美一致)
+  const totalSlotsNeeded = Math.max(25, Math.ceil(filteredSkills.length / 5) * 5);
+  const emptySlotsCount = totalSlotsNeeded - filteredSkills.length;
+  for (let i = 0; i < emptySlotsCount; i++) {
+    const emptySlot = document.createElement("div");
+    emptySlot.className = "skill-slot-box";
+    emptySlot.style.opacity = "0.2";
+    emptySlot.style.cursor = "default";
+    gridContainer.appendChild(emptySlot);
+  }
+
+  // 渲染右側詳細屬性檢視器 (Inspector)
+  if (inspector) {
+    if (!selectedSkillName || !DB.skills[selectedSkillName]) {
+      inspector.innerHTML = `<div style="color:#64748b; padding:20px; text-align:center;">請點選左側技能槽位檢視詳細屬性。</div>`;
+      return;
+    }
+
+    const curSkill = DB.skills[selectedSkillName];
+    const isLearned = learnedList.includes(curSkill.name);
+    const bookName = getSkillBookItemName(curSkill.name);
+    const hasBook = inventoryList.some(i => i.name === bookName && (i.count || 1) > 0);
+    const cd = getSkillCooldownRemaining(curSkill.name);
+    const isPassive = curSkill.mode === "passive";
+
+    const schoolLabels = {
+      knight: "🛡️ 騎士技術",
+      elf: "🏹 精靈魔法",
+      normal: "🧙‍♂️ 正統魔法",
+      prince: "👑 王族魔法"
+    };
+
+    let actionBtnHtml = "";
+    if (!isLearned && hasBook) {
+      actionBtnHtml = `
+        <button type="button" class="btn btn-gold" style="padding:10px; font-weight:bold; font-size:13px;" onclick="learnSkillByBook('${curSkill.name}')">
+          ✨ 研讀習得【${curSkill.name}】
+        </button>
+      `;
+    } else if (isLearned && !isPassive) {
+      actionBtnHtml = `
+        <button type="button" class="btn btn-gold" style="padding:10px; font-weight:bold; font-size:13px;" ${cd > 0 ? "disabled" : ""} onclick="useSkillFromTab('${curSkill.name}')">
+          ${cd > 0 ? "⏳ 冷卻中 (" + Math.ceil(cd / 1000) + " 秒)" : "⚔️ 手動施放技能"}
+        </button>
+      `;
+    } else if (isLearned && isPassive) {
+      actionBtnHtml = `
+        <button type="button" class="btn" disabled style="padding:10px; font-weight:bold; font-size:12px; color:#86efac; border-color:#22c55e; background:#052e16;">
+          🌟 被動技術・角色數值恆常生效中
+        </button>
+      `;
+    } else {
+      actionBtnHtml = `
+        <button type="button" class="btn" disabled style="padding:10px; font-weight:bold; font-size:12px; color:#71717a; border-color:#333; background:#12141a;">
+          🔒 尚未習得 (缺少 ${bookName || "專屬秘笈"})
+        </button>
+      `;
+    }
+
+    let effectDesc = "";
+    if (curSkill.type === "damage") {
+      effectDesc = `單體破壞威力：${curSkill.power} 點傷害`;
+    } else if (curSkill.type === "heal") {
+      effectDesc = `神聖生命回復：+${curSkill.power} 點 HP`;
+    } else if (curSkill.type === "buff") {
+      effectDesc = `${curSkill.stat.toUpperCase()} 提升 +${curSkill.amount}（持續 ${curSkill.duration} 秒）`;
+    }
+
+    inspector.innerHTML = `
+      <div class="skill-insp-header">
+        <div class="skill-insp-art">
+          ${getSkillIconSvg(curSkill.iconKey)}
+        </div>
+        <div class="skill-insp-info">
+          <div class="skill-insp-name">${curSkill.name}</div>
+          <div class="skill-insp-tags">
+            <span class="skill-tag-pill ${isPassive ? "skill-tag-passive" : "skill-tag-active"}">
+              ${isPassive ? "P 被動技術" : "A 主動技能"}
+            </span>
+            <span class="skill-tag-pill skill-tag-school">
+              ${schoolLabels[curSkill.school] || "通用"}
+            </span>
+            <span class="skill-tag-pill" style="background:#27272a; color:#cbd5e1;">Tier ${curSkill.tier || 1}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="skill-insp-props">
+        <div class="insp-prop-row">
+          <span class="insp-prop-lbl">消耗 MP</span>
+          <span class="insp-prop-val" style="color:#60a5fa;">${curSkill.mpCost} 點</span>
+        </div>
+        <div class="insp-prop-row">
+          <span class="insp-prop-lbl">冷卻時間</span>
+          <span class="insp-prop-val">${curSkill.cooldown ? curSkill.cooldown / 1000 + " 秒" : "無冷卻"}</span>
+        </div>
+        <div class="insp-prop-row" style="grid-column: span 2;">
+          <span class="insp-prop-lbl">技能效益</span>
+          <span class="insp-prop-val" style="color:#86efac;">${effectDesc}</span>
+        </div>
+      </div>
+
+      <div class="skill-insp-desc">
+        ${curSkill.desc || "無詳細說明"}
+      </div>
+
+      <div class="skill-insp-source">
+        <div style="color:#94a3b8; font-size:11px; margin-bottom:2px;">【修煉習得來源】</div>
+        <div>對應書冊：<b style="color:var(--gold);">${bookName || "官方特許導師授予"}</b></div>
+        <div style="font-size:10.5px; color:#64748b; margin-top:2px;">
+          ${hasBook ? "✅ 背包中已持有此書，可直接點擊下方立即學習。" : (isLearned ? "✨ 角色已完全掌握此項技能能力。" : "💡 可於各大村莊技能導師、奇岩名匠購買或野外菁英怪獲取。")}
+        </div>
+      </div>
+
+      <div class="skill-insp-actions">
+        ${actionBtnHtml}
+      </div>
+    `;
+  }
 }
+window.renderSkillTab = renderSkillTab;
