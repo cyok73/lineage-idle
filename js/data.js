@@ -601,7 +601,169 @@ const CLASS_PRESETS = {
   mage: { name: "法師", base: { str: 8, dex: 7, con: 12, int: 12, wis: 12, cha: 8 }, bonusPoints: 16, hpMod: [6, 10], mpMod: [8, 12] }
 };
 
+// ---------------- 經典天堂 1 像素圖標對應系統 (16-bit 32x32 Pixel Icons) ----------------
+const ITEM_SPRITE_CONFIG = {
+  // ⚔️ 武器 (items: 7x4)
+  "短劍": { sheet: "items", c: 0, r: 0 },
+  "闊劍": { sheet: "items", c: 0, r: 0 },
+  "長劍": { sheet: "items", c: 0, r: 0 },
+  "銀長劍": { sheet: "items", c: 0, r: 0 },
+  "雙手劍": { sheet: "items", c: 3, r: 0 },
+  "大馬士革刀": { sheet: "items", c: 1, r: 0 },
+  "瑟魯基之劍": { sheet: "items", c: 2, r: 0 },
+  "獵人之弓": { sheet: "items", c: 4, r: 0 },
+  "十字弓": { sheet: "items", c: 5, r: 0 },
+  "巴風特魔杖": { sheet: "items", c: 6, r: 0 },
+
+  // 🛡️ 盔甲防具 (items: 7x4)
+  "皮背心": { sheet: "items", c: 2, r: 1 },
+  "鎖子甲": { sheet: "items", c: 2, r: 1 },
+  "骷髏盔甲": { sheet: "items", c: 1, r: 1 },
+  "精靈金屬鎧甲": { sheet: "items", c: 0, r: 1 },
+  "棉質T恤": { sheet: "items", c: 0, r: 1 },
+  "精靈T恤": { sheet: "items", c: 0, r: 1 },
+
+  // 🪖 頭盔 (acc / items)
+  "皮頭盔": { sheet: "acc", c: 2, r: 1 },
+  "骷髏頭盔": { sheet: "acc", c: 3, r: 1 },
+  "抗魔法頭盔": { sheet: "items", c: 4, r: 1 },
+  "死騎頭盔": { sheet: "items", c: 3, r: 1 },
+
+  // 🛡️ 盾牌
+  "木盾": { sheet: "items", c: 5, r: 1 },
+  "侏儒圓盾": { sheet: "items", c: 5, r: 1 },
+  "骷髏盾牌": { sheet: "items", c: 6, r: 1 },
+  "鋼鐵盾牌": { sheet: "items", c: 6, r: 1 },
+
+  // 🥋 斗篷
+  "抗魔法斗篷": { sheet: "items", c: 2, r: 2 },
+  "保護者斗篷": { sheet: "items", c: 2, r: 2 },
+  "隱身斗篷": { sheet: "items", c: 1, r: 2 },
+
+  // 🧤 手套與靴子
+  "皮手套": { sheet: "items", c: 0, r: 2 },
+  "腕甲": { sheet: "items", c: 0, r: 2 },
+  "力量手套": { sheet: "items", c: 0, r: 2 },
+  "塞尼斯手套": { sheet: "acc", c: 4, r: 5 },
+  "皮長靴": { sheet: "acc", c: 0, r: 1 },
+  "鐵高跟靴": { sheet: "acc", c: 0, r: 1 },
+  "敏捷魔法長靴": { sheet: "acc", c: 1, r: 1 },
+
+  // 💍 飾品配件
+  "力量項鍊": { sheet: "acc", c: 0, r: 3 },
+  "敏捷項鍊": { sheet: "acc", c: 1, r: 3 },
+  "智力項鍊": { sheet: "acc", c: 2, r: 3 },
+  "骷髏項鍊": { sheet: "acc", c: 3, r: 3 },
+  "妖魔戰士耳環": { sheet: "acc", c: 3, r: 3 },
+  "骷髏耳環": { sheet: "acc", c: 2, r: 4 },
+  "抗魔戒指": { sheet: "acc", c: 4, r: 3 },
+  "巨蟻女皇戒指": { sheet: "acc", c: 0, r: 4 },
+  "瞬間移動控制戒指": { sheet: "acc", c: 1, r: 4 },
+  "皮腰帶": { sheet: "acc", c: 5, r: 3 },
+  "多羅皮帶": { sheet: "acc", c: 5, r: 4 },
+  "歐吉皮帶": { sheet: "acc", c: 5, r: 4 },
+  "力量符石": { sheet: "acc", c: 2, r: 5 },
+  "敏捷符石": { sheet: "acc", c: 3, r: 5 },
+
+  // 🧪 藥水與卷軸
+  "紅色藥水": { sheet: "items", c: 3, r: 2 },
+  "澄色藥水": { sheet: "items", c: 5, r: 2 },
+  "橙色藥水": { sheet: "items", c: 5, r: 2 },
+  "白色藥水": { sheet: "items", c: 6, r: 2 },
+  "綠色藥水": { sheet: "items", c: 4, r: 2 },
+  "勇敢藥水": { sheet: "acc", c: 0, r: 0 },
+  "藍色藥水": { sheet: "acc", c: 1, r: 0 },
+  "翡翠藥水": { sheet: "acc", c: 2, r: 0 },
+  "傳送回家的卷軸": { sheet: "items", c: 0, r: 3 },
+  "瞬間移動卷軸": { sheet: "items", c: 1, r: 3 },
+  "對武器施法的卷軸": { sheet: "items", c: 2, r: 3 },
+  "對防具施法的卷軸": { sheet: "items", c: 3, r: 3 },
+  "箭": { sheet: "items", c: 6, r: 3 },
+  "銀箭": { sheet: "items", c: 6, r: 3 },
+  "精靈玉": { sheet: "items", c: 4, r: 3 },
+  "魔力之石": { sheet: "items", c: 5, r: 3 },
+
+  // 🪵 原料材料 (materials: 5x5)
+  "粗糙皮革": { sheet: "mat", c: 4, r: 2 },
+  "強化皮革": { sheet: "mat", c: 4, r: 2 },
+  "狼皮": { sheet: "mat", c: 3, r: 1 },
+  "骨頭": { sheet: "mat", c: 4, r: 1 },
+  "鐵塊": { sheet: "mat", c: 0, r: 2 },
+  "銀原石": { sheet: "mat", c: 1, r: 2 },
+  "純銀原石": { sheet: "mat", c: 1, r: 2 },
+  "黑寶石": { sheet: "mat", c: 2, r: 2 },
+  "米索莉原石": { sheet: "mat", c: 3, r: 2 },
+  "溶解液": { sheet: "mat", c: 0, r: 4 },
+  "妖魔圖騰": { sheet: "mat", c: 1, r: 4 },
+  "金幣": { sheet: "mat", c: 2, r: 1 }
+};
+
+function getItemIconStyle(itemName) {
+  if (!itemName) return "";
+  let cleanName = itemName.replace(/^\+\d+\s*/, "").trim();
+
+  let cfg = ITEM_SPRITE_CONFIG[cleanName];
+
+  // 智慧配對技能書、精靈水晶與特殊秘典
+  if (!cfg) {
+    if (cleanName.includes("精靈水晶")) {
+      if (cleanName.includes("風") || cleanName.includes("暴風") || cleanName.includes("三重矢")) {
+        cfg = { sheet: "mat", c: 3, r: 0 }; // 綠色風之水晶
+      } else if (cleanName.includes("水") || cleanName.includes("生命") || cleanName.includes("泉")) {
+        cfg = { sheet: "mat", c: 4, r: 0 }; // 藍色水滴水晶
+      } else if (cleanName.includes("地") || cleanName.includes("大地") || cleanName.includes("鋼鐵") || cleanName.includes("體魄")) {
+        cfg = { sheet: "mat", c: 0, r: 1 }; // 褐色地之水晶
+      } else if (cleanName.includes("火") || cleanName.includes("烈炎") || cleanName.includes("灼熱")) {
+        cfg = { sheet: "mat", c: 1, r: 1 }; // 赤焰火之水晶
+      } else {
+        cfg = { sheet: "mat", c: 3, r: 0 };
+      }
+    } else if (cleanName.includes("魔法書")) {
+      if (cleanName.includes("地裂") || cleanName.includes("相消") || cleanName.includes("極道落雷") || cleanName.includes("冰雪暴") || cleanName.includes("聖潔") || cleanName.includes("強力加速") || cleanName.includes("創造怪物")) {
+        cfg = { sheet: "mat", c: 1, r: 0 }; // 藍皮高階魔法書
+      } else {
+        cfg = { sheet: "mat", c: 0, r: 0 }; // 紅皮經典魔法書
+      }
+    } else if (cleanName.includes("技術書") || cleanName.includes("魔典")) {
+      cfg = { sheet: "mat", c: 2, r: 0 }; // 黑皮禁忌之書
+    }
+  }
+
+  // 預設Fallback
+  if (!cfg) {
+    cfg = { sheet: "mat", c: 2, r: 1 };
+  }
+
+  let sheetUrl = "assets/items/items_spritesheet.jpg";
+  let bgSize = "700% 400%";
+  let xPct = (cfg.c / 6) * 100;
+  let yPct = (cfg.r / 3) * 100;
+
+  if (cfg.sheet === "acc") {
+    sheetUrl = "assets/items/accessories_spritesheet.jpg";
+    bgSize = "600% 600%";
+    xPct = (cfg.c / 5) * 100;
+    yPct = (cfg.r / 5) * 100;
+  } else if (cfg.sheet === "mat") {
+    sheetUrl = "assets/items/materials_spritesheet.jpg";
+    bgSize = "500% 500%";
+    xPct = (cfg.c / 4) * 100;
+    yPct = (cfg.r / 4) * 100;
+  }
+
+  return `background-image: url('${sheetUrl}'); background-size: ${bgSize}; background-position: ${xPct.toFixed(2)}% ${yPct.toFixed(2)}%;`;
+}
+
+function getItemIconHtml(itemName, extraClass = "") {
+  if (!itemName) return "";
+  const style = getItemIconStyle(itemName);
+  return `<span class="item-pixel-icon ${extraClass}" style="${style}"></span>`;
+}
+
 if (typeof window !== "undefined") {
   window.DB = DB;
   window.CLASS_PRESETS = CLASS_PRESETS;
+  window.ITEM_SPRITE_CONFIG = ITEM_SPRITE_CONFIG;
+  window.getItemIconStyle = getItemIconStyle;
+  window.getItemIconHtml = getItemIconHtml;
 }

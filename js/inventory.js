@@ -458,10 +458,14 @@ function openEnchantModal(scrollInvIdx) {
       row.style.padding = "6px 8px";
       row.style.borderBottom = "1px solid #222";
 
+      const iconHtml = (typeof getItemIconHtml === "function") ? getItemIconHtml(cand.item.name) : "";
       row.innerHTML = `
-        <div>
-          <b style="color:${isOverSafe ? '#f87171' : '#fff'};">${cand.label}</b>
-          <div style="font-size:10px; color:#aaa;">安定值: +${safeVal} ${isOverSafe ? '<span style="color:#ef4444; font-weight:bold;">(過安定值！失敗直接蒸發爆裝)</span>' : '<span style="color:#22c55e;">(100% 安定強化)</span>'}</div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          ${iconHtml}
+          <div>
+            <b style="color:${isOverSafe ? '#f87171' : '#fff'};">${cand.label}</b>
+            <div style="font-size:10px; color:#aaa;">安定值: +${safeVal} ${isOverSafe ? '<span style="color:#ef4444; font-weight:bold;">(過安定值！失敗直接蒸發爆裝)</span>' : '<span style="color:#22c55e;">(100% 安定強化)</span>'}</div>
+          </div>
         </div>
         <button class="btn ${isOverSafe ? 'btn-danger' : 'btn-gold'}" onclick="executeEnchantTarget('${cand.source}', '${cand.slot || cand.invIdx}')">施法強化</button>
       `;
@@ -572,10 +576,13 @@ function renderInventoryTab() {
       `;
     }
 
-    const tierColor = dbItem.tier === "red" ? "#ef4444" : (dbItem.tier === "blue" ? "#38bdf8" : (dbItem.tier === "green" ? "#22c55e" : "#e2e8f0"));
+    const iconHtml = (typeof getItemIconHtml === "function") ? getItemIconHtml(item.name) : "";
     tr.innerHTML = `
       <td style="color:${tierColor}; font-weight:${dbItem.tier === 'blue' || dbItem.tier === 'red' ? 'bold' : 'normal'};">
-        ${item.enchant !== undefined && item.enchant > 0 ? '+' + item.enchant : ''} ${item.name}
+        <div style="display:flex; align-items:center; gap:8px;">
+          ${iconHtml}
+          <span>${item.enchant !== undefined && item.enchant > 0 ? '+' + item.enchant : ''} ${item.name}</span>
+        </div>
       </td>
       <td>${item.count || 1}</td>
       <td style="color:#aaa; font-size:11px;">${dbItem.desc || '重量: ' + (dbItem.weight || 1)}</td>
@@ -629,10 +636,13 @@ function renderVillageTab() {
       const dbItem = DB.items[itemName];
       if (dbItem) {
         let defaultQty = (itemName === "箭" || itemName === "銀箭") ? 500 : (itemName.includes("水") ? 50 : 1);
-        const inputId = `shop-qty-${sIdx}-${iIdx}`;
+        const iconHtml = (typeof getItemIconHtml === "function") ? getItemIconHtml(itemName) : "";
         rowsHtml += `
-          <div class="bot-item-row" style="padding:6px 8px; border-bottom:1px solid #1e293b;">
-            <span class="bot-item-name" style="font-weight:bold;">${itemName} <span style="color:#f59e0b; font-size:11px;">(${dbItem.price} 金幣)</span></span>
+          <div class="bot-item-row" style="padding:6px 8px; border-bottom:1px solid #1e293b; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              ${iconHtml}
+              <span class="bot-item-name" style="font-weight:bold;">${itemName} <span style="color:#f59e0b; font-size:11px;">(${dbItem.price} 金幣)</span></span>
+            </div>
             <div style="display:flex; align-items:center; gap:6px;">
               <input type="number" id="${inputId}" value="${defaultQty}" min="1" max="9999" style="width:65px; text-align:center;">
               <button class="btn btn-gold" onclick="buyItemFromShop('${itemName}', '${inputId}')">購買</button>
@@ -775,10 +785,14 @@ function renderStorageTab() {
       const maxCount = item.count || 1;
       const tierColor = dbItem.tier === "red" ? "#ef4444" : (dbItem.tier === "blue" ? "#38bdf8" : (dbItem.tier === "green" ? "#22c55e" : "#e2e8f0"));
 
+      const iconHtml = (typeof getItemIconHtml === "function") ? getItemIconHtml(item.name) : "";
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td style="color:${tierColor}; font-weight:${dbItem.tier === 'blue' || dbItem.tier === 'red' ? 'bold' : 'normal'};">
-          ${item.enchant !== undefined && item.enchant > 0 ? '+' + item.enchant : ''} ${item.name}
+          <div style="display:flex; align-items:center; gap:8px;">
+            ${iconHtml}
+            <span>${item.enchant !== undefined && item.enchant > 0 ? '+' + item.enchant : ''} ${item.name}</span>
+          </div>
         </td>
         <td>${maxCount}</td>
         <td>
@@ -802,11 +816,15 @@ function renderStorageTab() {
       const dbItem = DB.items[item.name] || {};
       const maxCount = item.count || 1;
       const tierColor = dbItem.tier === "red" ? "#ef4444" : (dbItem.tier === "blue" ? "#38bdf8" : (dbItem.tier === "green" ? "#22c55e" : "#e2e8f0"));
+      const iconHtml = (typeof getItemIconHtml === "function") ? getItemIconHtml(item.name) : "";
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td style="color:${tierColor}; font-weight:${dbItem.tier === 'blue' || dbItem.tier === 'red' ? 'bold' : 'normal'};">
-          ${item.enchant !== undefined && item.enchant > 0 ? '+' + item.enchant : ''} ${item.name}
+          <div style="display:flex; align-items:center; gap:8px;">
+            ${iconHtml}
+            <span>${item.enchant !== undefined && item.enchant > 0 ? '+' + item.enchant : ''} ${item.name}</span>
+          </div>
         </td>
         <td>${maxCount}</td>
         <td>

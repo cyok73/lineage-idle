@@ -775,13 +775,14 @@ function renderCharTab() {
         slotBox.classList.add("has-item", `tier-${tier}`);
         const enchant = (eq.enchant !== undefined && eq.enchant > 0) ? `+${eq.enchant}` : '';
 
-        // 視覺圖示判斷
-        let itemIcon = slot.icon;
-        if (slot.key === "weapon") itemIcon = (itemDb?.weaponType === "bow") ? "🏹" : "🗡️";
+        // 視覺像素圖示
+        const pixelIconHtml = (typeof getItemIconHtml === "function") 
+          ? getItemIconHtml(eq.name, "size-equip")
+          : `<div class="item-visual-icon">${(slot.key === "weapon" && itemDb?.weaponType === "bow") ? "🏹" : slot.icon}</div>`;
 
         slotBox.innerHTML = `
           ${enchant ? `<div class="item-enchant-badge">${enchant}</div>` : ''}
-          <div class="item-visual-icon">${itemIcon}</div>
+          <div class="item-visual-container" style="display:flex; justify-content:center; align-items:center; height:42px;">${pixelIconHtml}</div>
           <div class="item-name-brief">${eq.name}</div>
         `;
         slotBox.onclick = () => {
@@ -819,23 +820,27 @@ function openEquipDetailModal(slotKey) {
   title.innerText = `裝備詳情：${enchant}${eq.name}`;
 
   const tierColor = itemDb?.tier === "red" ? "#ef4444" : (itemDb?.tier === "blue" ? "#38bdf8" : (itemDb?.tier === "green" ? "#22c55e" : "#f1f5f9"));
+  const iconHtml = (typeof getItemIconHtml === "function") ? getItemIconHtml(eq.name, "size-lg") : "";
 
   body.innerHTML = `
-    <div style="background:#090a0d; border:1px solid #232730; border-radius:4px; padding:10px;">
-      <div style="font-size:14px; font-weight:bold; color:${tierColor}; margin-bottom:4px;">
-        ${enchant}${eq.name}
-      </div>
-      <div style="font-size:12px; color:#cbd5e1; display:flex; flex-direction:column; gap:3px;">
-        ${itemDb?.ac !== undefined ? `<div>防禦力 (AC): <b style="color:#60a5fa;">${itemDb.ac - (eq.enchant || 0)}</b></div>` : ''}
-        ${itemDb?.small !== undefined ? `<div>小型 / 大型傷害: <b>${itemDb.small + (eq.enchant || 0)} / ${itemDb.large + (eq.enchant || 0)}</b></div>` : ''}
-        ${itemDb?.hitBonus ? `<div>命中加成: <b style="color:#facc15;">+${itemDb.hitBonus}</b></div>` : ''}
-        ${itemDb?.strBonus ? `<div>力量 (STR): <b style="color:#22c55e;">+${itemDb.strBonus}</b></div>` : ''}
-        ${itemDb?.dexBonus ? `<div>敏捷 (DEX): <b style="color:#22c55e;">+${itemDb.dexBonus}</b></div>` : ''}
-        ${itemDb?.conBonus ? `<div>體質 (CON): <b style="color:#22c55e;">+${itemDb.conBonus}</b></div>` : ''}
-        ${itemDb?.intBonus ? `<div>智力 (INT): <b style="color:#22c55e;">+${itemDb.intBonus}</b></div>` : ''}
-        ${itemDb?.mrBonus ? `<div>抗魔 (MR): <b style="color:#a855f7;">+${itemDb.mrBonus}%</b></div>` : ''}
-        <div>重量: ${itemDb?.weight || 0}</div>
-        <div style="color:#94a3b8; font-size:11px; margin-top:4px;">${itemDb?.desc || ''}</div>
+    <div style="background:#090a0d; border:1px solid #232730; border-radius:4px; padding:12px; display:flex; gap:12px; align-items:flex-start;">
+      <div style="flex-shrink:0;">${iconHtml}</div>
+      <div style="flex:1;">
+        <div style="font-size:15px; font-weight:bold; color:${tierColor}; margin-bottom:6px;">
+          ${enchant}${eq.name}
+        </div>
+        <div style="font-size:12px; color:#cbd5e1; display:flex; flex-direction:column; gap:3px;">
+          ${itemDb?.ac !== undefined ? `<div>防禦力 (AC): <b style="color:#60a5fa;">${itemDb.ac - (eq.enchant || 0)}</b></div>` : ''}
+          ${itemDb?.small !== undefined ? `<div>小型 / 大型傷害: <b>${itemDb.small + (eq.enchant || 0)} / ${itemDb.large + (eq.enchant || 0)}</b></div>` : ''}
+          ${itemDb?.hitBonus ? `<div>命中加成: <b style="color:#facc15;">+${itemDb.hitBonus}</b></div>` : ''}
+          ${itemDb?.strBonus ? `<div>力量 (STR): <b style="color:#22c55e;">+${itemDb.strBonus}</b></div>` : ''}
+          ${itemDb?.dexBonus ? `<div>敏捷 (DEX): <b style="color:#22c55e;">+${itemDb.dexBonus}</b></div>` : ''}
+          ${itemDb?.conBonus ? `<div>體質 (CON): <b style="color:#22c55e;">+${itemDb.conBonus}</b></div>` : ''}
+          ${itemDb?.intBonus ? `<div>智力 (INT): <b style="color:#22c55e;">+${itemDb.intBonus}</b></div>` : ''}
+          ${itemDb?.mrBonus ? `<div>抗魔 (MR): <b style="color:#a855f7;">+${itemDb.mrBonus}%</b></div>` : ''}
+          <div>重量: ${itemDb?.weight || 0}</div>
+          <div style="color:#94a3b8; font-size:11px; margin-top:4px;">${itemDb?.desc || ''}</div>
+        </div>
       </div>
     </div>
     <div style="display:flex; gap:8px; margin-top:8px;">
@@ -891,22 +896,21 @@ function openEquipSelectModal(slotKey, slotType, slotDisplayName) {
     matchingItems.forEach(({ item, invIdx, dbItem }) => {
       const enchant = (item.enchant !== undefined && item.enchant > 0) ? `+${item.enchant} ` : '';
       const tierColor = dbItem.tier === "red" ? "#ef4444" : (dbItem.tier === "blue" ? "#38bdf8" : (dbItem.tier === "green" ? "#22c55e" : "#f1f5f9"));
+      const iconHtml = (typeof getItemIconHtml === "function") ? getItemIconHtml(item.name) : "";
       listHtml += `
         <div style="display:flex; justify-content:space-between; align-items:center; background:#0b0d12; border:1px solid #1f2430; padding:6px 10px; border-radius:4px;">
-          <div>
-            <div style="font-weight:bold; color:${tierColor}; font-size:12px;">${enchant}${item.name}</div>
-            <div style="font-size:10px; color:#94a3b8;">${dbItem.ac !== undefined ? `AC: ${dbItem.ac - (item.enchant||0)} ` : ''}${dbItem.desc || ''}</div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            ${iconHtml}
+            <div>
+              <div style="font-weight:bold; color:${tierColor}; font-size:12px;">${enchant}${item.name}</div>
+              <div style="font-size:10px; color:#94a3b8;">${dbItem.ac !== undefined ? `AC: ${dbItem.ac - (item.enchant||0)} ` : ''}${dbItem.desc || ''}</div>
+            </div>
           </div>
           <button type="button" class="btn btn-success" style="padding:4px 10px; font-size:11px;" onclick="equipItemFromInventory(${invIdx}, '${slotKey}'); closeEquipActionModal();">穿戴</button>
         </div>
       `;
     });
-    listHtml += `</div>`;
-    listHtml += `
-      <div style="text-align:right; margin-top:8px;">
-        <button type="button" class="btn" onclick="closeEquipActionModal();">取消</button>
-      </div>
-    `;
+    listHtml += `</div><div style="text-align:right; margin-top:8px;"><button type="button" class="btn" onclick="closeEquipActionModal();">取消</button></div>`;
     body.innerHTML = listHtml;
   }
 
