@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Lineage Idle - 天堂 1.82 經典復刻版</title>
-  <link rel="stylesheet" href="style.css?v=30">
+  <link rel="stylesheet" href="style.css?v=32">
 </head>
 
 <body>
@@ -16,11 +16,11 @@
       <div class="auth-title">🛡️ LINEAGE 1.82 IDLE</div>
       <div class="auth-input-group">
         <label>冒險者帳號：</label>
-        <input type="text" id="login-user" value="" placeholder="請輸入帳號">
+        <input type="text" id="login-user" value="" placeholder="請輸入帳號" onkeydown="if(event.key==='Enter') handleLoginOrRegister()">
       </div>
       <div class="auth-input-group">
         <label>通行密碼：</label>
-        <input type="password" id="login-pass" value="" placeholder="請輸入密碼">
+        <input type="password" id="login-pass" value="" placeholder="請輸入密碼" onkeydown="if(event.key==='Enter') handleLoginOrRegister()">
       </div>
       <div class="auth-btn-row">
         <button class="btn btn-gold" style="flex:1; padding:10px;" onclick="handleLoginOrRegister()">進入遊戲 / 自動註冊</button>
@@ -641,15 +641,15 @@
 
   <!-- 腳本引用 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/data.js?v=30"></script>
-  <script src="js/main.js?v=30"></script>
-  <script src="js/supabase.js?v=30"></script>
-  <script src="js/character.js?v=30"></script>
-  <script src="js/inventory.js?v=30"></script>
-  <script src="js/strategy.js?v=30"></script>
-  <script src="js/radar.js?v=30"></script>
-  <script src="js/battle.js?v=30"></script>
-  <script src="js/admin.js?v=30"></script>
+  <script src="js/data.js?v=32"></script>
+  <script src="js/main.js?v=32"></script>
+  <script src="js/supabase.js?v=32"></script>
+  <script src="js/character.js?v=32"></script>
+  <script src="js/inventory.js?v=32"></script>
+  <script src="js/strategy.js?v=32"></script>
+  <script src="js/radar.js?v=32"></script>
+  <script src="js/battle.js?v=32"></script>
+  <script src="js/admin.js?v=32"></script>
 </body>
 
 </html>

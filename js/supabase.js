@@ -132,12 +132,24 @@ async function handleLoginOrRegister() {
     return;
   }
 
+  const btn = document.querySelector("#box-login button");
+  const origBtnText = btn ? btn.innerText : "";
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = "⏳ 登入驗證中...";
+  }
+
   try {
     const { data, error } = await supabaseClient
       .from('game_accounts')
       .select('*')
       .eq('username', user)
       .maybeSingle();
+
+    if (error) {
+      showLoginError("⚠️ 雲端連線失敗：" + error.message);
+      return;
+    }
 
     if (data) {
       if (data.password !== pass) {
@@ -176,7 +188,12 @@ async function handleLoginOrRegister() {
     localStorage.setItem("lineage_remembered_user", user);
     showCharSelectView();
   } catch (err) {
-    showLoginError("⚠️ 雲端連線失敗：" + err.message);
+    showLoginError("⚠️ 雲端操作失敗：" + err.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = origBtnText;
+    }
   }
 }
 

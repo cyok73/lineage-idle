@@ -1693,3 +1693,319 @@ input[type="number"] {
   min-width: 52px;
   min-height: 52px;
 }
+
+/* ==========================================================================
+   🎮 仙境傳說 RO 經典「掛機技能 (Auto-Skills)」設定面板專屬風格
+   ========================================================================== */
+
+/* ==========================================================================
+   🎮 仙境傳說 RO 經典「掛機技能 (Auto-Skills)」專屬視窗風格 (100% 還原截圖)
+   ========================================================================== */
+.ro-skill-panel {
+  background: #0f172a;
+  border: 1px solid #3b82f6;
+  border-radius: 4px;
+  padding: 0;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+  color: #e2e8f0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft JhengHei", monospace;
+  overflow: hidden;
+}
+
+/* 經典 Windows 鋼琴淡藍/金屬天藍漸層標題列 */
+.ro-skill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(90deg, #1e40af 0%, #2563eb 50%, #1e3a8a 100%);
+  border-bottom: 1px solid #60a5fa;
+  padding: 6px 12px;
+  user-select: none;
+}
+
+.ro-skill-header h3 {
+  margin: 0;
+  font-size: 13.5px;
+  color: #ffffff;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+
+.ro-skill-header .ro-count-badge {
+  font-size: 11.5px;
+  color: #dbeafe;
+  font-weight: normal;
+}
+
+#ro-skill-body {
+  padding: 10px 12px;
+  background: #0b111e;
+}
+
+.ro-section-subhead {
+  font-size: 13px;
+  font-weight: bold;
+  color: #93c5fd;
+  margin-bottom: 8px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid #1e293b;
+}
+
+.ro-rule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+/* 規則單卡 */
+.ro-rule-card {
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 4px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  transition: all 0.15s;
+}
+
+.ro-rule-card:hover {
+  border-color: #60a5fa;
+  background: #141f33;
+}
+
+.ro-rule-card.disabled {
+  opacity: 0.6;
+  background: #090d16;
+  border-color: #1f2937;
+}
+
+.ro-rule-row-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ro-rule-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 140px;
+}
+
+.ro-skill-mini-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 3px;
+  background: #1f2937;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid #4b5563;
+  overflow: hidden;
+}
+
+.ro-skill-mini-icon img,
+.ro-skill-mini-icon svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ro-rule-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+
+.ro-rule-controls select,
+.ro-rule-controls input[type="number"] {
+  background: #030712;
+  color: #f9fafb;
+  border: 1px solid #4b5563;
+  border-radius: 3px;
+  padding: 2px 5px;
+  font-size: 11.5px;
+}
+
+.ro-btn-icon {
+  background: #1f2937;
+  color: #e5e7eb;
+  border: 1px solid #4b5563;
+  border-radius: 3px;
+  padding: 1px 6px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ro-btn-icon:hover:not(:disabled) {
+  background: #2563eb;
+  color: #fff;
+  border-color: #60a5fa;
+}
+
+.ro-btn-icon:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.ro-btn-del {
+  background: #450a0a;
+  color: #fca5a5;
+  border-color: #991b1b;
+}
+
+.ro-btn-del:hover:not(:disabled) {
+  background: #dc2626;
+  color: #fff;
+  border-color: #f87171;
+}
+
+/* 即時動態提示行 */
+.ro-rule-status-line {
+  font-size: 11px;
+  background: rgba(17, 24, 39, 0.85);
+  padding: 2px 6px;
+  border-radius: 3px;
+  line-height: 1.4;
+  border-left: 3px solid currentColor;
+}
+
+/* 條件折疊區塊 */
+.ro-rule-conditions {
+  font-size: 11.5px;
+  background: rgba(3, 7, 18, 0.6);
+  border: 1px dashed #374151;
+  border-radius: 3px;
+  padding: 4px 8px;
+}
+
+.ro-mob-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #1e293b;
+  color: #f8fafc;
+  border: 1px solid #475569;
+  border-radius: 12px;
+  padding: 1px 8px;
+  font-size: 11px;
+}
+
+.ro-mob-tag .tag-close {
+  cursor: pointer;
+  color: #ef4444;
+  font-weight: bold;
+}
+
+.ro-mob-tag .tag-close:hover {
+  color: #fca5a5;
+}
+
+/* 新增規則操作列 */
+.ro-add-bar-ro {
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 4px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+
+.ro-add-bar-ro select,
+.ro-add-bar-ro input {
+  background: #030712;
+  color: #f9fafb;
+  border: 1px solid #4b5563;
+  border-radius: 3px;
+  padding: 3px 6px;
+  font-size: 12px;
+}
+
+.ro-desc-text {
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.5;
+  background: rgba(3, 7, 18, 0.4);
+  padding: 6px 8px;
+  border-radius: 3px;
+  border: 1px solid #1f2937;
+  margin-bottom: 12px;
+}
+
+/* 下方三大並列區塊 */
+.ro-tri-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.ro-col-box {
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 4px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ro-col-title {
+  font-size: 12.5px;
+  font-weight: bold;
+  color: #60a5fa;
+  margin-bottom: 4px;
+}
+
+.ro-col-desc {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.ro-buff-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.ro-buff-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0b111e;
+  border: 1px solid #1f2937;
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-size: 11.5px;
+}
+
+.ro-buff-item.unlearned {
+  opacity: 0.7;
+}
+
+.ro-check-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ro-order-footer {
+  font-size: 11px;
+  color: #94a3b8;
+  border-top: 1px dashed #374151;
+  padding-top: 8px;
+  line-height: 1.5;
+}

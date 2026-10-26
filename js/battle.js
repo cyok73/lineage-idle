@@ -593,6 +593,20 @@ function handlePlayerMovementAndCombat() {
     const target = gameState.targetMob;
     const dist = Math.hypot(target.x - gameState.playerX, target.y - gameState.playerY);
 
+    // 🎮 RO 順序 4：依攻擊技能清單順序優先判定施放
+    if (now - gameState.lastAttackTime >= attackInterval) {
+      const skillRes = checkAndExecuteAutoSkillAttack(target, dist, now);
+      if (skillRes === true) {
+        gameState.lastAttackTime = now;
+        return;
+      } else if (skillRes === "moving") {
+        gameState.playerX += ((target.x - gameState.playerX) / dist) * 2.6;
+        gameState.playerY += ((target.y - gameState.playerY) / dist) * 2.6;
+        return;
+      }
+    }
+
+    // 🎮 RO 順序 5：若無符合技能或 MP 不足 / CD 中，回退普通物理攻擊 (射箭/揮砍)
     if (dist > attackRange) {
       gameState.playerX += ((target.x - gameState.playerX) / dist) * 2.6;
       gameState.playerY += ((target.y - gameState.playerY) / dist) * 2.6;
@@ -678,118 +692,272 @@ function executePlayerAttack(mob, isBow, wpnData) {
     if (mob.undead && isSilverArrow) {
       const holyBonus = Math.floor(Math.random() * 20) + 1;
       baseDmg += holyBonus;
-      log(`🏹 射出【銀箭】！神聖破邪對不死系 ${mob.name} 造成額外 +${holyBonus} 傷害！`, "atk");
+      log(`🏹 射出【銀箭】！神聖破邪對不死系 ${mob.name} 附加 +${holyBonus} 傷害！`, "atk");
     }
 
     const acReduction = 150 / (150 + Math.max(0, -mob.ac));
     const finalDmg = Math.max(1, Math.floor(baseDmg * acReduction));
 
     mob.currentHp -= finalDmg;
-    log(`🏹 射出 ${arrowUsedName}！命中 ${mob.name} 造成 ${finalDmg} 點傷害。(剩餘: ${remainArrows})`, "atk");
-  } else {
-    mob.isAggroed = true;
-
-    const stats = (typeof getCalculatedStats === "function") ? getCalculatedStats() : (currentChar.stats || { str: 10 });
-    const curLv = currentChar.level || 1;
-    const hitRating = Math.floor((stats.str || 10) / 2) + Math.floor(curLv / 2) + (wpnData ? wpnData.hitBonus || 0 : 0) + (wpn ? wpn.enchant || 0 : 0);
-    const hitRate = Math.min(0.95, Math.max(0.5, 0.85 + (hitRating - (10 - mob.ac)) * 0.005));
-
-    if (Math.random() > hitRate) {
-      log(`揮擊揮空！未能擊中 ${mob.name}。`, "atk");
-      return;
-    }
-
-    const diceMax = (mob.size === "large") ? (wpnData ? wpnData.large : 4) : (wpnData ? wpnData.small : 4);
-    let baseDmg = Math.floor(Math.random() * diceMax) + 1;
-    baseDmg += (wpn ? wpn.enchant : 0) + (wpnData ? wpnData.extraDmg || 0 : 0) + Math.max(0, (stats.str || 10) - 10);
-
-    if (mob.undead && wpnData && wpnData.material === "silver") {
-      const undeadBonus = Math.floor(Math.random() * 20) + 1;
-      baseDmg += undeadBonus;
-      log(`✨ 銀質武器剋制！對不死系 ${mob.name} 附加 +${undeadBonus} 破邪傷害！`, "atk");
-    }
-
-    const acReduction = 150 / (150 + Math.max(0, -mob.ac));
-    const finalDmg = Math.max(1, Math.floor(baseDmg * acReduction));
-
-    mob.currentHp -= finalDmg;
-    log(`揮擊命中 ${mob.name}，造成 ${finalDmg} 點傷害！`, "atk");
+    log(`箭矢破空命中 ${mob.name}，造成 ${finalDmg} 點傷害！`, "atk");
   }
 
   // 怪物擊殺與掉寶判定
   if (mob.currentHp <= 0) {
-    mob.currentHp = 0;
-    mob.isDead = true; // 🚨 核心防護：第一時間標記死亡，徹底阻斷反擊與重複結算
+    handleMobDeathAndRewards(mob);
+  }
+}
 
-    const finalExp = Math.max(1, Math.floor(mob.exp * gmSettings.expRate));
-    currentChar.exp = (currentChar.exp || 0) + finalExp;
-    log(`討伐了 ${mob.name}！獲得 ${finalExp} 經驗值。`, "drop");
+// 抽取共用的怪物擊殺與掉寶結算
+function handleMobDeathAndRewards(mob) {
+  if (!mob || mob.isDead) return;
+  mob.currentHp = 0;
+  mob.isDead = true; // 🚨 核心防護：第一時間標記死亡，徹底阻斷反擊與重複結算
 
-    const curLv = currentChar.level || 1;
-    const maxExp = curLv * curLv * 100;
-    if (currentChar.exp >= maxExp) {
-      currentChar.level = curLv + 1;
-      currentChar.exp -= maxExp;
-      const preset = (typeof resolveClassPreset === 'function' ? resolveClassPreset(currentChar.charClass) : null) || ((typeof CLASS_PRESETS !== 'undefined') ? CLASS_PRESETS[currentChar.charClass] : null);
-      const hpRange = preset?.hpMod || [12, 18];
-      const mpRange = preset?.mpMod || [2, 4];
-      const addHp = Math.floor(Math.random() * (hpRange[1] - hpRange[0])) + hpRange[0];
-      const addMp = Math.floor(Math.random() * (mpRange[1] - mpRange[0])) + mpRange[0];
-      currentChar.maxHp = (currentChar.maxHp || 50) + addHp;
-      currentChar.hp = currentChar.maxHp;
-      currentChar.maxMp = (currentChar.maxMp || 20) + addMp;
-      currentChar.mp = currentChar.maxMp;
-      log(`🎉 升級！恭喜達到 Lv.${currentChar.level} (HP+${addHp}, MP+${addMp})`, "sys");
+  const finalExp = Math.max(1, Math.floor(mob.exp * gmSettings.expRate));
+  currentChar.exp = (currentChar.exp || 0) + finalExp;
+  log(`討伐了 ${mob.name}！獲得 ${finalExp} 經驗值。`, "drop");
 
-      if (typeof saveAccountData === 'function') saveAccountData();
-    }
+  const curLv = currentChar.level || 1;
+  const maxExp = curLv * curLv * 100;
+  if (currentChar.exp >= maxExp) {
+    currentChar.level = curLv + 1;
+    currentChar.exp -= maxExp;
+    const preset = (typeof resolveClassPreset === 'function' ? resolveClassPreset(currentChar.charClass) : null) || ((typeof CLASS_PRESETS !== 'undefined') ? CLASS_PRESETS[currentChar.charClass] : null);
+    const hpRange = preset?.hpMod || [12, 18];
+    const mpRange = preset?.mpMod || [2, 4];
+    const addHp = Math.floor(Math.random() * (hpRange[1] - hpRange[0])) + hpRange[0];
+    const addMp = Math.floor(Math.random() * (mpRange[1] - mpRange[0])) + mpRange[0];
+    currentChar.maxHp = (currentChar.maxHp || 50) + addHp;
+    currentChar.hp = currentChar.maxHp;
+    currentChar.maxMp = (currentChar.maxMp || 20) + addMp;
+    currentChar.mp = currentChar.maxMp;
+    log(`🎉 升級！恭喜達到 Lv.${currentChar.level} (HP+${addHp}, MP+${addMp})`, "sys");
 
-    // 掉寶結算
-    if (mob.drops) {
-      mob.drops.forEach(drop => {
-        const effectiveChance = Math.min(1.0, drop.chance * gmSettings.dropRate);
-        if (Math.random() <= effectiveChance) {
-          if (drop.item === "金幣") {
-            const rawGold = Math.floor(Math.random() * (drop.max - drop.min + 1)) + drop.min;
-            const finalGold = Math.floor(rawGold * gmSettings.goldRate);
-            currentChar.gold = (currentChar.gold || 0) + finalGold;
-            log(`拾獲金幣 x${finalGold}`, "drop");
-          } else {
-            const count = drop.count || 1;
-            const itemRules = gameState.botSettings?.itemRules || {};
-            const rule = itemRules[drop.item] || { pick: true, autoSell: false };
+    if (typeof saveAccountData === 'function') saveAccountData();
+  }
 
-            if (rule.pick === false) return;
+  // 掉寶結算
+  if (mob.drops) {
+    mob.drops.forEach(drop => {
+      const effectiveChance = Math.min(1.0, drop.chance * gmSettings.dropRate);
+      if (Math.random() <= effectiveChance) {
+        if (drop.item === "金幣") {
+          const rawGold = Math.floor(Math.random() * (drop.max - drop.min + 1)) + drop.min;
+          const finalGold = Math.floor(rawGold * gmSettings.goldRate);
+          currentChar.gold = (currentChar.gold || 0) + finalGold;
+          log(`拾獲金幣 x${finalGold}`, "drop");
+        } else {
+          const count = drop.count || 1;
+          const itemRules = gameState.botSettings?.itemRules || {};
+          const rule = itemRules[drop.item] || { pick: true, autoSell: false };
 
-            if (rule.autoSell) {
-              const itemDb = (typeof DB !== 'undefined' && DB.items) ? DB.items[drop.item] : null;
-              const unitPrice = Math.max(1, Math.floor((itemDb ? itemDb.price : 10) * 0.4));
-              const earnGold = unitPrice * count;
-              currentChar.gold = (currentChar.gold || 0) + earnGold;
-              log(`[掉落] 💰 自動折現：討伐【${mob.name}】掉落【${drop.item}】x${count}，已就地自動變賣獲得 ${earnGold} 金幣！（不佔負重）`, "drop");
-              return;
-            }
+          if (rule.pick === false) return;
 
-            if (typeof addItemToInventory === "function") {
-              addItemToInventory(drop.item, count);
-              log(`✨ 拾獲寶物：${drop.item} x${count}`, "drop");
-            }
+          if (rule.autoSell) {
+            const itemDb = (typeof DB !== 'undefined' && DB.items) ? DB.items[drop.item] : null;
+            const unitPrice = Math.max(1, Math.floor((itemDb ? itemDb.price : 10) * 0.4));
+            const earnGold = unitPrice * count;
+            currentChar.gold = (currentChar.gold || 0) + earnGold;
+            log(`[掉落] 💰 自動折現：討伐【${mob.name}】掉落【${drop.item}】x${count}，已就地自動變賣獲得 ${earnGold} 金幣！（不佔負重）`, "drop");
+            return;
+          }
+
+          if (typeof addItemToInventory === "function") {
+            addItemToInventory(drop.item, count);
+            log(`✨ 拾獲寶物：${drop.item} x${count}`, "drop");
           }
         }
-      });
-    }
-
-    // 將該怪移出陣列，清空鎖定
-    gameState.mobs = gameState.mobs.filter(m => m !== mob);
-    gameState.targetMob = null;
-
-    if (gameState.botStatus === "finishing") {
-      gameState.botStatus = "idle";
-      const tag = document.getElementById("battle-mode-tag");
-      if (tag) tag.innerText = "[野外待機中]";
-      log("✅ 當前目標已消滅，正式進入野外待機防禦狀態。", "sys");
-    }
+      }
+    });
   }
+
+  // 將該怪移出陣列，清空鎖定
+  gameState.mobs = gameState.mobs.filter(m => m !== mob);
+  if (gameState.targetMob === mob) gameState.targetMob = null;
+
+  if (gameState.botStatus === "finishing") {
+    gameState.botStatus = "idle";
+    const tag = document.getElementById("battle-mode-tag");
+    if (tag) tag.innerText = "[野外待機中]";
+    log("✅ 當前目標已消滅，正式進入野外待機防禦狀態。", "sys");
+  }
+}
+
+// 🎮 RO 掛機技能攻擊優先判定核心
+function checkAndExecuteAutoSkillAttack(target, dist, now) {
+  if (!currentChar || !target || target.isDead || target.currentHp <= 0) return false;
+
+  const autoSkills = gameState.botSettings?.autoSkills;
+  if (!autoSkills || autoSkills.enabled === false) return false;
+
+  const attackRules = autoSkills.attackRules;
+  if (!Array.isArray(attackRules) || attackRules.length === 0) return false;
+
+  const curMp = currentChar.mp || 0;
+  const maxMp = Math.max(1, currentChar.maxMp || 20);
+  const curMpPercent = (curMp / maxMp) * 100;
+
+  for (let rule of attackRules) {
+    if (rule.enabled === false) continue;
+
+    // 怪物條件檢測
+    if (Array.isArray(rule.targetMobs) && rule.targetMobs.length > 0) {
+      if (!rule.targetMobs.includes(target.name)) continue;
+    }
+
+    // MP 門檻檢測
+    const minMp = rule.minMpPercent || 0;
+    if (curMpPercent < minMp) continue;
+
+    // 每隻怪只放一次檢測
+    if (rule.mode === "once") {
+      if (target._castOnceSkills && target._castOnceSkills[rule.skillName]) {
+        continue;
+      }
+    }
+
+    // 技能資料與習得判定
+    const skill = (typeof DB !== "undefined" && DB.skills) ? DB.skills[rule.skillName] : null;
+    if (!skill) continue;
+    if (!currentChar.skills || !currentChar.skills.includes(rule.skillName)) continue;
+
+    // MP 實際消耗檢測
+    if (curMp < (skill.mpCost || 0)) continue;
+
+    // 施法材料消耗檢測 (精靈玉 / 魔力之石)
+    let materialItem = null;
+    let materialReq = 0;
+    if (skill.materialCost && skill.materialCost !== "無") {
+      const match = skill.materialCost.match(/(精靈玉|魔力之石)\s*x?(\d+)?/);
+      if (match) {
+        materialItem = match[1];
+        materialReq = parseInt(match[2]) || 1;
+        const hasMat = currentChar.inventory && currentChar.inventory.some(i => i.name === materialItem && (i.count || 1) >= materialReq);
+        if (!hasMat) continue;
+      }
+    }
+
+    // 技能冷卻檢測 (若 CD 中則依規範跳過判定下一條)
+    if (typeof canUseSkill === "function" && !canUseSkill(rule.skillName)) {
+      continue;
+    }
+
+    // 施法距離檢查 (衝擊之暈等近戰技能為 32，遠程法術/三重矢為 190)
+    const isMeleeSkill = (rule.skillName === "衝擊之暈");
+    const skillRange = isMeleeSkill ? 32 : 190;
+    if (dist > skillRange) {
+      return "moving";
+    }
+
+    // 🌟 條件完全符合！執行技能施放！
+    currentChar.mp = Math.max(0, curMp - (skill.mpCost || 0));
+
+    // 扣除材料
+    if (materialItem && materialReq > 0 && currentChar.inventory) {
+      const matIdx = currentChar.inventory.findIndex(i => i.name === materialItem);
+      if (matIdx !== -1) {
+        currentChar.inventory[matIdx].count = (currentChar.inventory[matIdx].count || 1) - materialReq;
+        if (currentChar.inventory[matIdx].count <= 0) {
+          currentChar.inventory.splice(matIdx, 1);
+        }
+      }
+    }
+
+    // 標記每隻怪只放一次
+    if (rule.mode === "once") {
+      if (!target._castOnceSkills) target._castOnceSkills = {};
+      target._castOnceSkills[rule.skillName] = true;
+    }
+
+    // 記錄冷卻時間
+    if (typeof markSkillUsed === "function") {
+      markSkillUsed(rule.skillName, skill.cooldown || 2000);
+    }
+
+    target.isAggroed = true;
+
+    // 計算傷害與視覺特效
+    let skillDamage = 0;
+    const stats = (typeof getCalculatedStats === "function") ? getCalculatedStats() : (currentChar.stats || { int: 10, dex: 10, str: 10 });
+    const curLv = currentChar.level || 1;
+
+    if (rule.skillName === "三重矢") {
+      // 妖精三重矢：連續三發射擊
+      let arrowUsed = "魔法箭";
+      if (currentChar.inventory) {
+        const arrowIdx = currentChar.inventory.findIndex(i => (i.name === "銀箭" || i.name === "箭") && (i.count || 0) > 0);
+        if (arrowIdx !== -1) {
+          arrowUsed = currentChar.inventory[arrowIdx].name;
+          currentChar.inventory[arrowIdx].count--;
+          if (currentChar.inventory[arrowIdx].count <= 0) currentChar.inventory.splice(arrowIdx, 1);
+        }
+      }
+
+      gameState.arrowTrail = {
+        fromX: gameState.playerX,
+        fromY: gameState.playerY,
+        toX: target.x,
+        toY: target.y,
+        expire: Date.now() + 200
+      };
+
+      const wpn = currentChar.equipped?.weapon;
+      const wpnData = (wpn && typeof DB !== 'undefined' && DB.items) ? DB.items[wpn.name] : null;
+      const baseShot = Math.floor((stats.dex || 10) * 1.5) + (wpn?.enchant || 0) * 2 + (wpnData?.extraDmg || 0);
+      skillDamage = Math.max(30, Math.floor((baseShot + (skill.power || 90)) * 1.1));
+
+      log(`🏹✨【三重矢】破空連發！對【${target.name}】連續射出三支破邪強矢，造成 ${skillDamage} 點爆發傷害！`, "atk");
+    } else {
+      // 魔法攻擊或戰士重擊
+      const intBonus = Math.floor((stats.int || 10) * 2.2);
+      const basePwr = skill.power || 60;
+      const acReduction = 150 / (150 + Math.max(0, -target.ac));
+      skillDamage = Math.max(10, Math.floor((basePwr + intBonus + curLv) * acReduction));
+
+      gameState.arrowTrail = {
+        fromX: gameState.playerX,
+        fromY: gameState.playerY,
+        toX: target.x,
+        toY: target.y,
+        expire: Date.now() + 180
+      };
+
+      log(`⚡✨ 施展【${rule.skillName}】！一道強烈魔法衝擊命中【${target.name}】，造成 ${skillDamage} 點魔法打擊傷害！`, "atk");
+    }
+
+    target.currentHp -= skillDamage;
+
+    // 怪物擊殺判定
+    if (target.currentHp <= 0) {
+      handleMobDeathAndRewards(target);
+    }
+
+    // 連招施放 (chainSkill)
+    if (rule.chainSkill && target.currentHp > 0 && !target.isDead) {
+      const chainSk = (typeof DB !== "undefined" && DB.skills) ? DB.skills[rule.chainSkill] : null;
+      if (chainSk && currentChar.skills.includes(rule.chainSkill) && curMp >= (chainSk.mpCost || 0) && (typeof canUseSkill === "function" && canUseSkill(rule.chainSkill))) {
+        setTimeout(() => {
+          if (target && target.currentHp > 0 && !target.isDead) {
+            currentChar.mp = Math.max(0, (currentChar.mp || 0) - (chainSk.mpCost || 0));
+            markSkillUsed(rule.chainSkill, chainSk.cooldown || 2000);
+            const chainDmg = Math.max(15, Math.floor((chainSk.power || 50) + (stats.int || 10) * 1.5));
+            target.currentHp -= chainDmg;
+            log(`🔗⚡【接著施放】連鎖施展【${rule.chainSkill}】追加命中【${target.name}】，造成 ${chainDmg} 傷害！`, "atk");
+            if (target.currentHp <= 0) {
+              handleMobDeathAndRewards(target);
+            }
+            updateLeftPanel();
+          }
+        }, 300);
+      }
+    }
+
+    updateLeftPanel();
+    return true;
+  }
+
+  return false;
 }
 
 function onMapSelectChange() {

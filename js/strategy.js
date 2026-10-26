@@ -69,6 +69,27 @@ function initBotStrategyDefaults() {
     };
   }
 
+  // 仿 RO 掛機技能設定 (攻擊依序、每隻怪只放一次/持續、指定怪、輔助維持、回復、逃生)
+  if (!gameState.botSettings.autoSkills) {
+    gameState.botSettings.autoSkills = {
+      enabled: true,
+      attackRules: [], // [{ id, skillName, minMpPercent: 20, mode: "once"|"always", chainSkill: "", enabled: true, targetMobs: [] }]
+      buffRules: {},   // { [skillName]: { enabled: true, minMpPercent: 20 } }
+      healRules: {
+        enabled: true,
+        skillName: "auto", // "auto" 自動依序選高級/中級/初級治癒術/生祝
+        hpThreshold: 70,
+        minMpPercent: 10,
+        autoCurePoison: true
+      },
+      escapeRules: {
+        enabled: true,
+        skillName: "指定傳送",
+        hpThreshold: 20
+      }
+    };
+  }
+
   gameState.botSettings.weightLimit = gameState.botSettings.restockTrigger.overweightPercent || 80;
 }
 
@@ -101,18 +122,117 @@ function handleStrategyAI() {
   const trigger = gameState.botSettings.restockTrigger || { noRedPot: true, noArrows: true };
   const now = Date.now();
 
-  // 瀕死緊急回城
+  // 🎮 RO 順序 1：逃生技能優先判定 (指定傳送 / 世界樹的呼喚)
+  const autoSkills = gameState.botSettings.autoSkills;
+  if (autoSkills && autoSkills.escapeRules && autoSkills.escapeRules.enabled) {
+    const esc = autoSkills.escapeRules;
+    if (hpPercent <= (esc.hpThreshold || 20)) {
+      const escSkillName = esc.skillName || "指定傳送";
+      if (currentChar.skills && currentChar.skills.includes(escSkillName)) {
+        const skData = (typeof DB !== "undefined" && DB.skills) ? DB.skills[escSkillName] : null;
+        if (skData && (currentChar.mp || 0) >= (skData.mpCost || 0) && (typeof canUseSkill === "function" && canUseSkill(escSkillName))) {
+          currentChar.mp = Math.max(0, currentChar.mp - (skData.mpCost || 0));
+          if (typeof markSkillUsed === "function") markSkillUsed(escSkillName, skData.cooldown || 3000);
+
+          if (escSkillName === "世界樹的呼喚") {
+            log(`🌳【緊急逃生技能】HP 告急 (剩餘 ${hpPercent.toFixed(1)}%)！施展【世界樹的呼喚】瞬間返航母樹！`, "mob");
+            triggerAutoRestock("逃生技能返村");
+            return;
+          } else {
+            gameState.playerX = 100 + Math.random() * (WORLD_WIDTH - 200);
+            gameState.playerY = 100 + Math.random() * (WORLD_HEIGHT - 200);
+            gameState.targetMob = null;
+            log(`⚡【緊急逃生技能】HP 告急 (剩餘 ${hpPercent.toFixed(1)}%)！施展【${escSkillName}】瞬間隨機跳躍脫離！`, "mob");
+            updateLeftPanel();
+            return;
+          }
+        }
+      }
+    }
+  }
+
+  // 瀕死緊急回城 (卷軸)
   if (hpPercent <= (sec.escapeHomeHp || 20) && hasItem("傳送回家的卷軸")) {
     log(`🛑【瀕死緊急回城】HP 降至 ${hpPercent.toFixed(1)}%！立即使用【傳送回家的卷軸】避難！`, "mob");
     triggerAutoRestock("瀕死緊急回城");
     return;
   }
 
-  // 危急瞬間脫離
+  // 危急瞬間脫離 (卷軸)
   if (hpPercent <= (sec.escapeTeleHp || 40) && hasItem("瞬間移動卷軸")) {
     log(`⚡【危急瞬間脫離】HP 降至 ${hpPercent.toFixed(1)}%！使用【瞬間移動卷軸】隨機飛離！`, "mob");
     useItemByName("瞬間移動卷軸");
     return;
+  }
+
+  // 🎮 RO 順序 2：回復技能判定 (解毒術、治癒術自補)
+  if (autoSkills && autoSkills.healRules) {
+    const hr = autoSkills.healRules;
+    // 2-1. 解毒術
+    if (hr.autoCurePoison && currentChar.isPoisoned && currentChar.skills && currentChar.skills.includes("解毒術")) {
+      const cdOk = (typeof canUseSkill === "function") ? canUseSkill("解毒術") : true;
+      const skData = (typeof DB !== "undefined" && DB.skills) ? DB.skills["解毒術"] : null;
+      if (cdOk && (currentChar.mp || 0) >= (skData?.mpCost || 12)) {
+        useSkill("解毒術");
+      }
+    }
+
+    // 2-2. 治癒術自補
+    if (hr.enabled && hpPercent <= (hr.hpThreshold || 70)) {
+      const curMpPercent = (currentChar.mp / Math.max(1, currentChar.maxMp)) * 100;
+      if (curMpPercent >= (hr.minMpPercent || 10)) {
+        const healCandidates = ["生命的祝福", "高級治癒術", "中級治癒術", "初級治癒術"];
+        for (let hName of healCandidates) {
+          if (currentChar.skills && currentChar.skills.includes(hName)) {
+            const sk = (typeof DB !== "undefined" && DB.skills) ? DB.skills[hName] : null;
+            if (sk && (currentChar.mp || 0) >= (sk.mpCost || 0) && (typeof canUseSkill === "function" && canUseSkill(hName))) {
+              useSkill(hName);
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 🎮 RO 順序 3：輔助維持判定 (Buffs 自動維持)
+  if (autoSkills && autoSkills.buffRules) {
+    const bRules = autoSkills.buffRules;
+    const curMpPercent = (currentChar.mp / Math.max(1, currentChar.maxMp)) * 100;
+
+    // 妖精專屬神技：魂體轉換 (HP >= 65% 且 MP <= 70% 時自動將 HP 轉為 MP)
+    if (bRules["魂體轉換"] && bRules["魂體轉換"].enabled && currentChar.skills && currentChar.skills.includes("魂體轉換")) {
+      if (hpPercent >= 65 && curMpPercent <= 70 && (typeof canUseSkill === "function" && canUseSkill("魂體轉換"))) {
+        useSkill("魂體轉換");
+      }
+    }
+
+    // 常態 Buff 維持
+    for (let bName in bRules) {
+      if (bName === "魂體轉換") continue;
+      const bRule = bRules[bName];
+      if (!bRule || !bRule.enabled) continue;
+      if (!currentChar.skills || !currentChar.skills.includes(bName)) continue;
+
+      const minMp = bRule.minMpPercent || 20;
+      if (curMpPercent < minMp) continue;
+
+      const sk = (typeof DB !== "undefined" && DB.skills) ? DB.skills[bName] : null;
+      if (!sk) continue;
+      if ((currentChar.mp || 0) < (sk.mpCost || 0)) continue;
+
+      // 檢查是否冷卻完畢
+      if (typeof canUseSkill === "function" && !canUseSkill(bName)) continue;
+
+      // 檢查 Buff 是否未生效或即將到期 (剩餘 < 3 秒)
+      currentChar.activeBuffs = currentChar.activeBuffs || {};
+      const expireTime = currentChar.activeBuffs[bName] || 0;
+      if (Date.now() >= expireTime - 3000) {
+        useSkill(bName);
+        currentChar.activeBuffs[bName] = Date.now() + (sk.duration || 60) * 1000;
+        break; // 每次 tick 最多補一個 Buff，避免瞬間連放打斷節奏
+      }
+    }
   }
 
   // 強敵遭遇戰術
@@ -534,6 +654,9 @@ function renderStrategyTab() {
   const pipe = gameState.botSettings.pipeline || { buyItems: [], minGoldFloor: 0 };
 
   tab.innerHTML = `
+    <!-- 🎮 RO 經典掛機技能設定面板 -->
+    ${renderAutoSkillsSection()}
+
     <!-- 1. 🚨 生命維安 -->
     <div class="bot-section" style="border:1px solid #ef4444; background:rgba(30,20,20,0.85); margin-bottom:12px;">
       <div class="bot-section-title" style="color:#ef4444; font-size:14px; font-weight:bold; margin-bottom:4px;">
@@ -1007,3 +1130,678 @@ function updateBluePotionMp(val) {
   gameState.botSettings.bluePotionMp = Math.max(1, Math.min(99, parseInt(val) || 30));
   saveStrategySettings();
 }
+
+// ==========================================================================
+// 🎮 仙境傳說 RO 經典「掛機技能 (Auto-Skills)」核心管理函式
+// ==========================================================================
+
+
+// ==========================================================================
+// 🎮 仙境傳說 RO 經典「掛機技能 (Auto-Skills)」完整引擎與互動核心
+// 100% 像素級還原 RO 內掛介面：攻擊依序、每隻怪只放一次/持續、指定怪、
+// 輔助維持、治癒回復、逃生、即時條件滿足提示
+// ==========================================================================
+
+// 取得該職業全套可選技能清單 (無論已學或未學皆可預設配置，學會後自動生效)
+function getAvailableSkillsForAuto() {
+  const charClass = currentChar?.charClass || "elf";
+  const learned = (currentChar && Array.isArray(currentChar.skills)) ? currentChar.skills : [];
+  const allDb = (typeof DB !== "undefined" && DB.skills) ? DB.skills : {};
+
+  // 各職業經典攻擊技能池
+  const classAttackMap = {
+    elf: ["三重矢", "極道落雷", "烈炎氣息", "火球術", "冰箭", "風刃", "吸血鬼之吻", "地裂術"],
+    mage: ["極道落雷", "火球術", "吸血鬼之吻", "地裂術", "冰雪暴", "究極光裂術", "極光雷電", "寒冰氣息", "燃燒的火球", "起死回生術"],
+    knight: ["衝擊之暈"],
+    prince: ["火球術", "極道落雷"]
+  };
+
+  // 各職業經典輔助技能池
+  const classBuffMap = {
+    elf: ["魂體轉換", "風之疾走", "暴風神射", "暴風疾馳", "通暢氣脈", "體魄強健", "神聖武器", "鎧甲護持", "淨化精神", "屬性防禦", "鋼鐵防護", "火熱武器", "烈炎武器", "灼熱靈魂"],
+    mage: ["聖結界", "通暢氣脈", "體魄強健", "神聖武器", "鎧甲護持", "冥想術", "通透術", "保護罩", "盾牌術", "力量提升", "魔法屏障"],
+    knight: ["堅固防護", "反擊屏障", "增幅防禦", "狂暴將軍", "擬似勇氣", "神聖武器", "鎧甲護持"],
+    prince: ["精準目標", "皇家血統", "激勵士氣", "神聖武器", "鎧甲護持", "通暢氣脈", "體魄強健"]
+  };
+
+  // 各職業回復與解毒
+  const healSkills = ["初級治癒術", "中級治癒術", "高級治癒術", "生命的祝福", "生命之泉", "解毒術"];
+  // 各職業逃生
+  const escapeSkills = ["指定傳送", "世界樹的呼喚"];
+
+  const rawAtk = classAttackMap[charClass] || classAttackMap.elf;
+  const rawBuff = classBuffMap[charClass] || classBuffMap.elf;
+
+  // 整理攻擊技能選項 (已學會排前)
+  const attackSkills = rawAtk.map(name => ({
+    name,
+    learned: learned.includes(name),
+    data: allDb[name] || {}
+  })).sort((a, b) => (b.learned ? 1 : 0) - (a.learned ? 1 : 0));
+
+  // 整理輔助維持技能
+  const buffSkills = rawBuff.map(name => ({
+    name,
+    learned: learned.includes(name),
+    data: allDb[name] || {}
+  }));
+
+  return { attackSkills, buffSkills, healSkills, escapeSkills };
+}
+
+// 渲染 RO 經典掛機技能面板
+function renderAutoSkillsSection() {
+  initBotStrategyDefaults();
+  const auto = gameState.botSettings.autoSkills;
+  const attackRules = auto.attackRules || [];
+  const { attackSkills, buffSkills, healSkills, escapeSkills } = getAvailableSkillsForAuto();
+
+  const mapData = (typeof DB !== 'undefined' && DB.maps && DB.maps[gameState.currentMap]) || null;
+  const mapMobs = mapData?.monsters ? mapData.monsters.map(m => m.name) : ["狼人", "妖魔", "歐克", "骷髏", "地精", "高崙石頭怪"];
+
+  const curMp = currentChar ? (currentChar.mp || 0) : 0;
+  const maxMp = currentChar ? Math.max(1, currentChar.maxMp || 1) : 1;
+  const curMpPercent = Math.floor((curMp / maxMp) * 100);
+
+  // 1. 攻擊技能卡片 HTML (100% 依截圖格式與即時條件判定)
+  let rulesHtml = "";
+  if (attackRules.length === 0) {
+    rulesHtml = `
+      <div style="background:#090d16; border:1px dashed #334155; border-radius:4px; padding:16px; text-align:center; color:#94a3b8; font-size:12px;">
+        <div style="color:#e2e8f0; font-weight:bold; margin-bottom:6px;">尚未設定攻擊技能規則</div>
+        <div style="margin-bottom:10px;">請於下方選單選擇攻擊技能後點擊【新增規則】，或直接套用職業神技推薦套路。</div>
+        <button type="button" class="btn btn-gold" style="padding:4px 14px; font-size:12px;" onclick="applyClassPresetSkills()">
+          ⚡ 一鍵導入職業推薦掛機技能
+        </button>
+      </div>
+    `;
+  } else {
+    attackRules.forEach((rule, idx) => {
+      const sk = (typeof DB !== "undefined" && DB.skills) ? DB.skills[rule.skillName] : null;
+      const isEnabled = rule.enabled !== false;
+      const minMp = rule.minMpPercent || 0;
+      const targetDesc = (rule.targetMobs && rule.targetMobs.length > 0) ? rule.targetMobs.join("、") : "所有怪物 (通用)";
+      const isOnce = (rule.mode === "once");
+      const ruleLv = rule.lv || 10;
+      const isLearned = currentChar && currentChar.skills && currentChar.skills.includes(rule.skillName);
+
+      // 即時狀態判定 (依截圖中的即時提醒)
+      let statusText = "✅ 條件皆滿足（優先判定施放）";
+      let statusColor = "#4ade80";
+      if (!isEnabled) {
+        statusText = "⏸️ 規則已停用 (勾選左側方塊即可啟用)";
+        statusColor = "#94a3b8";
+      } else if (!isLearned) {
+        statusText = `⚠️ 尚未習得【${rule.skillName}】（前往村莊向導師學習後將立即生效）`;
+        statusColor = "#facc15";
+      } else if (curMpPercent < minMp) {
+        statusText = `目前不施放: MP ${curMpPercent}% 未達到設定門檻 ${minMp}% (目前 ${curMp}，技能消耗 ${sk ? sk.mpCost : 0})`;
+        statusColor = "#f87171";
+      } else if (gameState.targetMob && rule.targetMobs && rule.targetMobs.length > 0 && !rule.targetMobs.includes(gameState.targetMob.name)) {
+        statusText = `目前不施放: 當前目標【${gameState.targetMob.name}】不在技能的怪物清單中`;
+        statusColor = "#94a3b8";
+      } else if (isOnce && gameState.targetMob && gameState.targetMob._castOnceSkills && gameState.targetMob._castOnceSkills[rule.skillName]) {
+        statusText = `目前不施放: 已對目標【${gameState.targetMob.name}】完成一次施放，換新怪前不再施展`;
+        statusColor = "#facc15";
+      } else if (rule.skillName && typeof canUseSkill === "function" && !canUseSkill(rule.skillName)) {
+        const cdSec = (typeof getSkillCooldownRemaining === "function") ? (getSkillCooldownRemaining(rule.skillName) / 1000).toFixed(1) : 1;
+        statusText = `⏳ 技能冷卻中 (剩餘 ${cdSec} 秒)`;
+        statusColor = "#38bdf8";
+      }
+
+      // 指定怪物標籤 Pills
+      let mobsPillsHtml = "";
+      if (rule.targetMobs && rule.targetMobs.length > 0) {
+        mobsPillsHtml = rule.targetMobs.map(mName => `
+          <span class="ro-mob-tag">
+            ${mName}
+            <span class="tag-close" onclick="removeMobFromAttackRule(${idx}, '${mName}')">✕</span>
+          </span>
+        `).join("");
+      }
+
+      // 未加入當前地圖的怪物選單
+      const unselectedMobs = mapMobs.filter(m => !rule.targetMobs || !rule.targetMobs.includes(m));
+      const mobOptions = unselectedMobs.map(m => `<option value="${m}">${m}</option>`).join("");
+
+      // 連鎖技能可選選單
+      const chainOptions = attackSkills.map(s => `
+        <option value="${s.name}" ${rule.chainSkill === s.name ? 'selected' : ''}>
+          ${s.name}
+        </option>
+      `).join("");
+
+      // 技能圖標 HTML
+      const iconKey = sk ? sk.iconKey : null;
+      let iconHtml = "⚔️";
+      if (typeof getSkillIconHtml === "function" && iconKey) {
+        iconHtml = getSkillIconHtml(iconKey);
+      }
+
+      rulesHtml += `
+        <div class="ro-rule-card ${isEnabled ? '' : 'disabled'}">
+          <!-- 行 1：主要控制列 (勾選, 圖示, 名稱, Lv, MP門檻, 施放模式, 連招, 排序, 刪除) -->
+          <div class="ro-rule-row-main">
+            <div class="ro-rule-title-group">
+              <input type="checkbox" id="chk-rule-${idx}" ${isEnabled ? 'checked' : ''} onchange="toggleAttackRuleEnabled(${idx}, this.checked)">
+              <div class="ro-skill-mini-icon">
+                ${iconHtml}
+              </div>
+              <label for="chk-rule-${idx}" style="cursor:pointer; font-weight:bold; color:#fff; font-size:13px;">
+                ${rule.skillName}
+              </label>
+            </div>
+
+            <div class="ro-rule-controls">
+              <span>Lv</span>
+              <input type="number" min="1" max="10" value="${ruleLv}" style="width:36px; text-align:center;" onchange="updateAutoAttackRuleProp(${idx}, 'lv', this.value)">
+
+              <span style="margin-left:4px;">MP &ge;</span>
+              <input type="number" min="0" max="100" value="${minMp}" style="width:40px; text-align:center;" onchange="updateAutoAttackRuleProp(${idx}, 'minMpPercent', this.value)">
+              <span>%</span>
+
+              <select onchange="updateAutoAttackRuleProp(${idx}, 'mode', this.value)" style="margin-left:4px;">
+                <option value="once" ${rule.mode === 'once' ? 'selected' : ''}>每隻怪只放一次</option>
+                <option value="always" ${rule.mode === 'always' ? 'selected' : ''}>持續施放 (CD好就放)</option>
+              </select>
+
+              <span style="margin-left:4px;">接著施放</span>
+              <select onchange="updateAutoAttackRuleProp(${idx}, 'chainSkill', this.value)">
+                <option value="">(不接)</option>
+                ${chainOptions}
+              </select>
+
+              <button type="button" class="ro-btn-icon" title="上移" onclick="moveAutoAttackRule(${idx}, -1)" ${idx === 0 ? 'disabled' : ''}>▲</button>
+              <button type="button" class="ro-btn-icon" title="下移" onclick="moveAutoAttackRule(${idx}, 1)" ${idx === attackRules.length - 1 ? 'disabled' : ''}>▼</button>
+              <button type="button" class="ro-btn-icon ro-btn-del" title="刪除規則" onclick="removeAutoAttackRule(${idx})">✕</button>
+            </div>
+          </div>
+
+          <!-- 行 2：對象摘要說明 -->
+          <div style="font-size:11.5px; color:#cbd5e1; padding:2px 2px 0 2px;">
+            對象: <b style="color:#fde047;">${targetDesc}</b> &rarr; <span style="color:#60a5fa; font-weight:bold;">${rule.skillName} Lv ${ruleLv}</span> <span style="color:#94a3b8; font-size:11px;">(怪物、屬性等可在下方「條件」調整)</span>
+          </div>
+
+          <!-- 行 3：即時狀態動態提示 (仿 RO 即時提示) -->
+          <div class="ro-rule-status-line" style="color:${statusColor};">
+            ${statusText}
+          </div>
+
+          <!-- 行 4：條件折疊清單 (只對這些怪物 / +加入怪物) -->
+          <div class="ro-rule-conditions">
+            <span style="color:#93c5fd; font-weight:bold;">▼ 條件 (${(rule.targetMobs && rule.targetMobs.length) ? rule.targetMobs.length : '全部'} 項，全部成立才施放)</span>
+            <div style="display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin-top:4px; width:100%;">
+              <span style="color:#cbd5e1;">只對這些怪物:</span>
+              ${mobsPillsHtml ? mobsPillsHtml : '<span style="color:#94a3b8; font-style:italic;">所有怪物 (未特別限定)</span>'}
+
+              <select style="background:#1e293b; color:#fff; border:1px solid #475569; font-size:11px; padding:1px 4px; border-radius:3px;" onchange="if(this.value){addMobToAttackRule(${idx}, this.value); this.value='';}">
+                <option value="">+ 加入指定怪...</option>
+                ${mobOptions}
+              </select>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  // 2. 新增規則下拉選單 HTML (列出所有可用攻擊技能，已學會排前)
+  const addSkillOptions = attackSkills.map(s => `
+    <option value="${s.name}">
+      ${s.learned ? '✓ [已習得]' : '✕ [未習得]'} ${s.name} (MP:${s.data?.mpCost || 0})
+    </option>
+  `).join("");
+
+  // 新增對象選單 (所有怪物 或 當前地圖怪物)
+  const targetMobSelectOptions = [
+    '<option value="all">所有怪物 (通用設定)</option>',
+    ...mapMobs.map(m => `<option value="${m}">特定怪物：${m}</option>`)
+  ].join("");
+
+  // 3. 輔助與設置技能維持 HTML (仿 RO 截圖)
+  let buffItemsHtml = buffSkills.map(b => {
+    const bName = b.name;
+    const bRule = auto.buffRules[bName] || { enabled: false, minMpPercent: 20 };
+    const sk = (typeof DB !== "undefined" && DB.skills) ? DB.skills[bName] : null;
+    const isBuffActive = currentChar && currentChar.activeBuffs && currentChar.activeBuffs[bName] && currentChar.activeBuffs[bName] > Date.now();
+    const remainSec = isBuffActive ? Math.ceil((currentChar.activeBuffs[bName] - Date.now()) / 1000) : 0;
+    const isLearned = b.learned;
+
+    let iconHtml = "⚡";
+    if (typeof getSkillIconHtml === "function" && sk?.iconKey) {
+      iconHtml = getSkillIconHtml(sk.iconKey);
+    }
+
+    return `
+      <div class="ro-buff-item ${isLearned ? '' : 'unlearned'}">
+        <div style="display:flex; align-items:center; gap:6px;">
+          <input type="checkbox" id="chk-buff-sk-${bName}" ${bRule.enabled ? 'checked' : ''} onchange="toggleAutoBuffSkill('${bName}', this.checked)">
+          <div class="ro-skill-mini-icon" style="width:20px; height:20px;">
+            ${iconHtml}
+          </div>
+          <label for="chk-buff-sk-${bName}" style="cursor:pointer; color:#f8fafc; font-weight:bold; font-size:12px;">
+            ${bName}
+          </label>
+          ${isLearned ? '' : '<span style="font-size:10px; color:#facc15;">(未習得)</span>'}
+        </div>
+        <div style="display:flex; align-items:center; gap:4px; font-size:11px;">
+          <span>MP &ge;</span>
+          <input type="number" min="0" max="100" value="${bRule.minMpPercent || 20}" style="width:36px; text-align:center; background:#090d16; color:#fff; border:1px solid #475569; border-radius:2px;" onchange="updateAutoBuffMinMp('${bName}', this.value)">
+          <span>%</span>
+          <span style="font-size:11px; font-weight:bold; color:${isBuffActive ? '#4ade80' : '#64748b'}; min-width:28px; text-align:right;">
+            ${isBuffActive ? `${remainSec}s` : '無'}
+          </span>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // 4. 回復技能 HTML (初治/中治/高治/生祝, 解毒)
+  const healRules = auto.healRules || { enabled: true, skillName: "auto", hpThreshold: 70, minMpPercent: 10, autoCurePoison: true };
+
+  // 5. 逃生技能 HTML (指定傳送 / 世界樹的呼喚)
+  const escapeRules = auto.escapeRules || { enabled: true, skillName: "指定傳送", hpThreshold: 20 };
+
+  return `
+    <div class="ro-skill-panel">
+      <!-- 經典 RO 藍色頂部標題列 -->
+      <div class="ro-skill-header" onclick="toggleAutoSkillsBody()" style="cursor:pointer;" title="點擊折疊/展開掛機技能">
+        <h3><span>▼ 掛機技能</span></h3>
+        <span class="ro-count-badge">已設定 ${attackRules.length}/20 筆（停用規則也占一筆）</span>
+      </div>
+
+      <div id="ro-skill-body">
+        <!-- 區塊 1：攻擊技能 (依順序) -->
+        <div style="margin-bottom:12px;">
+          <div class="ro-section-subhead">
+            <span>攻擊技能（依順序）</span>
+          </div>
+          <div class="ro-rule-list">
+            ${rulesHtml}
+          </div>
+
+          <!-- 🎮 新增規則操作控制橫條 (100% 依截圖原樣打造) -->
+          <div class="ro-add-bar-ro">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:6px;">
+              <span style="color:#cbd5e1; font-size:12px;">對</span>
+              <select id="sel-add-attack-target" style="min-width:160px;">
+                ${targetMobSelectOptions}
+              </select>
+
+              <select id="sel-add-attack-skill" style="min-width:180px;">
+                <option value="">-- 選擇攻擊技能 --</option>
+                ${addSkillOptions}
+              </select>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span style="color:#cbd5e1; font-size:12px;">施放 Lv</span>
+              <input type="number" id="sel-add-attack-lv" min="1" max="10" value="10" style="width:40px; text-align:center;">
+
+              <select id="sel-add-attack-mode">
+                <option value="once">每隻怪只放一次</option>
+                <option value="always">持續施放</option>
+              </select>
+
+              <button type="button" class="btn btn-gold" style="padding:4px 14px; font-weight:bold; font-size:12px;" onclick="addAutoAttackRule()">
+                ➕ 新增規則
+              </button>
+
+              <button type="button" class="btn" style="padding:4px 10px; font-size:11px; margin-left:auto;" onclick="applyClassPresetSkills()">
+                ⚡ 一鍵導入職業推薦配置
+              </button>
+            </div>
+          </div>
+
+          <!-- 說明文字 (100% 還原截圖) -->
+          <div class="ro-desc-text">
+            同技能可新增多條，分別指定怪物與等級；依順序逢第一條符合的設定。專用規則放前面，通用規則放最後，否則通用規則會先被選中。<br>
+            MP &ge; 百分比是額外施放門檻；設為 0% 仍須付得起技能的 MP 消耗。<br>
+            只放一次以對鎖定目標完成施放計次；被打斷不計，未命中、抵抗或偷竊失敗仍算一次，換成新怪物可再放。範圍技也以鎖定目標計次，持續施放仍受 MP、延遲及條件限制。只用技能模式若全部一次性規則已用完，會依設定回復/逃生，不用普攻。
+          </div>
+        </div>
+
+        <!-- 區塊 2：下方三大並列功能區 (輔助與設置、回復、逃生) -->
+        <div class="ro-tri-grid">
+          <!-- 2-1 輔助與設置技能（自動維持） -->
+          <div class="ro-col-box">
+            <div class="ro-col-title">輔助與設置技能 (自動維持)</div>
+            <div class="ro-col-desc">
+              依施放者 MP 下限與增益剩餘時間補放，不要求 HP 降低；空白 MP 下限代表不額外限制，仍需付得起實際消耗。進階條件可另設 MP 上限及 HP 條件。
+            </div>
+            <div class="ro-buff-grid">
+              ${buffItemsHtml}
+            </div>
+          </div>
+
+          <!-- 2-2 回復技能 -->
+          <div class="ro-col-box">
+            <div class="ro-col-title">回復技能</div>
+            <div class="ro-col-desc">
+              治癒術在 HP 低於門檻時反覆回復；輔助技能在效果到期後補放。兩者都需要足夠 MP，負重達 50% 時無法自然回復 MP。治癒術、復活術、光耀之堂也可加入攻擊技能；回復設定仍用於自己與隊友。
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px; font-size:12px;">
+              <div class="ro-check-row">
+                <input type="checkbox" id="chk-auto-heal" ${healRules.enabled ? 'checked' : ''} onchange="updateAutoHealSetting('enabled', this.checked)">
+                <label for="chk-auto-heal">
+                  <b>💖 緊急治癒 / 治癒術自補</b>
+                </label>
+              </div>
+              <div style="padding-left:22px; font-size:11px; color:#cbd5e1; display:flex; flex-direction:column; gap:4px;">
+                <div>
+                  當 HP &le; <input type="number" min="10" max="95" value="${healRules.hpThreshold || 70}" style="width:40px; text-align:center; background:#090d16; color:#fff; border:1px solid #475569;" onchange="updateAutoHealSetting('hpThreshold', this.value)"> % 時自動反覆回復
+                </div>
+                <div>
+                  保留 MP &ge; <input type="number" min="0" max="90" value="${healRules.minMpPercent || 10}" style="width:38px; text-align:center; background:#090d16; color:#fff; border:1px solid #475569;" onchange="updateAutoHealSetting('minMpPercent', this.value)"> % 才施放 (初/中/高治/生祝)
+                </div>
+              </div>
+
+              <div class="ro-check-row" style="border-top:1px dashed #334155; padding-top:6px; margin-top:4px;">
+                <input type="checkbox" id="chk-auto-cure-poison" ${healRules.autoCurePoison ? 'checked' : ''} onchange="updateAutoHealSetting('autoCurePoison', this.checked)">
+                <label for="chk-auto-cure-poison">
+                  <b>🌿 解毒 (處於中毒狀態時施放【解毒術】)</b>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2-3 逃生技能 -->
+          <div class="ro-col-box">
+            <div class="ro-col-title">逃生技能</div>
+            <div class="ro-col-desc">
+              瞬間移動已學會或穿戴授予技能的裝備。勾選加入逃生規則後，還要按「套用設定」；筆數已滿時請先移除其他規則。
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px; font-size:12px;">
+              <div class="ro-check-row">
+                <input type="checkbox" id="chk-auto-escape" ${escapeRules.enabled ? 'checked' : ''} onchange="updateAutoEscapeSetting('enabled', this.checked)">
+                <label for="chk-auto-escape">
+                  <b>🚪 緊急逃生技能</b>
+                </label>
+              </div>
+              <div style="padding-left:22px; font-size:11px; color:#cbd5e1; display:flex; flex-direction:column; gap:6px;">
+                <div>
+                  當 HP &le; <input type="number" min="5" max="50" value="${escapeRules.hpThreshold || 20}" style="width:40px; text-align:center; background:#090d16; color:#fff; border:1px solid #475569;" onchange="updateAutoEscapeSetting('hpThreshold', this.value)"> % 時施展逃生技能
+                </div>
+                <div style="display:flex; align-items:center; gap:4px;">
+                  <span>使用技能：</span>
+                  <select onchange="updateAutoEscapeSetting('skillName', this.value)" style="background:#090d16; color:#fff; border:1px solid #475569; font-size:11px; padding:2px 4px;">
+                    <option value="指定傳送" ${escapeRules.skillName === '指定傳送' ? 'selected' : ''}>指定傳送 (隨機飛離)</option>
+                    <option value="世界樹的呼喚" ${escapeRules.skillName === '世界樹的呼喚' ? 'selected' : ''}>世界樹的呼喚 (妖精返航母樹)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 最底部規範列 (100% 依截圖原文字樣) -->
+        <div class="ro-order-footer">
+          <b>判斷順序：</b>逃生 &rarr; 回復（與喝水的先後可在「回復」設定）&rarr; 坐下 &rarr; 輔助 &rarr; 攻擊（依清單順序，逢第一個符合條件的）&rarr; 普通攻擊。組隊時，治癒術、祝福、加速術等可以對別人使用的技能也會幫同一地圖一起掛機的隊友補。最多 20 個。MP 不足、冷卻中、武器不符時跳過；詠唱中被攻擊會中斷，已扣的 MP 不退還。
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// 切換折疊/展開掛機技能面板
+function toggleAutoSkillsBody() {
+  const body = document.getElementById("ro-skill-body");
+  if (!body) return;
+  body.style.display = (body.style.display === "none") ? "block" : "none";
+}
+
+// 🎮 新增攻擊技能規則 (支援指定怪、施放等級、模式)
+function addAutoAttackRule() {
+  initBotStrategyDefaults();
+  const selTarget = document.getElementById("sel-add-attack-target");
+  const selSkill = document.getElementById("sel-add-attack-skill");
+  const selMode = document.getElementById("sel-add-attack-mode");
+  const selLv = document.getElementById("sel-add-attack-lv");
+
+  const skillName = selSkill ? selSkill.value : "";
+  if (!skillName) {
+    alert("⚠️ 請先於下拉選單中選擇要新增的攻擊技能！");
+    return;
+  }
+
+  const targetVal = selTarget ? selTarget.value : "";
+  const targetMobs = (targetVal && targetVal !== "all") ? [targetVal] : [];
+  const mode = selMode ? selMode.value : "once";
+  const lv = parseInt(selLv ? selLv.value : 10) || 10;
+
+  const rules = gameState.botSettings.autoSkills.attackRules;
+  if (rules.length >= 20) {
+    alert("⚠️ 攻擊技能規則已達 20 筆上限！請先移除其他規則再新增。");
+    return;
+  }
+
+  rules.push({
+    id: "atk_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
+    skillName: skillName,
+    lv: lv,
+    minMpPercent: 20,
+    mode: mode,
+    chainSkill: "",
+    enabled: true,
+    targetMobs: targetMobs
+  });
+
+  saveStrategySettings();
+  renderStrategyTab();
+  log(`➕ 已新增掛機攻擊技能規則：【${skillName}】${targetMobs.length ? ` (對象: ${targetMobs.join(",")})` : " (對象: 所有怪物)"}`, "sys");
+}
+
+// 切換規則開關
+function toggleAttackRuleEnabled(idx, checked) {
+  const rules = gameState.botSettings.autoSkills.attackRules;
+  if (rules && rules[idx]) {
+    rules[idx].enabled = checked;
+    saveStrategySettings();
+    renderStrategyTab();
+  }
+}
+
+// 移除攻擊規則
+function removeAutoAttackRule(idx) {
+  const rules = gameState.botSettings.autoSkills.attackRules;
+  if (rules && rules[idx]) {
+    const rmName = rules[idx].skillName;
+    rules.splice(idx, 1);
+    saveStrategySettings();
+    renderStrategyTab();
+    log(`🗑️ 已移除掛機技能規則：【${rmName}】`, "sys");
+  }
+}
+
+// 調整優先順序 (▲ / ▼)
+function moveAutoAttackRule(idx, dir) {
+  const rules = gameState.botSettings.autoSkills.attackRules;
+  const targetIdx = idx + dir;
+  if (rules && targetIdx >= 0 && targetIdx < rules.length) {
+    const tmp = rules[idx];
+    rules[idx] = rules[targetIdx];
+    rules[targetIdx] = tmp;
+    saveStrategySettings();
+    renderStrategyTab();
+  }
+}
+
+// 更新規則屬性 (lv, minMpPercent, mode, chainSkill)
+function updateAutoAttackRuleProp(idx, prop, val) {
+  const rules = gameState.botSettings.autoSkills.attackRules;
+  if (rules && rules[idx]) {
+    if (prop === "minMpPercent" || prop === "lv") {
+      rules[idx][prop] = Math.max(0, parseInt(val) || 0);
+    } else {
+      rules[idx][prop] = val;
+    }
+    saveStrategySettings();
+  }
+}
+
+// 為某條規則增加指定怪物
+function addMobToAttackRule(idx, mobName) {
+  const rules = gameState.botSettings.autoSkills.attackRules;
+  if (rules && rules[idx] && mobName) {
+    if (!Array.isArray(rules[idx].targetMobs)) rules[idx].targetMobs = [];
+    if (!rules[idx].targetMobs.includes(mobName)) {
+      rules[idx].targetMobs.push(mobName);
+      saveStrategySettings();
+      renderStrategyTab();
+    }
+  }
+}
+
+// 為某條規則移除指定怪物
+function removeMobFromAttackRule(idx, mobName) {
+  const rules = gameState.botSettings.autoSkills.attackRules;
+  if (rules && rules[idx] && Array.isArray(rules[idx].targetMobs)) {
+    rules[idx].targetMobs = rules[idx].targetMobs.filter(m => m !== mobName);
+    saveStrategySettings();
+    renderStrategyTab();
+  }
+}
+
+// 輔助技能切換
+function toggleAutoBuffSkill(skillName, checked) {
+  initBotStrategyDefaults();
+  if (!gameState.botSettings.autoSkills.buffRules[skillName]) {
+    gameState.botSettings.autoSkills.buffRules[skillName] = { enabled: checked, minMpPercent: 20 };
+  } else {
+    gameState.botSettings.autoSkills.buffRules[skillName].enabled = checked;
+  }
+  saveStrategySettings();
+  renderStrategyTab();
+}
+
+// 輔助技能最低 MP 門檻
+function updateAutoBuffMinMp(skillName, val) {
+  initBotStrategyDefaults();
+  if (!gameState.botSettings.autoSkills.buffRules[skillName]) {
+    gameState.botSettings.autoSkills.buffRules[skillName] = { enabled: true, minMpPercent: 20 };
+  }
+  gameState.botSettings.autoSkills.buffRules[skillName].minMpPercent = Math.max(0, Math.min(100, parseInt(val) || 0));
+  saveStrategySettings();
+}
+
+// 回復技能設定
+function updateAutoHealSetting(prop, val) {
+  initBotStrategyDefaults();
+  if (prop === "hpThreshold" || prop === "minMpPercent") {
+    gameState.botSettings.autoSkills.healRules[prop] = Math.max(0, Math.min(100, parseInt(val) || 50));
+  } else {
+    gameState.botSettings.autoSkills.healRules[prop] = val;
+  }
+  saveStrategySettings();
+  renderStrategyTab();
+}
+
+// 逃生技能設定
+function updateAutoEscapeSetting(prop, val) {
+  initBotStrategyDefaults();
+  if (prop === "hpThreshold") {
+    gameState.botSettings.autoSkills.escapeRules[prop] = Math.max(5, Math.min(90, parseInt(val) || 20));
+  } else {
+    gameState.botSettings.autoSkills.escapeRules[prop] = val;
+  }
+  saveStrategySettings();
+  renderStrategyTab();
+}
+
+// ⚡ 一鍵導入職業推薦經典神技配置
+function applyClassPresetSkills() {
+  initBotStrategyDefaults();
+  const cClass = currentChar?.charClass || "elf";
+
+  if (cClass === "elf") {
+    gameState.botSettings.autoSkills.attackRules = [
+      { id: "atk_preset_1", skillName: "三重矢", lv: 10, minMpPercent: 20, mode: "once", chainSkill: "", enabled: true, targetMobs: [] },
+      { id: "atk_preset_2", skillName: "極道落雷", lv: 10, minMpPercent: 35, mode: "always", chainSkill: "", enabled: true, targetMobs: [] }
+    ];
+    gameState.botSettings.autoSkills.buffRules = {
+      "魂體轉換": { enabled: true, minMpPercent: 20 },
+      "風之疾走": { enabled: true, minMpPercent: 15 },
+      "暴風神射": { enabled: true, minMpPercent: 20 },
+      "通暢氣脈": { enabled: true, minMpPercent: 15 },
+      "體魄強健": { enabled: true, minMpPercent: 15 }
+    };
+    gameState.botSettings.autoSkills.healRules = {
+      enabled: true,
+      skillName: "auto",
+      hpThreshold: 70,
+      minMpPercent: 10,
+      autoCurePoison: true
+    };
+    gameState.botSettings.autoSkills.escapeRules = {
+      enabled: true,
+      skillName: "世界樹的呼喚",
+      hpThreshold: 20
+    };
+  } else if (cClass === "knight") {
+    gameState.botSettings.autoSkills.attackRules = [
+      { id: "atk_preset_k1", skillName: "衝擊之暈", lv: 10, minMpPercent: 15, mode: "once", chainSkill: "", enabled: true, targetMobs: [] }
+    ];
+    gameState.botSettings.autoSkills.buffRules = {
+      "堅固防護": { enabled: true, minMpPercent: 20 },
+      "反擊屏障": { enabled: true, minMpPercent: 25 },
+      "增幅防禦": { enabled: true, minMpPercent: 20 },
+      "擬似勇氣": { enabled: true, minMpPercent: 15 }
+    };
+    gameState.botSettings.autoSkills.healRules = {
+      enabled: true,
+      skillName: "auto",
+      hpThreshold: 60,
+      minMpPercent: 10,
+      autoCurePoison: true
+    };
+    gameState.botSettings.autoSkills.escapeRules = {
+      enabled: true,
+      skillName: "指定傳送",
+      hpThreshold: 20
+    };
+  } else {
+    // 法師 / 王族
+    gameState.botSettings.autoSkills.attackRules = [
+      { id: "atk_preset_m1", skillName: "極道落雷", lv: 10, minMpPercent: 30, mode: "always", chainSkill: "吸血鬼之吻", enabled: true, targetMobs: [] },
+      { id: "atk_preset_m2", skillName: "火球術", lv: 10, minMpPercent: 20, mode: "always", chainSkill: "", enabled: true, targetMobs: [] }
+    ];
+    gameState.botSettings.autoSkills.buffRules = {
+      "聖結界": { enabled: true, minMpPercent: 20 },
+      "通暢氣脈": { enabled: true, minMpPercent: 15 },
+      "體魄強健": { enabled: true, minMpPercent: 15 },
+      "神聖武器": { enabled: true, minMpPercent: 10 },
+      "鎧甲護持": { enabled: true, minMpPercent: 10 }
+    };
+    gameState.botSettings.autoSkills.healRules = {
+      enabled: true,
+      skillName: "auto",
+      hpThreshold: 75,
+      minMpPercent: 10,
+      autoCurePoison: true
+    };
+    gameState.botSettings.autoSkills.escapeRules = {
+      enabled: true,
+      skillName: "指定傳送",
+      hpThreshold: 20
+    };
+  }
+
+  saveStrategySettings();
+  renderStrategyTab();
+  log("⚡ 已為您一鍵配置職業經典神技掛機組合！", "sys");
+}
+
+window.renderAutoSkillsSection = renderAutoSkillsSection;
+window.toggleAutoSkillsBody = toggleAutoSkillsBody;
+window.addAutoAttackRule = addAutoAttackRule;
+window.toggleAttackRuleEnabled = toggleAttackRuleEnabled;
+window.removeAutoAttackRule = removeAutoAttackRule;
+window.moveAutoAttackRule = moveAutoAttackRule;
+window.updateAutoAttackRuleProp = updateAutoAttackRuleProp;
+window.addMobToAttackRule = addMobToAttackRule;
+window.removeMobFromAttackRule = removeMobFromAttackRule;
+window.toggleAutoBuffSkill = toggleAutoBuffSkill;
+window.updateAutoBuffMinMp = updateAutoBuffMinMp;
+window.updateAutoHealSetting = updateAutoHealSetting;
+window.updateAutoEscapeSetting = updateAutoEscapeSetting;
+window.applyClassPresetSkills = applyClassPresetSkills;
