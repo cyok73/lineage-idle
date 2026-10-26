@@ -716,6 +716,56 @@ function executePlayerAttack(mob, isBow, wpnData) {
 
     mob.currentHp -= finalDmg;
     log(`箭矢破空命中 ${mob.name}，造成 ${finalDmg} 點傷害！`, "atk");
+
+    // 傷害飄字
+    if (!gameState.floatingTexts) gameState.floatingTexts = [];
+    gameState.floatingTexts.push({
+      text: `-${finalDmg}`,
+      color: "#fbbf24",
+      x: mob.x,
+      y: mob.y - 10,
+      expire: Date.now() + 800
+    });
+  } else {
+    // ⚔️ 近戰近身揮砍打擊
+    mob.isAggroed = true;
+    const stats = (typeof getCalculatedStats === "function") ? getCalculatedStats() : (currentChar.stats || { str: 10 });
+    const curLv = currentChar.level || 1;
+    const hitRating = Math.floor((stats.str || 10) / 2) + Math.floor(curLv / 2) + (wpnData ? wpnData.hitBonus || 0 : 0) + (wpn ? wpn.enchant || 0 : 0);
+    const hitRate = Math.min(0.95, Math.max(0.5, 0.85 + (hitRating - (10 - mob.ac)) * 0.005));
+
+    if (Math.random() > hitRate) {
+      log(`⚔️ 揮劍攻擊，但被 ${mob.name} 招架閃過！`, "atk");
+      return;
+    }
+
+    const diceMax = (mob.size === "large") ? (wpnData ? wpnData.large : 4) : (wpnData ? wpnData.small : 4);
+    let baseDmg = Math.floor(Math.random() * diceMax) + 1;
+    baseDmg += (wpn ? wpn.enchant : 0) + (wpnData ? wpnData.extraDmg || 0 : 0) + Math.max(0, (stats.str || 10) - 10);
+
+    const acReduction = 150 / (150 + Math.max(0, -mob.ac));
+    const finalDmg = Math.max(1, Math.floor(baseDmg * acReduction));
+
+    mob.currentHp -= finalDmg;
+    log(`⚔️ 揮舞 ${wpn ? wpn.name : '武器'} 砍向 ${mob.name}，造成 ${finalDmg} 點傷害！`, "atk");
+
+    // 斬擊光弧特效與飄字
+    if (!gameState.combatEffects) gameState.combatEffects = [];
+    gameState.combatEffects.push({
+      type: "slash",
+      x: mob.x,
+      y: mob.y,
+      expire: Date.now() + 200
+    });
+
+    if (!gameState.floatingTexts) gameState.floatingTexts = [];
+    gameState.floatingTexts.push({
+      text: `-${finalDmg}`,
+      color: "#ef4444",
+      x: mob.x,
+      y: mob.y - 10,
+      expire: Date.now() + 800
+    });
   }
 
   // 怪物擊殺與掉寶判定
@@ -952,6 +1002,24 @@ function checkAndExecuteAutoSkillAttack(target, dist, now) {
       skillDamage = Math.max(30, Math.floor((baseShot + (skill.power || 90)) * 1.1));
 
       log(`🏹✨【三重矢】破空連發！對【${target.name}】連續射出三支破邪強矢，造成 ${skillDamage} 點爆發傷害！`, "atk");
+
+      if (!gameState.combatEffects) gameState.combatEffects = [];
+      gameState.combatEffects.push({
+        type: "burst",
+        x: target.x,
+        y: target.y,
+        color: "#22c55e",
+        expire: Date.now() + 250
+      });
+
+      if (!gameState.floatingTexts) gameState.floatingTexts = [];
+      gameState.floatingTexts.push({
+        text: `CRIT -${skillDamage}!`,
+        color: "#4ade80",
+        x: target.x,
+        y: target.y - 12,
+        expire: Date.now() + 900
+      });
     } else {
       // 魔法攻擊或戰士重擊
       const intBonus = Math.floor((stats.int || 10) * 2.2);
@@ -968,6 +1036,24 @@ function checkAndExecuteAutoSkillAttack(target, dist, now) {
       };
 
       log(`⚡✨ 施展【${rule.skillName}】！一道強烈魔法衝擊命中【${target.name}】，造成 ${skillDamage} 點魔法打擊傷害！`, "atk");
+
+      if (!gameState.combatEffects) gameState.combatEffects = [];
+      gameState.combatEffects.push({
+        type: "magic",
+        x: target.x,
+        y: target.y,
+        color: "#38bdf8",
+        expire: Date.now() + 250
+      });
+
+      if (!gameState.floatingTexts) gameState.floatingTexts = [];
+      gameState.floatingTexts.push({
+        text: `-${skillDamage}`,
+        color: "#60a5fa",
+        x: target.x,
+        y: target.y - 12,
+        expire: Date.now() + 850
+      });
     }
 
     target.currentHp -= skillDamage;
