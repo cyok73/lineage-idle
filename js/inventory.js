@@ -410,20 +410,46 @@ function unequipSlot(slot) {
 }
 window.unequipSlot = unequipSlot;
 
+let currentEnchantScrollName = null;
+
 function openEnchantModal(scrollInvIdx) {
   if (!currentChar || !Array.isArray(currentChar.inventory)) return;
-  currentEnchantScrollIdx = scrollInvIdx;
   const scrollItem = currentChar.inventory[scrollInvIdx];
   if (!scrollItem) return;
 
-  const dbScroll = DB.items[scrollItem.name];
-  const isWeaponScroll = (dbScroll.type === "enchant_w");
+  currentEnchantScrollName = scrollItem.name;
+  renderEnchantModalContent();
+}
 
+function renderEnchantModalContent() {
   const modal = document.getElementById("modal-enchant");
   const title = document.getElementById("enchant-modal-title");
   const listContainer = document.getElementById("enchant-target-list");
+  if (!modal || !title || !listContainer) return;
 
-  title.innerText = `✨ 使用【${scrollItem.name}】(剩餘 ${scrollItem.count} 張)`;
+  if (!currentChar || !Array.isArray(currentChar.inventory)) {
+    closeEnchantModal();
+    return;
+  }
+
+  // 尋找背包中該卷軸
+  const scrollItem = currentChar.inventory.find(i => i.name === currentEnchantScrollName);
+  const scrollCount = (scrollItem && scrollItem.count) ? scrollItem.count : 0;
+
+  if (scrollCount <= 0) {
+    alert("卷軸已用盡！");
+    closeEnchantModal();
+    return;
+  }
+
+  const dbScroll = DB.items[currentEnchantScrollName];
+  if (!dbScroll) {
+    closeEnchantModal();
+    return;
+  }
+  const isWeaponScroll = (dbScroll.type === "enchant_w");
+
+  title.innerText = `✨ 使用【${currentEnchantScrollName}】(剩餘 ${scrollCount} 張)`;
   listContainer.innerHTML = "";
 
   const candidates = [];
@@ -431,7 +457,7 @@ function openEnchantModal(scrollInvIdx) {
     const eq = currentChar.equipped[slot];
     if (eq) {
       const dbEq = DB.items[eq.name];
-      if ((isWeaponScroll && dbEq.type === "weapon") || (!isWeaponScroll && dbEq.type === "armor")) {
+      if (dbEq && ((isWeaponScroll && dbEq.type === "weapon") || (!isWeaponScroll && dbEq.type === "armor"))) {
         candidates.push({ source: "equipped", slot: slot, item: eq, label: `[穿戴中] +${eq.enchant || 0} ${eq.name}` });
       }
     }
@@ -449,7 +475,7 @@ function openEnchantModal(scrollInvIdx) {
   } else {
     candidates.forEach(cand => {
       const dbEq = DB.items[cand.item.name];
-      const safeVal = (dbEq.safe !== undefined) ? dbEq.safe : (isWeaponScroll ? 6 : 4);
+      const safeVal = (dbEq && dbEq.safe !== undefined) ? dbEq.safe : (isWeaponScroll ? 6 : 4);
       const isOverSafe = (cand.item.enchant || 0) >= safeVal;
 
       const row = document.createElement("div");
@@ -468,7 +494,7 @@ function openEnchantModal(scrollInvIdx) {
             <div style="font-size:10px; color:#aaa;">安定值: +${safeVal} ${isOverSafe ? '<span style="color:#ef4444; font-weight:bold;">(過安定值！失敗直接蒸發爆裝)</span>' : '<span style="color:#22c55e;">(100% 安定強化)</span>'}</div>
           </div>
         </div>
-        <button class="btn ${isOverSafe ? 'btn-danger' : 'btn-gold'}" onclick="executeEnchantTarget('${cand.source}', '${cand.slot || cand.invIdx}')">施法強化</button>
+        <button class="btn ${isOverSafe ? 'btn-danger' : 'btn-gold'}" onclick="executeEnchantTarget('${cand.source}', '${cand.slot !== undefined ? cand.slot : cand.invIdx}')">施法強化</button>
       `;
       listContainer.appendChild(row);
     });
@@ -478,35 +504,45 @@ function openEnchantModal(scrollInvIdx) {
 }
 
 function closeEnchantModal() {
-  document.getElementById("modal-enchant").style.display = "none";
+  const modal = document.getElementById("modal-enchant");
+  if (modal) modal.style.display = "none";
+  currentEnchantScrollName = null;
   currentEnchantScrollIdx = null;
 }
 
 function executeEnchantTarget(source, key) {
-  if (currentEnchantScrollIdx === null) return;
-  const scrollItem = currentChar.inventory[currentEnchantScrollIdx];
-  if (!scrollItem || (scrollItem.count || 1) <= 0) {
-    alert("卷軸不足！");
+  if (!currentEnchantScrollName) return;
+  const scrollItem = currentChar.inventory.find(i => i.name === currentEnchantScrollName);
+  if (!scrollItem || (scrollItem.count || 0) <= 0) {
+    alert("卷軸已用盡！");
     closeEnchantModal();
     return;
   }
 
-  let targetItem = (source === "equipped") ? currentChar.equipped[key] : currentChar.inventory[parseInt(key)];
+  let targetItem = null;
+  if (source === "equipped") {
+    targetItem = currentChar.equipped[key];
+  } else {
+    targetItem = currentChar.inventory[parseInt(key)];
+  }
+
   if (!targetItem) {
     alert("找不到目標裝備！");
-    closeEnchantModal();
+    renderEnchantModalContent();
     return;
   }
 
   const dbItem = DB.items[targetItem.name];
   const dbScroll = DB.items[scrollItem.name];
   const isWeapon = (dbScroll.type === "enchant_w");
-  const safeVal = (dbItem.safe !== undefined) ? dbItem.safe : (isWeapon ? 6 : 4);
+  const safeVal = (dbItem && dbItem.safe !== undefined) ? dbItem.safe : (isWeapon ? 6 : 4);
   const currentEnchant = targetItem.enchant || 0;
 
+  // 扣除一張卷軸
   scrollItem.count--;
   if (scrollItem.count <= 0) {
-    currentChar.inventory.splice(currentEnchantScrollIdx, 1);
+    const sIdx = currentChar.inventory.indexOf(scrollItem);
+    if (sIdx !== -1) currentChar.inventory.splice(sIdx, 1);
   }
 
   if (currentEnchant < safeVal) {
@@ -523,7 +559,7 @@ function executeEnchantTarget(source, key) {
       targetItem.enchant = currentEnchant + 1;
       log(`🔥 神奇的光芒籠罩！【+${targetItem.enchant} ${targetItem.name}】突破極限強化成功！！`, "drop");
       if (targetItem.enchant >= 8) {
-        log(`📢【世界廣播】狂賀！玩家 ${currentUser.username} 成功突破鍛造出神兵【+${targetItem.enchant} ${targetItem.name}】！`, "sys");
+        log(`📢【世界廣播】狂賀！玩家 ${currentUser ? currentUser.username : '英雄'} 成功突破鍛造出神兵【+${targetItem.enchant} ${targetItem.name}】！`, "sys");
       }
     } else {
       log(`💥 產生了強烈的銀色光芒後化為烏有！【+${currentEnchant} ${targetItem.name}】化為灰燼爆碎損毀！`, "mob");
@@ -536,11 +572,20 @@ function executeEnchantTarget(source, key) {
     }
   }
 
-  closeEnchantModal();
+  // 更新周邊介面與數據存檔
   updateLeftPanel();
   renderInventoryTab();
   renderCharTab();
   saveAccountData();
+
+  // 若卷軸扣完則關閉，否則重新刷新強化對話框內容以支援連點
+  const remainingScroll = currentChar.inventory.find(i => i.name === currentEnchantScrollName);
+  if (!remainingScroll || (remainingScroll.count || 0) <= 0) {
+    log(`ℹ️ 身上【${currentEnchantScrollName}】已全數用盡。`, "sys");
+    closeEnchantModal();
+  } else {
+    renderEnchantModalContent();
+  }
 }
 
 function renderInventoryTab() {
