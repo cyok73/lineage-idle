@@ -139,6 +139,57 @@ function initGameUI() {
     canvas.width = 960;
     canvas.height = 540;
     ctx = canvas.getContext("2d");
+
+    // 支援手動點擊地面跑動或點擊怪物發動攻擊
+    canvas.onmousedown = (e) => {
+      if (gameState.inVillage) return;
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const clickScreenX = (e.clientX - rect.left) * scaleX;
+      const clickScreenY = (e.clientY - rect.top) * scaleY;
+
+      const camX = gameState.playerX - canvas.width / 2;
+      const camY = gameState.playerY - canvas.height / 2;
+      const worldTargetX = camX + clickScreenX;
+      const worldTargetY = camY + clickScreenY;
+
+      // 檢查是否點擊到了怪物
+      let clickedMob = null;
+      if (Array.isArray(gameState.mobs)) {
+        for (let m of gameState.mobs) {
+          if (!m.isDead && m.currentHp > 0) {
+            const dist = Math.hypot(m.x - worldTargetX, m.y - worldTargetY);
+            if (dist <= 30) {
+              clickedMob = m;
+              break;
+            }
+          }
+        }
+      }
+
+      if (clickedMob) {
+        gameState.targetMob = clickedMob;
+        gameState.botStatus = "running";
+        gameState.isRunning = true;
+        log(`🎯 手動鎖定目標：【${clickedMob.name}】，立即奔跑前往攻擊！`, "sys");
+      } else {
+        gameState.targetMob = null;
+        gameState.patrolTarget = { x: worldTargetX, y: worldTargetY };
+        gameState.botStatus = "running";
+        gameState.isRunning = true;
+      }
+
+      // 地面金色點擊波紋特效
+      if (!gameState.combatEffects) gameState.combatEffects = [];
+      gameState.combatEffects.push({
+        type: "burst",
+        x: worldTargetX,
+        y: worldTargetY,
+        color: "#fbbf24",
+        expire: Date.now() + 300
+      });
+    };
   }
 
   const mapSelect = document.getElementById("map-select");
@@ -332,9 +383,18 @@ function exitVillageToField() {
   gameState.playerX = 600 + Math.random() * 800;
   gameState.playerY = 400 + Math.random() * 600;
 
+  // 立即啟動巡航跑動打怪
+  gameState.isRunning = true;
+  gameState.botStatus = "running";
+  const btn = document.getElementById("toggle-btn");
+  if (btn) {
+    btn.innerText = "⏹ 停止掛機";
+    btn.className = "btn btn-danger";
+  }
+
   ensureWorldTickTimer();
   const tag = document.getElementById("battle-mode-tag");
-  if (tag) tag.innerText = (gameState.botStatus === "running") ? "[野外巡航中]" : "[野外待機中]";
+  if (tag) tag.innerText = "[野外巡航中]";
   updateLeftPanel();
   if (typeof renderRadar === "function") renderRadar();
 }
@@ -605,6 +665,10 @@ function handlePlayerMovementAndCombat() {
     }
   }
 
+  let isMovingThisTick = false;
+  let moveDx = 0;
+  let moveDy = 0;
+
   if (gameState.targetMob) {
     const target = gameState.targetMob;
     const dist = Math.hypot(target.x - gameState.playerX, target.y - gameState.playerY);
@@ -614,21 +678,28 @@ function handlePlayerMovementAndCombat() {
       const skillRes = checkAndExecuteAutoSkillAttack(target, dist, now);
       if (skillRes === true) {
         gameState.lastAttackTime = now;
+        gameState.playerAttackAnim = { startTime: now, duration: 400, targetX: target.x, targetY: target.y };
         return;
       } else if (skillRes === "moving") {
-        gameState.playerX += ((target.x - gameState.playerX) / dist) * 2.6;
-        gameState.playerY += ((target.y - gameState.playerY) / dist) * 2.6;
-        return;
+        moveDx = ((target.x - gameState.playerX) / dist) * 2.8;
+        moveDy = ((target.y - gameState.playerY) / dist) * 2.8;
+        gameState.playerX += moveDx;
+        gameState.playerY += moveDy;
+        isMovingThisTick = true;
       }
     }
 
     // 🎮 RO 順序 5：若無符合技能或 MP 不足 / CD 中，回退普通物理攻擊 (射箭/揮砍)
     if (dist > attackRange) {
-      gameState.playerX += ((target.x - gameState.playerX) / dist) * 2.6;
-      gameState.playerY += ((target.y - gameState.playerY) / dist) * 2.6;
+      moveDx = ((target.x - gameState.playerX) / dist) * 2.8;
+      moveDy = ((target.y - gameState.playerY) / dist) * 2.8;
+      gameState.playerX += moveDx;
+      gameState.playerY += moveDy;
+      isMovingThisTick = true;
     } else {
       if (now - gameState.lastAttackTime >= attackInterval) {
         gameState.lastAttackTime = now;
+        gameState.playerAttackAnim = { startTime: now, duration: 350, targetX: target.x, targetY: target.y };
         executePlayerAttack(target, isBow, wpnData);
       }
     }
@@ -641,9 +712,19 @@ function handlePlayerMovementAndCombat() {
     }
     const pDist = Math.hypot(gameState.patrolTarget.x - gameState.playerX, gameState.patrolTarget.y - gameState.playerY);
     if (pDist > 5) {
-      gameState.playerX += ((gameState.patrolTarget.x - gameState.playerX) / pDist) * 1.8;
-      gameState.playerY += ((gameState.patrolTarget.y - gameState.playerY) / pDist) * 1.8;
+      moveDx = ((gameState.patrolTarget.x - gameState.playerX) / pDist) * 2.2;
+      moveDy = ((gameState.patrolTarget.y - gameState.playerY) / pDist) * 2.2;
+      gameState.playerX += moveDx;
+      gameState.playerY += moveDy;
+      isMovingThisTick = true;
     }
+  }
+
+  // 記錄玩家運動狀態以驅動跑步動作與朝向
+  gameState.isMoving = isMovingThisTick;
+  if (isMovingThisTick) {
+    gameState.moveDx = moveDx;
+    gameState.moveDy = moveDy;
   }
 }
 

@@ -1,27 +1,23 @@
-// js/radar.js - 2.5D 天堂經典復古視覺戰場渲染引擎 (具體人物跑動、怪物造型、斬擊特效與傷害飄字)
+// js/radar.js - MMORPG 高畫質角色動作引擎 (放大 1.5 倍、4 方向奔跑邁步、真實揮砍打擊與傷害飄字)
 
-// 預載人物與怪物精靈圖譜
-const spriteSheetImg = new Image();
-spriteSheetImg.src = "assets/lineage_sprites.jpg";
-let isSpriteSheetLoaded = false;
-spriteSheetImg.onload = () => {
-  isSpriteSheetLoaded = true;
+// 1. 載入高畫質 MMORPG 騎士動作圖譜 (4x4 序列：南跑、東側身跑、北背影跑、揮刀斬擊)
+const knightAnimImg = new Image();
+knightAnimImg.src = "assets/knight_hd_mmorpg_anim.jpg";
+let isKnightAnimLoaded = false;
+knightAnimImg.onload = () => {
+  isKnightAnimLoaded = true;
 };
 
-// 4x4 精靈圖譜坐標對應表 (每一格 256x256，Row 0~3, Col 0~3)
-const SPRITE_MAP = {
-  // 職業角色 (Row 0)
-  knight: { c: 0, r: 0 },
-  elf: { c: 1, r: 0 },
-  mage: { c: 2, r: 0 },
-  prince: { c: 3, r: 0 },
+// 2. 怪物圖譜載入
+const monsterSheetImg = new Image();
+monsterSheetImg.src = "assets/lineage_sprites.jpg";
+let isMonsterSheetLoaded = false;
+monsterSheetImg.onload = () => {
+  isMonsterSheetLoaded = true;
+};
 
-  // 變身造型
-  "死亡騎士": { c: 2, r: 3 }, // 烈焰死騎
-  "骷髏": { c: 2, r: 1 },
-  "妖魔弓箭手": { c: 1, r: 1 },
-  "黑暗妖精弓箭手": { c: 1, r: 0 },
-
+// 怪物圖譜坐標對應表 (每一格 256x256)
+const MONSTER_SPRITE_MAP = {
   // 經典怪物 (Row 1)
   "哥布林": { c: 0, r: 1 },
   "妖魔": { c: 1, r: 1 },
@@ -52,6 +48,9 @@ const SPRITE_MAP = {
   "巴拉卡斯": { c: 2, r: 3 }
 };
 
+// 記錄玩家上一刻面對方向: "down" | "right" | "left" | "up"
+let playerFacing = "down";
+
 function renderRadar() {
   if (!ctx || !canvas) {
     canvas = document.getElementById("gameCanvas");
@@ -69,14 +68,13 @@ function renderRadar() {
   if (isNaN(gameState.playerX)) gameState.playerX = 1200;
   if (isNaN(gameState.playerY)) gameState.playerY = 800;
 
-  // 鏡頭鎖定玩家
+  // 鏡頭維持在玩家視野中央
   const camX = gameState.playerX - cw / 2;
   const camY = gameState.playerY - ch / 2;
 
-  // 1. 繪製獵場地磚與自然地表
+  // 1. 繪製獵場地磚
   drawBattlefieldTerrain(cw, ch, camX, camY);
 
-  // 安全村莊休整提示
   if (gameState.inVillage) {
     ctx.fillStyle = "rgba(16, 185, 129, 0.15)";
     ctx.fillRect(0, 0, cw, ch);
@@ -85,22 +83,20 @@ function renderRadar() {
     ctx.textAlign = "center";
     ctx.shadowColor = "#000";
     ctx.shadowBlur = 6;
-    ctx.fillText("🏛️ 安全村莊和平區域 - 補給整備休養中", cw / 2, ch / 2);
+    ctx.fillText("🏛️ 安全村莊和平區域 - 整備休整中", cw / 2, ch / 2);
     ctx.shadowBlur = 0;
     return;
   }
 
-  // 2. 繪製怪物群體 (2.5D 精緻立體呈現)
+  // 2. 繪製怪物群體 (依 Y 軸排序前後深度)
   if (Array.isArray(gameState.mobs)) {
-    // 依 Y 軸排序實現 2.5D 前後遮擋深度感 (Depth Sort)
     const sortedMobs = [...gameState.mobs].sort((a, b) => a.y - b.y);
 
     sortedMobs.forEach(mob => {
       const screenX = mob.x - camX;
       const screenY = mob.y - camY;
 
-      // 視錐剔除
-      if (screenX < -60 || screenX > cw + 60 || screenY < -60 || screenY > ch + 60) return;
+      if (screenX < -70 || screenX > cw + 70 || screenY < -70 || screenY > ch + 70) return;
 
       const isTarget = (gameState.targetMob === mob);
       const isBoss = mob.isBoss;
@@ -119,7 +115,6 @@ function renderRadar() {
         ctx.ellipse(screenX, screenY + 12, isBoss ? 32 : 22, isBoss ? 14 : 9, 0, 0, Math.PI * 2);
         ctx.stroke();
 
-        // 目標引導箭頭
         const nowMs = Date.now();
         const bounce = Math.sin(nowMs / 150) * 4;
         ctx.fillStyle = "#f59e0b";
@@ -131,10 +126,9 @@ function renderRadar() {
         ctx.fill();
       }
 
-      // 繪製怪物精靈本體
-      drawEntitySprite(mob.name, screenX, screenY, isBoss ? 56 : 38, isBoss);
+      drawMonsterSprite(mob.name, screenX, screenY, isBoss ? 56 : 38, isBoss);
 
-      // 怪物血條
+      // 血條
       const barW = isBoss ? 50 : 34;
       const barH = isBoss ? 5 : 3.5;
       const barY = screenY - (isBoss ? 42 : 28);
@@ -145,7 +139,7 @@ function renderRadar() {
       ctx.fillStyle = isBoss ? "#d946ef" : (hpPct > 0.4 ? "#ef4444" : "#dc2626");
       ctx.fillRect(screenX - barW / 2, barY, barW * hpPct, barH);
 
-      // 怪物名稱標籤
+      // 名稱標籤
       ctx.font = isBoss ? "bold 12px -apple-system, sans-serif" : "11px -apple-system, sans-serif";
       ctx.textAlign = "center";
       ctx.fillStyle = isTarget ? "#fbbf24" : (isBoss ? "#f472b6" : (mob.aggressive ? "#fca5a5" : "#e2e8f0"));
@@ -156,52 +150,51 @@ function renderRadar() {
     });
   }
 
-  // 3. 繪製玩家本體 (置中於螢幕)
+  // 3. 繪製高畫質 MMORPG 玩家角色 (放大 1.55 倍至 68px，具備 4 方向與攻擊動作)
   const px = cw / 2;
   const py = ch / 2;
 
-  // 玩家地面陰影
+  // 玩家陰影
   ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
   ctx.beginPath();
-  ctx.ellipse(px, py + 14, 20, 8, 0, 0, Math.PI * 2);
+  ctx.ellipse(px, py + 22, 28, 11, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // 玩家光環 (綠水/勇水加速光芒)
+  // 綠水/勇水加速光芒
   if (currentChar && currentChar.buffs) {
     if (currentChar.buffs.green > 0 || currentChar.buffs.brave > 0) {
-      ctx.strokeStyle = currentChar.buffs.brave > 0 ? "rgba(234, 179, 8, 0.6)" : "rgba(34, 197, 94, 0.5)";
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = currentChar.buffs.brave > 0 ? "rgba(234, 179, 8, 0.75)" : "rgba(34, 197, 94, 0.65)";
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.ellipse(px, py + 14, 25, 10, 0, 0, Math.PI * 2);
+      ctx.ellipse(px, py + 22, 34, 13, 0, 0, Math.PI * 2);
       ctx.stroke();
     }
   }
 
-  // 繪製玩家精靈 (考慮變身或職業)
-  const playerSpriteKey = currentChar?.polymorph && currentChar.polymorph !== "無變身"
-    ? currentChar.polymorph
-    : (currentChar?.charClass || "knight");
-  drawEntitySprite(playerSpriteKey, px, py, 44, false);
+  // 決定玩家當前朝向 Facing
+  updatePlayerFacing();
+
+  // 繪製高畫質 MMORPG 騎士精靈 (尺寸 68px = 原 44px 的 1.55 倍)
+  drawPlayerHDActionSprite(px, py, 68);
 
   // 玩家名稱與血條
   if (currentChar) {
-    ctx.font = "bold 12px -apple-system, sans-serif";
+    ctx.font = "bold 13px -apple-system, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillStyle = "#60a5fa";
+    ctx.fillStyle = "#93c5fd";
     ctx.shadowColor = "#000";
-    ctx.shadowBlur = 4;
-    ctx.fillText(currentChar.name, px, py - 32);
+    ctx.shadowBlur = 5;
+    ctx.fillText(currentChar.name, px, py - 46);
 
-    // 玩家小血條
     const plHpPct = Math.max(0, Math.min(1, (currentChar.hp || 50) / (currentChar.maxHp || 50)));
-    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-    ctx.fillRect(px - 18, py - 27, 36, 4);
+    ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
+    ctx.fillRect(px - 22, py - 40, 44, 4.5);
     ctx.fillStyle = "#3b82f6";
-    ctx.fillRect(px - 18, py - 27, 36 * plHpPct, 4);
+    ctx.fillRect(px - 22, py - 40, 44 * plHpPct, 4.5);
     ctx.shadowBlur = 0;
   }
 
-  // 4. 繪製遠程彈道 (箭矢/魔法軌跡)
+  // 4. 遠程彈道軌跡
   if (gameState.arrowTrail && Date.now() < gameState.arrowTrail.expire) {
     const fromScreenX = gameState.arrowTrail.fromX - camX;
     const fromScreenY = gameState.arrowTrail.fromY - camY;
@@ -215,14 +208,13 @@ function renderRadar() {
     ctx.lineTo(toScreenX, toScreenY);
     ctx.stroke();
 
-    // 箭頭光輝
     ctx.fillStyle = "#fbbf24";
     ctx.beginPath();
     ctx.arc(toScreenX, toScreenY, 4, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // 5. 繪製戰鬥打擊光效 (揮砍刀光、法術爆炸)
+  // 5. 打擊特效
   if (Array.isArray(gameState.combatEffects)) {
     const now = Date.now();
     gameState.combatEffects = gameState.combatEffects.filter(eff => now < eff.expire);
@@ -231,36 +223,36 @@ function renderRadar() {
       const ey = eff.y - camY;
 
       if (eff.type === "slash") {
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.95)";
+        ctx.lineWidth = 3.5;
         ctx.beginPath();
-        ctx.arc(ex, ey, 18, -Math.PI / 4, Math.PI / 3);
+        ctx.arc(ex, ey, 22, -Math.PI / 4, Math.PI / 3);
         ctx.stroke();
       } else if (eff.type === "burst") {
         ctx.strokeStyle = eff.color || "#22c55e";
         ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.arc(ex, ey, 22, 0, Math.PI * 2);
+        ctx.arc(ex, ey, 24, 0, Math.PI * 2);
         ctx.stroke();
       } else if (eff.type === "magic") {
         ctx.fillStyle = eff.color || "#38bdf8";
         ctx.beginPath();
-        ctx.arc(ex, ey, 14, 0, Math.PI * 2);
+        ctx.arc(ex, ey, 16, 0, Math.PI * 2);
         ctx.fill();
       }
     });
   }
 
-  // 6. 繪製傷害飄字 (Floating Damage Numbers)
+  // 6. 傷害飄字
   if (Array.isArray(gameState.floatingTexts)) {
     const now = Date.now();
     gameState.floatingTexts = gameState.floatingTexts.filter(ft => now < ft.expire);
     gameState.floatingTexts.forEach(ft => {
       const progress = 1 - (ft.expire - now) / 800;
       const fx = ft.x - camX;
-      const fy = ft.y - camY - (progress * 28); // 緩慢往上飄升
+      const fy = ft.y - camY - (progress * 30);
 
-      ctx.font = "bold 14px -apple-system, sans-serif";
+      ctx.font = "bold 15px -apple-system, sans-serif";
       ctx.textAlign = "center";
       ctx.fillStyle = ft.color || "#ef4444";
       ctx.shadowColor = "#000";
@@ -271,11 +263,103 @@ function renderRadar() {
   }
 }
 
-// 繪製實體精靈圖（若圖檔未完成或未配對，優雅降級為像素立體人偶）
-function drawEntitySprite(key, screenX, screenY, size = 36, isBoss = false) {
-  const coord = SPRITE_MAP[key] || SPRITE_MAP["knight"];
+// 根據玩家移動向量或攻擊目標更新朝向
+function updatePlayerFacing() {
+  // 若正在攻擊目標，優先面向怪物
+  if (gameState.targetMob && (!gameState.targetMob.isDead && gameState.targetMob.currentHp > 0)) {
+    const dx = gameState.targetMob.x - gameState.playerX;
+    const dy = gameState.targetMob.y - gameState.playerY;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      playerFacing = dx > 0 ? "right" : "left";
+    } else {
+      playerFacing = dy > 0 ? "down" : "up";
+    }
+    return;
+  }
 
-  if (isSpriteSheetLoaded && coord) {
+  // 移動中根據位移向量計算朝向
+  if (gameState.isMoving && (gameState.moveDx !== undefined || gameState.moveDy !== undefined)) {
+    const dx = gameState.moveDx || 0;
+    const dy = gameState.moveDy || 0;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      playerFacing = dx > 0 ? "right" : "left";
+    } else {
+      playerFacing = dy > 0 ? "down" : "up";
+    }
+  }
+}
+
+// 繪製高畫質 MMORPG 規格騎士動作幀 (4x4 矩陣，每一幀 256x256)
+function drawPlayerHDActionSprite(screenX, screenY, size = 68) {
+  if (!isKnightAnimLoaded) {
+    // 降級方塊
+    ctx.fillStyle = "#3b82f6";
+    ctx.fillRect(screenX - size / 4, screenY - size / 2, size / 2, size / 2);
+    return;
+  }
+
+  const now = Date.now();
+  let row = 0; // 0: South(Down), 1: East(Right), 2: North(Up), 3: Attack
+  let col = 0;
+  let flipHorizontal = false;
+
+  // 1. 攻擊動畫優先判定 (Row 3 揮砍動作)
+  if (gameState.playerAttackAnim && now < gameState.playerAttackAnim.startTime + gameState.playerAttackAnim.duration) {
+    row = 3;
+    const elapsed = now - gameState.playerAttackAnim.startTime;
+    const progress = Math.min(1, elapsed / gameState.playerAttackAnim.duration);
+    col = Math.min(3, Math.floor(progress * 4)); // 0~3 序列影格
+    if (playerFacing === "left") flipHorizontal = true;
+  } else {
+    // 2. 奔跑/行走動作判定 (Row 0, 1, 2)
+    if (playerFacing === "down") {
+      row = 0;
+    } else if (playerFacing === "right") {
+      row = 1;
+      flipHorizontal = false;
+    } else if (playerFacing === "left") {
+      row = 1;
+      flipHorizontal = true; // 左跑採用右側身圖水平鏡像
+    } else if (playerFacing === "up") {
+      row = 2;
+    }
+
+    if (gameState.isMoving) {
+      // 跑步邁步影格：每 120ms 切換一幀
+      col = Math.floor(now / 120) % 4;
+    } else {
+      // 待機停下：使用第 0 幀呼吸站姿
+      col = 0;
+    }
+  }
+
+  const sw = 256;
+  const sh = 256;
+  const sx = col * sw;
+  const sy = row * sh;
+
+  // 計算行走時微幅上下踏步浮動 (Bobbing)
+  const bobbing = gameState.isMoving ? Math.sin(now / 60) * 2 : 0;
+  const drawX = screenX - size / 2;
+  const drawY = screenY - size + 16 + bobbing;
+
+  ctx.save();
+  if (flipHorizontal) {
+    // 水平翻轉朝左跑
+    ctx.translate(screenX, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(knightAnimImg, sx, sy, sw, sh, -size / 2, drawY, size, size);
+  } else {
+    ctx.drawImage(knightAnimImg, sx, sy, sw, sh, drawX, drawY, size, size);
+  }
+  ctx.restore();
+}
+
+// 繪製怪物精靈
+function drawMonsterSprite(name, screenX, screenY, size = 38, isBoss = false) {
+  const coord = MONSTER_SPRITE_MAP[name] || MONSTER_SPRITE_MAP["哥布林"];
+
+  if (isMonsterSheetLoaded && coord) {
     const sw = 256;
     const sh = 256;
     const sx = coord.c * sw;
@@ -283,19 +367,18 @@ function drawEntitySprite(key, screenX, screenY, size = 36, isBoss = false) {
     const drawX = screenX - size / 2;
     const drawY = screenY - size + 10;
 
-    ctx.drawImage(spriteSheetImg, sx, sy, sw, sh, drawX, drawY, size, size);
+    ctx.drawImage(monsterSheetImg, sx, sy, sw, sh, drawX, drawY, size, size);
   } else {
-    // 優雅降級像素方塊人偶
-    ctx.fillStyle = isBoss ? "#d946ef" : (key.includes("妖精") ? "#22c55e" : "#3b82f6");
+    ctx.fillStyle = isBoss ? "#d946ef" : "#ef4444";
     ctx.fillRect(screenX - size / 4, screenY - size / 2, size / 2, size / 2);
   }
 }
 
-// 繪製地表獵場氛圍（依當前地圖呈現綠野、地監石磚或火龍窟熔岩）
+// 地表氛圍繪製
 function drawBattlefieldTerrain(cw, ch, camX, camY) {
   const mapKey = gameState.currentMap || "talking_island";
-  let tileBase = "#17202a";
-  let gridLine = "#1f2937";
+  let tileBase = "#14241b"; // 話島綠郊
+  let gridLine = "#1f3b2b";
 
   if (mapKey.includes("fire") || mapKey.includes("werden")) {
     tileBase = "#271212";
@@ -306,15 +389,11 @@ function drawBattlefieldTerrain(cw, ch, camX, camY) {
   } else if (mapKey.includes("cave") || mapKey.includes("gludio") || mapKey.includes("giran")) {
     tileBase = "#111827";
     gridLine = "#1f2937";
-  } else {
-    tileBase = "#14241b"; // 話島綠郊
-    gridLine = "#1f3b2b";
   }
 
   ctx.fillStyle = tileBase;
   ctx.fillRect(0, 0, cw, ch);
 
-  // 繪製 2.5D 透視網格磚 (每格 48px)
   ctx.strokeStyle = gridLine;
   ctx.lineWidth = 1;
   const startX = -(camX % 48);
@@ -333,7 +412,6 @@ function drawBattlefieldTerrain(cw, ch, camX, camY) {
     ctx.stroke();
   }
 
-  // 世界邊界紅線
   ctx.strokeStyle = "rgba(239, 68, 68, 0.4)";
   ctx.lineWidth = 2;
   ctx.strokeRect(-camX, -camY, WORLD_WIDTH, WORLD_HEIGHT);
