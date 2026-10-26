@@ -1372,8 +1372,9 @@ function getSkillBookItemName(skillName) {
 }
 
 let currentSkillFilter = "all";
-let currentSpellTab = "class"; // "class" (專屬職業魔法) | "common" (一般魔法技能)
+let currentSpellTab = "all"; // "all" (全部可學技能) | "class" (專屬職業魔法) | "common" (一般魔法技能)
 let selectedSkillName = null;
+let skillCooldownTimer = null;
 
 function switchSpellTab(tabKey) {
   currentSpellTab = tabKey;
@@ -1410,11 +1411,101 @@ function showSkillLockedToast(skillName, reqLv) {
   }
 }
 
+// 嚴格依天堂1經典設定判定該職業能否學習該技能
 function isSkillMatchClass(skill, charCls) {
   if (!skill) return false;
-  if (skill.category === "common" || skill.school === "common") return true;
-  if (charCls === "mage") return skill.school === "mage" || skill.school === "normal";
-  return skill.school === charCls;
+  const cls = charCls || "prince";
+
+  // 🛡️ 騎士 (Knight): 騎士專屬技術 + 1 級一般魔法
+  if (cls === "knight") {
+    if (skill.school === "knight") return true;
+    return ["光箭術", "初級治癒術", "魔法飛彈"].includes(skill.name);
+  }
+
+  // 👑 王族 (Prince): 王族專屬魔法 + 1~2 級一般魔法
+  if (cls === "prince") {
+    if (skill.school === "prince") return true;
+    return ["光箭術", "初級治癒術", "魔法飛彈", "初級加速術"].includes(skill.name);
+  }
+
+  // 🏹 妖精 (Elf): 精靈專屬魔法 + 1~6 級正統一般魔法 (全套一般魔法皆可學)
+  if (cls === "elf") {
+    if (skill.school === "elf") return true;
+    return skill.category === "common" || skill.school === "common";
+  }
+
+  // 🧙‍♂️ 法師 (Mage): 法師專屬高階神術 + 全套正統一般魔法
+  if (cls === "mage") {
+    if (skill.school === "mage" || skill.school === "normal") return true;
+    return skill.category === "common" || skill.school === "common";
+  }
+
+  return skill.school === cls || skill.category === "common";
+}
+
+// 實時冷卻倒數計時器 (每 200ms 更新網格上之倒數秒數與檢視器按鈕)
+function updateCooldownTicker() {
+  const gridContainer = document.getElementById("skill-matrix-grid");
+  if (!gridContainer) return;
+
+  const slots = gridContainer.querySelectorAll(".skill-slot-box[data-skill-name]");
+  let activeCdFound = false;
+
+  slots.forEach(slot => {
+    const sName = slot.getAttribute("data-skill-name");
+    if (!sName) return;
+    const cd = getSkillCooldownRemaining(sName);
+    let cdEl = slot.querySelector(".skill-cooldown-overlay");
+    if (cd > 0) {
+      activeCdFound = true;
+      const sec = Math.ceil(cd / 1000);
+      if (!cdEl) {
+        cdEl = document.createElement("div");
+        cdEl.className = "skill-cooldown-overlay";
+        slot.appendChild(cdEl);
+      }
+      cdEl.textContent = sec + "s";
+    } else {
+      if (cdEl) {
+        cdEl.remove();
+      }
+    }
+  });
+
+  const actionBtn = document.getElementById("skill-action-button");
+  if (actionBtn && selectedSkillName) {
+    const curSkill = (typeof DB !== "undefined" && DB.skills) ? DB.skills[selectedSkillName] : null;
+    if (curSkill && curSkill.mode !== "passive") {
+      const isLearned = currentChar && Array.isArray(currentChar.skills) && currentChar.skills.includes(selectedSkillName);
+      if (isLearned) {
+        const cd = getSkillCooldownRemaining(selectedSkillName);
+        if (cd > 0) {
+          activeCdFound = true;
+          actionBtn.disabled = true;
+          actionBtn.textContent = `⏳ 冷卻中 (${Math.ceil(cd / 1000)} 秒)`;
+        } else {
+          actionBtn.disabled = false;
+          actionBtn.textContent = `⚔️ 手動施放技能`;
+        }
+      }
+    }
+  }
+
+  // 若技能頁籤未開啟且無任何冷卻中技能，暫停計時器以優化效能
+  const tabSkills = document.getElementById("tab-skills");
+  const isSkillsTabOpen = tabSkills && tabSkills.classList && tabSkills.classList.contains("active");
+  if (!isSkillsTabOpen && !activeCdFound) {
+    if (skillCooldownTimer) {
+      clearInterval(skillCooldownTimer);
+      skillCooldownTimer = null;
+    }
+  }
+}
+
+function startSkillCooldownTicker() {
+  if (!skillCooldownTimer) {
+    skillCooldownTimer = setInterval(updateCooldownTicker, 200);
+  }
 }
 
 function learnSkillByBook(skillName) {
@@ -1441,7 +1532,8 @@ function useSkillFromTab(skillName) {
   if (typeof useSkill === "function") {
     useSkill(skillName);
   }
-  renderSkillTab();
+  startSkillCooldownTicker();
+  updateCooldownTicker();
 }
 window.useSkillFromTab = useSkillFromTab;
 
@@ -1464,7 +1556,16 @@ function renderSkillTab() {
 
   const allSkills = (typeof DB !== "undefined" && DB.skills) ? Object.values(DB.skills) : [];
 
-  // 渲染頂部雙分頁標籤：【專屬職業魔法】與【一般魔法技能】
+  // 篩選：全部該職業能學的技能、專屬技能、一般魔法技能
+  const allLearnableSkills = allSkills.filter(sk => isSkillMatchClass(sk, charCls));
+  const classSkills = allSkills.filter(sk => {
+    if (sk.category === "common" || sk.school === "common") return false;
+    return isSkillMatchClass(sk, charCls);
+  });
+  const commonLearnableSkills = allSkills.filter(sk => {
+    return (sk.category === "common" || sk.school === "common") && isSkillMatchClass(sk, charCls);
+  });
+
   const classTitles = {
     knight: "專屬騎士技術",
     elf: "專屬精靈魔法",
@@ -1473,26 +1574,29 @@ function renderSkillTab() {
   };
   const activeClassTitle = classTitles[charCls] || "專屬職業魔法";
 
+  // 渲染頂部分頁：【全部可學技能】、【專屬職業魔法】、【一般魔法技能】
   if (tabButtonsGroup) {
     tabButtonsGroup.innerHTML = `
+      <button type="button" class="lineage-tab-btn ${currentSpellTab === 'all' ? 'active' : ''}" onclick="switchSpellTab('all')">
+        全部可學技能 (${allLearnableSkills.length})
+      </button>
       <button type="button" class="lineage-tab-btn ${currentSpellTab === 'class' ? 'active' : ''}" onclick="switchSpellTab('class')">
-        ${activeClassTitle}
+        ${activeClassTitle} (${classSkills.length})
       </button>
       <button type="button" class="lineage-tab-btn ${currentSpellTab === 'common' ? 'active' : ''}" onclick="switchSpellTab('common')">
-        一般魔法技能
+        一般魔法技能 (${commonLearnableSkills.length})
       </button>
     `;
   }
 
   // 根據當前分頁篩選技能清單
   let currentTabSkills = [];
-  if (currentSpellTab === "class") {
-    currentTabSkills = allSkills.filter(sk => {
-      if (sk.category === "common" || sk.school === "common") return false;
-      return isSkillMatchClass(sk, charCls);
-    });
+  if (currentSpellTab === "all") {
+    currentTabSkills = allLearnableSkills;
+  } else if (currentSpellTab === "class") {
+    currentTabSkills = classSkills;
   } else {
-    currentTabSkills = allSkills.filter(sk => (sk.school === "common" || sk.category === "common"));
+    currentTabSkills = commonLearnableSkills;
   }
 
   // 若存在舊版過濾按鈕容器
@@ -1548,6 +1652,7 @@ function renderSkillTab() {
     else if (hasBook) stateClass = "state-can-learn";
 
     slot.className = `skill-slot-box ${stateClass} ${isSelected ? "selected" : ""}`;
+    slot.setAttribute("data-skill-name", skill.name);
     slot.onclick = () => {
       selectSkillInInspector(skill.name);
       if (!isLearned) {
@@ -1631,7 +1736,7 @@ function renderSkillTab() {
       `;
     } else if (isLearned && !isPassive) {
       actionBtnHtml = `
-        <button type="button" class="btn btn-gold" style="padding:10px; font-weight:bold; font-size:13px;" ${cd > 0 ? "disabled" : ""} onclick="useSkillFromTab('${curSkill.name}')">
+        <button id="skill-action-button" type="button" class="btn btn-gold" style="padding:10px; font-weight:bold; font-size:13px;" ${cd > 0 ? "disabled" : ""} onclick="useSkillFromTab('${curSkill.name}')">
           ${cd > 0 ? "⏳ 冷卻中 (" + Math.ceil(cd / 1000) + " 秒)" : "⚔️ 手動施放技能"}
         </button>
       `;
@@ -1720,5 +1825,9 @@ function renderSkillTab() {
       </div>
     `;
   }
+
+  // 啟動實時倒數計時器
+  startSkillCooldownTicker();
+  updateCooldownTicker();
 }
 window.renderSkillTab = renderSkillTab;
