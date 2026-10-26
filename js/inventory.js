@@ -77,13 +77,14 @@ function sanitizeInventoryAndEquipped(targetChar) {
   }
 
   char.inventory = stackedInventory;
-  // 嚴格清洗非對應職業之技能 (非對應職業技能強制刪除)
+  // 嚴格清洗非對應職業之技能 (保留本職業專屬與通用正統魔法)
   if (Array.isArray(char.skills)) {
     const charCls = char.charClass || "prince";
-    const expectedSchool = (charCls === "mage") ? "normal" : charCls;
     char.skills = char.skills.filter(sn => {
       const sk = (typeof DB !== "undefined" && DB.skills) ? DB.skills[sn] : null;
-      return sk && sk.school === expectedSchool;
+      if (!sk) return false;
+      if (typeof isSkillMatchClass === "function") return isSkillMatchClass(sk, charCls);
+      return sk.school === charCls || sk.school === "common" || sk.category === "common" || (charCls === "mage" && sk.school === "mage");
     });
   }
 
@@ -265,8 +266,10 @@ function useItemByIndex(idx) {
     if (skillName && DB.skills && DB.skills[skillName]) {
       const targetSkill = DB.skills[skillName];
       const charCls = (currentChar && currentChar.charClass) || "prince";
-      const expectedSchool = (charCls === "mage") ? "normal" : charCls;
-      if (targetSkill.school !== expectedSchool) {
+      const isMatch = (typeof isSkillMatchClass === "function")
+        ? isSkillMatchClass(targetSkill, charCls)
+        : (targetSkill.school === charCls || targetSkill.school === "common" || targetSkill.category === "common" || (charCls === "mage" && targetSkill.school === "mage"));
+      if (!isMatch) {
         log(`⚠️ 你的職業無法學習【${skillName}】（非本職業專屬秘笈）！`, "sys");
         return;
       }

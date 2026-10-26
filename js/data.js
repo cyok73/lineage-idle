@@ -335,20 +335,20 @@ const DB = {
     "皇家血統": { skillId: "royal_blood", name: "皇家血統", school: "prince", category: "class", reqLv: 20, tier: 1, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 30000, type: "buff", stat: "hp", amount: 50, duration: 300, mode: "passive", iconKey: "royal_blood", desc: "帝國皇族血統威嚴，HP上限+50" },
     "激勵士氣": { skillId: "brave_mental", name: "激勵士氣", school: "prince", category: "class", reqLv: 30, tier: 2, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 40000, type: "buff", stat: "hit", amount: 3, duration: 180, mode: "active", iconKey: "brave_mental", desc: "鼓舞全軍戰意，命中率提升" },
 
-    // 🧙‍♂️ 專屬正統高階魔法 (Mage - Class Specific)
-    "火球術": { skillId: "fireball", name: "火球術", school: "mage", category: "class", reqLv: 16, tier: 3, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 3000, type: "damage", power: 80, mode: "active", iconKey: "fireball", desc: "凝聚熾熱爆炎火球轟擊目標" },
-    "極道落雷": { skillId: "lightning", name: "極道落雷", school: "mage", category: "class", reqLv: 28, tier: 4, mpCost: 25, hpCost: 0, materialCost: "無", cooldown: 4000, type: "damage", power: 140, mode: "active", iconKey: "lightning", desc: "召喚黑紫狂雷貫穿目標" },
-    "高級治癒術": { skillId: "greater_heal", name: "高級治癒術", school: "mage", category: "class", reqLv: 24, tier: 4, mpCost: 30, hpCost: 0, materialCost: "無", cooldown: 5000, type: "heal", power: 180, mode: "active", iconKey: "greater_heal", desc: "神聖高級急救神術，大量回復生命值" },
-    "體魄強健術": { skillId: "physical_enchant", name: "體魄強健術", school: "mage", category: "class", reqLv: 32, tier: 5, mpCost: 20, hpCost: 0, materialCost: "魔力之石 x1", cooldown: 60000, type: "buff", stat: "str", amount: 5, duration: 300, mode: "passive", iconKey: "physical_enchant", desc: "肌肉力量爆發，STR+5" },
+    // 🧙‍♂️ 專屬正統高階神術 (Mage - Class Specific)
     "聖結界": { skillId: "immune_to_harm", name: "聖結界", school: "mage", category: "class", reqLv: 40, tier: 5, mpCost: 40, hpCost: 0, materialCost: "魔力之石 x2", cooldown: 120000, type: "buff", stat: "mr", amount: 20, duration: 300, mode: "active", iconKey: "immune_to_harm", desc: "神聖守護屏障，受擊傷害大幅減免" },
     "究極光裂術": { skillId: "disintegrate", name: "究極光裂術", school: "mage", category: "class", reqLv: 50, tier: 6, mpCost: 60, hpCost: 0, materialCost: "魔力之石 x3", cooldown: 8000, type: "damage", power: 320, mode: "active", iconKey: "disintegrate", desc: "天界裁決之毀滅光芒，終極單體神術" },
 
-    // ✨ 一般魔法技能 (Common Magic - 共通魔法技能分頁)
+    // ✨ 一般正統魔法技能 (Common Magic - 共通魔法技能分頁，妖精/法師皆可修煉)
     "光箭術": { skillId: "light_arrow", name: "光箭術", school: "common", category: "common", reqLv: 4, tier: 1, mpCost: 12, hpCost: 0, materialCost: "無", cooldown: 2000, type: "damage", power: 50, mode: "active", iconKey: "light_arrow", desc: "光屬性單體破魔箭矢打擊" },
     "初級治癒術": { skillId: "heal", name: "初級治癒術", school: "common", category: "common", reqLv: 4, tier: 1, mpCost: 10, hpCost: 0, materialCost: "無", cooldown: 2000, type: "heal", power: 60, mode: "active", iconKey: "heal", desc: "回復少量生命值" },
     "魔法飛彈": { skillId: "energy_bolt", name: "魔法飛彈", school: "common", category: "common", reqLv: 4, tier: 1, mpCost: 8, hpCost: 0, materialCost: "無", cooldown: 1500, type: "damage", power: 30, mode: "active", iconKey: "energy_bolt", desc: "基礎單體秘術飛彈攻擊" },
     "初級加速術": { skillId: "haste", name: "初級加速術", school: "common", category: "common", reqLv: 12, tier: 2, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 30000, type: "buff", stat: "dex", amount: 2, duration: 120, mode: "active", iconKey: "haste", desc: "疾行雷電祝福，DEX+2" },
-    "初級體力回復術": { skillId: "extra_heal", name: "初級體力回復術", school: "common", category: "common", reqLv: 16, tier: 3, mpCost: 18, hpCost: 0, materialCost: "無", cooldown: 5000, type: "heal", power: 120, mode: "active", iconKey: "extra_heal", desc: "中度體力回復術" }
+    "初級體力回復術": { skillId: "extra_heal", name: "初級體力回復術", school: "common", category: "common", reqLv: 16, tier: 3, mpCost: 18, hpCost: 0, materialCost: "無", cooldown: 5000, type: "heal", power: 120, mode: "active", iconKey: "extra_heal", desc: "中度體力回復術" },
+    "火球術": { skillId: "fireball", name: "火球術", school: "common", category: "common", reqLv: 16, tier: 3, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 3000, type: "damage", power: 80, mode: "active", iconKey: "fireball", desc: "凝聚熾熱爆炎火球轟擊目標" },
+    "極道落雷": { skillId: "lightning", name: "極道落雷", school: "common", category: "common", reqLv: 28, tier: 4, mpCost: 25, hpCost: 0, materialCost: "無", cooldown: 4000, type: "damage", power: 140, mode: "active", iconKey: "lightning", desc: "召喚黑紫狂雷貫穿目標" },
+    "高級治癒術": { skillId: "greater_heal", name: "高級治癒術", school: "common", category: "common", reqLv: 24, tier: 4, mpCost: 30, hpCost: 0, materialCost: "無", cooldown: 5000, type: "heal", power: 180, mode: "active", iconKey: "greater_heal", desc: "神聖高級急救神術，大量回復生命值" },
+    "體魄強健術": { skillId: "physical_enchant", name: "體魄強健術", school: "common", category: "common", reqLv: 32, tier: 5, mpCost: 20, hpCost: 0, materialCost: "魔力之石 x1", cooldown: 60000, type: "buff", stat: "str", amount: 5, duration: 300, mode: "passive", iconKey: "physical_enchant", desc: "肌肉力量爆發，STR+5" }
   },
   villages: {
     ti_village: {
