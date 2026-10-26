@@ -1652,23 +1652,30 @@ input[type="number"] {
   gap: 6px;
 }
 
-/* 經典天堂 1 純淨道具像素圖標樣式 (Lineage 1 Retro 16-Bit Pixel Icons, 無字純圖) */
+/* 經典天堂 1 高畫質精緻道具圖標樣式 (HD Crisp 16-Bit Pixel Icons) */
 .item-pixel-icon {
   display: inline-block;
   width: 32px;
   height: 32px;
   min-width: 32px;
   min-height: 32px;
-  image-rendering: pixelated;
-  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
+  image-rendering: pixelated;
   background-repeat: no-repeat;
   vertical-align: middle;
-  border-radius: 3px;
-  border: 1px solid rgba(0, 0, 0, 0.6);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.85), inset 0 0 2px rgba(255, 255, 255, 0.1);
   box-sizing: border-box;
   flex-shrink: 0;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.item-pixel-icon:hover {
+  filter: brightness(1.15) contrast(1.05);
+  transform: scale(1.06);
+  z-index: 2;
 }
 
 .item-pixel-icon.size-equip {

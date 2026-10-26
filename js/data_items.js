@@ -1732,19 +1732,19 @@ const ITEM_SPRITE_CONFIG = {
   "骷髏盾牌": { sheet: "items", c: 1, r: 4 },
   "鋼鐵盾牌": { sheet: "items", c: 4, r: 3 },
 
-  // 🥋 斗篷 (acc)
-  "抗魔法斗篷": { sheet: "acc", c: 4, r: 4 },
-  "保護者斗篷": { sheet: "acc", c: 5, r: 4 },
-  "隱身斗篷": { sheet: "acc", c: 4, r: 5 },
+  // 🥋 斗篷 (專屬高畫質斗篷：紫金抗魔、聖白保護、暗影隱身)
+  "抗魔法斗篷": { sheet: "cng", c: 0, r: 0 },
+  "保護者斗篷": { sheet: "cng", c: 1, r: 0 },
+  "隱身斗篷": { sheet: "cng", c: 2, r: 0 },
 
-  // 🧤 手套與靴子
-  "皮手套": { sheet: "acc", c: 4, r: 5 },
-  "腕甲": { sheet: "acc", c: 4, r: 5 },
-  "力量手套": { sheet: "acc", c: 4, r: 5 },
-  "塞尼斯手套": { sheet: "acc", c: 4, r: 5 },
-  "皮長靴": { sheet: "acc", c: 0, r: 1 },
-  "鐵高跟靴": { sheet: "acc", c: 0, r: 1 },
-  "敏捷魔法長靴": { sheet: "acc", c: 1, r: 1 },
+  // 🧤 手套與靴子 (專屬高畫質手套：皮手套、力量手套、塞尼斯魔能手套)
+  "皮手套": { sheet: "cng", c: 0, r: 1 },
+  "腕甲": { sheet: "cng", c: 1, r: 1 },
+  "力量手套": { sheet: "cng", c: 3, r: 1 },
+  "塞尼斯手套": { sheet: "cng", c: 2, r: 1 },
+  "皮長靴": { sheet: "cng", c: 0, r: 2 },
+  "鐵高跟靴": { sheet: "cng", c: 1, r: 2 },
+  "敏捷魔法長靴": { sheet: "cng", c: 2, r: 2 },
 
   // 💍 飾品配件 (acc: 6x6)
   "力量項鍊": { sheet: "acc", c: 0, r: 3 },
@@ -1757,10 +1757,10 @@ const ITEM_SPRITE_CONFIG = {
   "巨蟻女皇戒指": { sheet: "acc", c: 0, r: 4 },
   "瞬間移動控制戒指": { sheet: "acc", c: 1, r: 4 },
   "皮腰帶": { sheet: "acc", c: 5, r: 3 },
-  "多羅皮帶": { sheet: "acc", c: 5, r: 4 },
-  "歐吉皮帶": { sheet: "acc", c: 5, r: 4 },
-  "力量符石": { sheet: "acc", c: 2, r: 5 },
-  "敏捷符石": { sheet: "acc", c: 3, r: 5 },
+  "多羅皮帶": { sheet: "cng", c: 1, r: 3 },
+  "歐吉皮帶": { sheet: "cng", c: 2, r: 3 },
+  "力量符石": { sheet: "cng", c: 1, r: 5 },
+  "敏捷符石": { sheet: "cng", c: 0, r: 5 },
 
   // 🧪 藥水與卷軸
   "紅色藥水": { sheet: "items", c: 2, r: 4 },
@@ -1834,7 +1834,12 @@ function getItemIconStyle(itemName) {
   let xPct = (cfg.c / 5) * 100;
   let yPct = (cfg.r / 5) * 100;
 
-  if (cfg.sheet === "acc") {
+  if (cfg.sheet === "cng") {
+    sheetUrl = "assets/items/cloaks_and_gloves.jpg";
+    bgSize = "600% 600%";
+    xPct = (cfg.c / 5) * 100;
+    yPct = (cfg.r / 5) * 100;
+  } else if (cfg.sheet === "acc") {
     sheetUrl = "assets/items/accessories_spritesheet.jpg";
     bgSize = "600% 600%";
     xPct = (cfg.c / 5) * 100;
