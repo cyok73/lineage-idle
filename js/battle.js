@@ -316,6 +316,7 @@ function updateLeftPanel() {
     surroundInfo.innerText = `${gameState.surroundingMobs || 0} 隻 / ${gameState.targetMob ? gameState.targetMob.name : "無"}`;
   }
 }
+window.updateLeftPanel = updateLeftPanel;
 
 function exitVillageToField() {
   const mapSelect = document.getElementById("map-select");

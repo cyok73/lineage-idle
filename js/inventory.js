@@ -352,6 +352,7 @@ function equipItemFromInventory(invIdx, preferredSlot = null) {
   if (typeof updateStrategySelects === "function") updateStrategySelects();
   if (typeof saveAccountData === "function") saveAccountData();
 }
+window.equipItemFromInventory = equipItemFromInventory;
 
 function unequipSlot(slot) {
   if (!currentChar.equipped || !currentChar.equipped[slot]) return;
@@ -367,6 +368,7 @@ function unequipSlot(slot) {
   if (typeof updateStrategySelects === "function") updateStrategySelects();
   if (typeof saveAccountData === "function") saveAccountData();
 }
+window.unequipSlot = unequipSlot;
 
 function openEnchantModal(scrollInvIdx) {
   currentEnchantScrollIdx = scrollInvIdx;

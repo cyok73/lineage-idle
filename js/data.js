@@ -399,3 +399,8 @@ const CLASS_PRESETS = {
   elf: { name: "妖精", base: { str: 11, dex: 12, con: 12, int: 12, wis: 12, cha: 9 }, bonusPoints: 7, hpMod: [10, 15], mpMod: [4, 6] },
   mage: { name: "法師", base: { str: 8, dex: 7, con: 12, int: 12, wis: 12, cha: 8 }, bonusPoints: 16, hpMod: [6, 10], mpMod: [8, 12] }
 };
+
+if (typeof window !== "undefined") {
+  window.DB = DB;
+  window.CLASS_PRESETS = CLASS_PRESETS;
+}

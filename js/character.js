@@ -803,6 +803,7 @@ function renderCharTab() {
 
   renderPolymorphTable();
 }
+window.renderCharTab = renderCharTab;
 
 // 裝備詳細與卸除彈窗
 function openEquipDetailModal(slotKey) {
@@ -918,8 +919,6 @@ function closeEquipActionModal() {
   if (modal) modal.style.display = "none";
 }
 window.closeEquipActionModal = closeEquipActionModal;
-  renderPolymorphTable();
-}
 
 function renderPolymorphTable() {
   const polyTbody = document.getElementById("poly-table-body");

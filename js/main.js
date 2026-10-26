@@ -56,6 +56,11 @@ let gameState = {
   }
 };
 
+if (typeof window !== "undefined") {
+  window.gameState = gameState;
+  window.gmSettings = gmSettings;
+}
+
 let canvas, ctx;
 
 function getMapConfig(mapId) {
@@ -150,6 +155,7 @@ function log(msg, type = "atk") {
 
   appendLogMessage(logBox, row);
 }
+window.log = log;
 
 function scrollToLogBottom() {
   const logBox = document.getElementById("log-box");
@@ -237,6 +243,7 @@ function switchTab(tabId) {
     console.warn(`⚠️ [${tabId}] 分頁渲染小提醒:`, err);
   }
 }
+window.switchTab = switchTab;
 
 // ---------------- 全域角色與掛機狀態持久化 ----------------
 function saveAccountData() {
