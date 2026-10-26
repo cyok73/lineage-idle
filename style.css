@@ -1260,18 +1260,32 @@ input[type="number"] {
 
 /* 技能圖示內部容器 */
 .skill-art-container {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: filter 0.2s, opacity 0.2s;
+  overflow: hidden;
+  border-radius: 2px;
 }
 
 .skill-art-container svg {
   width: 100%;
   height: 100%;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+}
+
+/* 16-bit 復古像素圖示 (Pixel Art) */
+.skill-pixel-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  display: block;
+  border-radius: 2px;
 }
 
 /* 狀態：未習得 (灰階 100%、亮度降低 50% + 置中暗金屬鎖頭圖示) */
@@ -1294,6 +1308,18 @@ input[type="number"] {
   width: 22px;
   height: 22px;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.95));
+}
+
+/* 復古暗金屬像素鎖頭 (Pixel Padlock) */
+.skill-pixel-padlock {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.95));
+  pointer-events: none;
 }
 
 /* 天堂經典魔法書頂部雙分頁工具列 */
@@ -1463,6 +1489,16 @@ input[type="number"] {
 .skill-insp-art svg {
   width: 48px;
   height: 48px;
+}
+
+.skill-insp-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  border-radius: 2px;
 }
 
 .skill-insp-info {

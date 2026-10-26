@@ -1352,6 +1352,13 @@ function getSkillIconSvg(iconKey) {
   return `<svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="24" fill="#334155"/><text x="32" y="38" font-size="20" text-anchor="middle" fill="#d4af37">✨</text></svg>`;
 }
 
+function getSkillIconHtml(iconKey) {
+  if (!iconKey) {
+    return `<svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="24" fill="#334155"/><text x="32" y="38" font-size="20" text-anchor="middle" fill="#d4af37">✨</text></svg>`;
+  }
+  return `<img src="assets/skills/${iconKey}.png" alt="${iconKey}" class="skill-pixel-art" onerror="this.style.display='none'; if (this.nextElementSibling) this.nextElementSibling.style.display='block';"><div class="skill-svg-fallback" style="display:none; width:100%; height:100%;">${getSkillIconSvg(iconKey)}</div>`;
+}
+
 function getSkillBookItemName(skillName) {
   if (typeof DB !== "undefined" && DB.items) {
     for (let itemName in DB.items) {
@@ -1390,6 +1397,10 @@ function getPadlockSvg() {
   return `<svg class="skill-padlock-icon" viewBox="0 0 24 24" width="22" height="22" fill="#71717a">
     <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
   </svg>`;
+}
+
+function getPadlockHtml() {
+  return `<img src="assets/skills/padlock.png" alt="locked" class="skill-pixel-padlock" onerror="this.outerHTML=getPadlockSvg()">`;
 }
 
 function showSkillLockedToast(skillName, reqLv) {
@@ -1558,7 +1569,7 @@ function renderSkillTab() {
 
     let padlockHtml = "";
     if (!isLearned) {
-      padlockHtml = `<div class="skill-padlock-overlay">${getPadlockSvg()}</div>`;
+      padlockHtml = `<div class="skill-padlock-overlay">${getPadlockHtml()}</div>`;
     }
 
     let cdOverlay = "";
@@ -1569,7 +1580,7 @@ function renderSkillTab() {
     slot.innerHTML = `
       <div class="skill-badge ${badgeClass}">${badgeText}</div>
       <div class="skill-art-container">
-        ${getSkillIconSvg(skill.iconKey)}
+        ${getSkillIconHtml(skill.iconKey)}
       </div>
       ${padlockHtml}
       ${bottomIndicator}
@@ -1650,7 +1661,7 @@ function renderSkillTab() {
     inspector.innerHTML = `
       <div class="skill-insp-header">
         <div class="skill-insp-art" style="${!isLearned ? 'filter: grayscale(100%) brightness(50%);' : ''}">
-          ${getSkillIconSvg(curSkill.iconKey)}
+          ${getSkillIconHtml(curSkill.iconKey)}
         </div>
         <div class="skill-insp-info">
           <div class="skill-insp-name">${curSkill.name}</div>
