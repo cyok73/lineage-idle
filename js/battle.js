@@ -1175,6 +1175,11 @@ function onMapSelectChange() {
   const mapSelect = document.getElementById("map-select");
   if (!mapSelect) return;
   gameState.currentMap = mapSelect.value;
+  const cfg = window.mapData && window.mapData[gameState.currentMap];
+  if (cfg && cfg.bounds) {
+    gameState.playerX = cfg.bounds.x + cfg.bounds.width / 2;
+    gameState.playerY = cfg.bounds.y + cfg.bounds.height / 2;
+  }
   initWorldMobs();
   const curName = (typeof DB !== 'undefined' && DB.maps && DB.maps[gameState.currentMap]) ? DB.maps[gameState.currentMap].name : "話島獵場";
   log(`已切換前往獵場：${curName}！`, "sys");

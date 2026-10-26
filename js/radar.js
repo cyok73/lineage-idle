@@ -376,10 +376,31 @@ function drawMonsterSprite(name, screenX, screenY, size = 38, isBoss = false) {
 
 // 地表氛圍繪製
 function drawBattlefieldTerrain(cw, ch, camX, camY) {
-  const mapKey = gameState.currentMap || "talking_island";
-  let tileBase = "#14241b"; // 話島綠郊
-  let gridLine = "#1f3b2b";
+  const mapKey = gameState.currentMap || "town";
+  const mapCfg = window.mapData && window.mapData[mapKey];
+  // Draw background image if available
+  if (mapCfg && mapCfg.bg) {
+    if (!mapCfg.img) {
+      const img = new Image();
+      img.src = mapCfg.bg;
+      mapCfg.img = img;
+    }
+    if (mapCfg.img.complete) {
+      ctx.drawImage(mapCfg.img, -camX, -camY, WORLD_WIDTH, WORLD_HEIGHT);
+    } else {
+      // Fallback solid color while loading
+      ctx.fillStyle = "#2c3e50";
+      ctx.fillRect(0, 0, cw, ch);
+    }
+  } else {
+    // Default fallback solid color
+    ctx.fillStyle = "#14241b";
+    ctx.fillRect(0, 0, cw, ch);
+  }
 
+  // Draw grid lines (optional)
+  let tileBase = "#14241b"; // default if needed for grid contrast
+  let gridLine = "#1f3b2b";
   if (mapKey.includes("fire") || mapKey.includes("werden")) {
     tileBase = "#271212";
     gridLine = "#451a1a";
@@ -391,14 +412,11 @@ function drawBattlefieldTerrain(cw, ch, camX, camY) {
     gridLine = "#1f2937";
   }
 
-  ctx.fillStyle = tileBase;
-  ctx.fillRect(0, 0, cw, ch);
-
+  // Optional overlay grid for visual aid
   ctx.strokeStyle = gridLine;
   ctx.lineWidth = 1;
   const startX = -(camX % 48);
   const startY = -(camY % 48);
-
   for (let x = startX; x < cw; x += 48) {
     ctx.beginPath();
     ctx.moveTo(x, 0);
@@ -412,6 +430,7 @@ function drawBattlefieldTerrain(cw, ch, camX, camY) {
     ctx.stroke();
   }
 
+  // World boundary rectangle
   ctx.strokeStyle = "rgba(239, 68, 68, 0.4)";
   ctx.lineWidth = 2;
   ctx.strokeRect(-camX, -camY, WORLD_WIDTH, WORLD_HEIGHT);

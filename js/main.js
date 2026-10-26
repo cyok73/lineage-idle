@@ -22,7 +22,7 @@ let gameState = {
   isRunning: false,
   loopTimer: null,
   cloudSaveTimer: null,
-  currentMap: "talking_island",
+  currentMap: "town",
   viewingVillage: "ti_village",
   inVillage: false,
   isRestocking: false,
@@ -268,6 +268,20 @@ function switchTab(tabId) {
   }
 }
 window.switchTab = switchTab;
+
+// 處理地圖選擇更改，更新當前地圖並居中玩家座標
+function onMapSelectChange() {
+  const select = document.getElementById('map-select');
+  if (!select) return;
+  gameState.currentMap = select.value;
+  const cfg = window.mapData && window.mapData[gameState.currentMap];
+  if (cfg && cfg.bounds) {
+    // 置中玩家至地圖中心
+    gameState.playerX = cfg.bounds.x + cfg.bounds.width / 2;
+    gameState.playerY = cfg.bounds.y + cfg.bounds.height / 2;
+  }
+}
+
 
 // ---------------- 全域角色與掛機狀態持久化 ----------------
 function saveAccountData() {
