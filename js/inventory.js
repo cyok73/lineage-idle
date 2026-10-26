@@ -576,6 +576,7 @@ function renderInventoryTab() {
       `;
     }
 
+    const tierColor = dbItem.tier === "red" ? "#ef4444" : (dbItem.tier === "blue" ? "#38bdf8" : (dbItem.tier === "green" ? "#22c55e" : "#e2e8f0"));
     const iconHtml = (typeof getItemIconHtml === "function") ? getItemIconHtml(item.name) : "";
     tr.innerHTML = `
       <td style="color:${tierColor}; font-weight:${dbItem.tier === 'blue' || dbItem.tier === 'red' ? 'bold' : 'normal'};">
