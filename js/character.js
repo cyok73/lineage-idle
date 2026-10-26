@@ -1632,14 +1632,10 @@ function renderSkillTab() {
     return isSkillMatchClass(sk, charCls);
   });
 
-  // 一般魔法技能 (右分頁，依職業上限篩選：妖精可學 1~6 級正統魔法，共 20 招)
+  // 一般魔法技能 (右分頁，依職業上限篩選：妖精可學 1~6 級正統魔法，共 38 招)
   const commonLearnableSkills = allSkills.filter(sk => {
     return (sk.category === "common" || sk.school === "common") && isSkillMatchClass(sk, charCls);
   });
-
-  // 排序：一般魔法依 circle 升序排列 (1級 -> 2級 -> 3級 -> 4級 -> 5級 -> 6級)，專屬技能依 tier 升序排列
-  commonLearnableSkills.sort((a, b) => (a.circle || 1) - (b.circle || 1) || (a.reqLv || 1) - (b.reqLv || 1));
-  classSkills.sort((a, b) => (a.tier || 1) - (b.tier || 1) || (a.reqLv || 1) - (b.reqLv || 1));
 
   const classTitles = {
     knight: "專屬騎士技術",
@@ -1665,15 +1661,12 @@ function renderSkillTab() {
     `;
   }
 
-  // 根據當前分頁篩選技能清單 (專屬 vs 一般)
-  const currentTabSkills = (currentSpellTab === "common") ? commonLearnableSkills : classSkills;
-
   // 若存在舊版過濾按鈕容器清空
   if (legacyTabsContainer) {
     legacyTabsContainer.innerHTML = "";
   }
 
-  // 若找不到 24 格矩陣容器，相容傳統列表
+  // 若找不到矩陣容器，相容傳統列表
   if (!gridContainer) {
     const legacyContainer = document.getElementById("skill-list-container");
     if (!legacyContainer) return;
@@ -1696,84 +1689,185 @@ function renderSkillTab() {
 
   gridContainer.innerHTML = "";
 
-  // 如果當前選取的技能不在目前過濾結果中，重設為第一個技能
-  if (!selectedSkillName || !currentTabSkills.some(s => s.name === selectedSkillName)) {
-    selectedSkillName = currentTabSkills.length > 0 ? currentTabSkills[0].name : null;
-  }
-
   const learnedList = (currentChar && Array.isArray(currentChar.skills)) ? currentChar.skills : [];
   const inventoryList = (currentChar && Array.isArray(currentChar.inventory)) ? currentChar.inventory : [];
 
-  // 固定渲染 4 列 x 6 行 (共 24 格石槽)
-  const TOTAL_SLOTS = 24;
-  const renderList = currentTabSkills.slice(0, TOTAL_SLOTS);
+  // 依級別/屬性組織行群組（每一級技能一行）
+  const MAX_ROW_SLOTS = 8; // 每行標準 8 格，保持整齊橫向平鋪對齊
+  let rowGroups = [];
 
-  renderList.forEach(skill => {
-    const isLearned = learnedList.includes(skill.name);
-    const bookName = getSkillBookItemName(skill.name);
-    const hasBook = inventoryList.some(i => i.name === bookName && (i.count || 1) > 0);
-    const cd = getSkillCooldownRemaining(skill.name);
-    const isSelected = skill.name === selectedSkillName;
-    const reqLv = getSkillReqLevelForClass(skill, charCls);
+  if (currentSpellTab === "common") {
+    // 依職業可學上限決定最多幾級
+    let maxCircle = 6;
+    if (charCls === "knight") maxCircle = 1;
+    else if (charCls === "prince") maxCircle = 2;
+    else if (charCls === "elf") maxCircle = 6;
+    else if (charCls === "mage") maxCircle = 10;
 
-    const slot = document.createElement("div");
-    let stateClass = "state-unlearned";
-    if (isLearned) stateClass = "state-learned";
-    else if (hasBook) stateClass = "state-can-learn";
+    const circleDefs = [
+      { circle: 1, title: "第 1 級 一般魔法", desc: "法師 Lv.4 / 妖精 Lv.8 / 王族 Lv.10 / 騎士 Lv.50" },
+      { circle: 2, title: "第 2 級 一般魔法", desc: "法師 Lv.8 / 妖精 Lv.16 / 王族 Lv.20" },
+      { circle: 3, title: "第 3 級 一般魔法", desc: "法師 Lv.12 / 妖精 Lv.24" },
+      { circle: 4, title: "第 4 級 一般魔法", desc: "法師 Lv.16 / 妖精 Lv.32" },
+      { circle: 5, title: "第 5 級 一般魔法", desc: "法師 Lv.20 / 妖精 Lv.40" },
+      { circle: 6, title: "第 6 級 一般魔法", desc: "法師 Lv.24 / 妖精 Lv.48" }
+    ];
 
-    slot.className = `skill-slot-box ${stateClass} ${isSelected ? "selected" : ""}`;
-    slot.setAttribute("data-skill-name", skill.name);
-    slot.onclick = () => {
-      selectSkillInInspector(skill.name);
-      if (!isLearned) {
-        showSkillLockedToast(skill.name, reqLv);
+    for (let c = 1; c <= Math.min(6, maxCircle); c++) {
+      const def = circleDefs[c - 1];
+      const skillsInCircle = commonLearnableSkills.filter(s => s.circle === c);
+      if (skillsInCircle.length > 0) {
+        rowGroups.push({
+          title: def.title,
+          desc: def.desc,
+          skills: skillsInCircle
+        });
       }
-    };
-    slot.title = `${skill.name} (${isLearned ? "已習得" : `未習得 - 需求 Lv.${reqLv}`})`;
-
-    const isPassive = skill.mode === "passive";
-    const badgeText = isPassive ? "P" : "A";
-    const badgeClass = isPassive ? "badge-p" : "badge-a";
-
-    let bottomIndicator = "";
-    if (!isLearned && hasBook) {
-      bottomIndicator = `<div class="skill-learn-text">學習</div>`;
-    } else if (!isLearned && !hasBook) {
-      bottomIndicator = `<div class="skill-plus-sign">+</div>`;
     }
+  } else {
+    // 專屬職業魔法
+    if (charCls === "elf") {
+      // 妖精四大屬性與共通魔法：每一級/屬性一行
+      const elfRowDefs = [
+        { key: "common", title: "共通精靈魔法", desc: "全精靈共通核心秘術" },
+        { key: "wind", title: "風屬性（弓手遠程核心）", desc: "風系遠程連射與神速秘術" },
+        { key: "water", title: "水屬性（補血與輔助核心）", desc: "水系泉湧治癒與淨化秘術" },
+        { key: "earth", title: "地屬性（高防禦與控制）", desc: "地系石膚剛體與石化屏障" },
+        { key: "fire", title: "火屬性（近戰烈魂妖）", desc: "火系近戰烈焰與狂暴破壞" }
+      ];
 
-    let padlockHtml = "";
-    if (!isLearned) {
-      padlockHtml = `<div class="skill-padlock-overlay">${getPadlockHtml()}</div>`;
+      elfRowDefs.forEach(def => {
+        const skillsInEl = classSkills.filter(s => s.element === def.key);
+        if (skillsInEl.length > 0) {
+          rowGroups.push({
+            title: def.title,
+            desc: def.desc,
+            skills: skillsInEl
+          });
+        }
+      });
+    } else if (charCls === "knight") {
+      rowGroups.push({
+        title: "專屬騎士技術",
+        desc: "近戰防護與重擊昏迷控制",
+        skills: classSkills
+      });
+    } else if (charCls === "prince") {
+      rowGroups.push({
+        title: "專屬王族魔法",
+        desc: "血盟統禦與戰場光環號令",
+        skills: classSkills
+      });
+    } else {
+      // mage
+      const tier1 = classSkills.filter(s => (s.tier || 1) <= 2);
+      const tier2 = classSkills.filter(s => (s.tier || 1) > 2);
+      if (tier1.length > 0) {
+        rowGroups.push({ title: "專屬神術・初中階秘術", desc: "高階法術控制與變形幻化", skills: tier1 });
+      }
+      if (tier2.length > 0) {
+        rowGroups.push({ title: "專屬神術・高階究極禁咒", desc: "聖結界、絕對屏障與究極光裂術", skills: tier2 });
+      }
     }
+  }
 
-    let cdOverlay = "";
-    if (isLearned && cd > 0) {
-      cdOverlay = `<div class="skill-cooldown-overlay">${Math.ceil(cd / 1000)}s</div>`;
-    }
-
-    slot.innerHTML = `
-      <div class="skill-badge ${badgeClass}">${badgeText}</div>
-      <div class="skill-art-container">
-        ${getSkillIconHtml(skill.iconKey)}
-      </div>
-      ${padlockHtml}
-      ${bottomIndicator}
-      ${cdOverlay}
-    `;
-
-    gridContainer.appendChild(slot);
+  // 收集當前分頁中所有技能清單
+  const allCurrentSkills = [];
+  rowGroups.forEach(grp => {
+    allCurrentSkills.push(...grp.skills);
   });
 
-  // 若不足 24 格，自動補齊古典石雕空槽，使版面保持完美的 4 列 x 6 行格局
-  const emptySlotsCount = TOTAL_SLOTS - renderList.length;
-  for (let i = 0; i < emptySlotsCount; i++) {
-    const emptySlot = document.createElement("div");
-    emptySlot.className = "skill-slot-box";
-    emptySlot.style.opacity = "0.2";
-    emptySlot.style.cursor = "default";
-    gridContainer.appendChild(emptySlot);
+  // 如果當前選取的技能不在目前清單中，重設為第一個技能
+  if (!selectedSkillName || !allCurrentSkills.some(s => s.name === selectedSkillName)) {
+    selectedSkillName = allCurrentSkills.length > 0 ? allCurrentSkills[0].name : null;
   }
+
+  // 依行渲染各 Row Group（每一級技能一行）
+  rowGroups.forEach(group => {
+    const rowGroupEl = document.createElement("div");
+    rowGroupEl.className = "skill-row-group";
+
+    const learnedCountInGroup = group.skills.filter(s => learnedList.includes(s.name)).length;
+
+    rowGroupEl.innerHTML = `
+      <div class="skill-row-header">
+        <span class="skill-row-title">${group.title}</span>
+        <span class="skill-row-meta">${group.skills.length} 項技能（已習得 ${learnedCountInGroup}/${group.skills.length}）</span>
+      </div>
+      <div class="skill-row-slots"></div>
+    `;
+
+    const slotsContainer = rowGroupEl.querySelector(".skill-row-slots");
+
+    group.skills.forEach(skill => {
+      const isLearned = learnedList.includes(skill.name);
+      const bookName = getSkillBookItemName(skill.name);
+      const hasBook = inventoryList.some(i => i.name === bookName && (i.count || 1) > 0);
+      const cd = getSkillCooldownRemaining(skill.name);
+      const isSelected = skill.name === selectedSkillName;
+      const reqLv = getSkillReqLevelForClass(skill, charCls);
+
+      const slot = document.createElement("div");
+      let stateClass = "state-unlearned";
+      if (isLearned) stateClass = "state-learned";
+      else if (hasBook) stateClass = "state-can-learn";
+
+      slot.className = `skill-slot-box ${stateClass} ${isSelected ? "selected" : ""}`;
+      slot.setAttribute("data-skill-name", skill.name);
+      slot.onclick = () => {
+        selectSkillInInspector(skill.name);
+        if (!isLearned) {
+          showSkillLockedToast(skill.name, reqLv);
+        }
+      };
+      slot.title = `${skill.name} (${isLearned ? "已習得" : `未習得 - 需求 Lv.${reqLv}`})`;
+
+      const isPassive = skill.mode === "passive";
+      const badgeText = isPassive ? "P" : "A";
+      const badgeClass = isPassive ? "badge-p" : "badge-a";
+
+      let bottomIndicator = "";
+      if (!isLearned && hasBook) {
+        bottomIndicator = `<div class="skill-learn-text">學習</div>`;
+      } else if (!isLearned && !hasBook) {
+        bottomIndicator = `<div class="skill-plus-sign">+</div>`;
+      }
+
+      let padlockHtml = "";
+      if (!isLearned) {
+        padlockHtml = `<div class="skill-padlock-overlay">${getPadlockHtml()}</div>`;
+      }
+
+      let cdOverlay = "";
+      if (isLearned && cd > 0) {
+        cdOverlay = `<div class="skill-cooldown-overlay">${Math.ceil(cd / 1000)}s</div>`;
+      }
+
+      slot.innerHTML = `
+        <div class="skill-badge ${badgeClass}">${badgeText}</div>
+        <div class="skill-art-container">
+          ${getSkillIconHtml(skill.iconKey)}
+        </div>
+        ${padlockHtml}
+        ${bottomIndicator}
+        ${cdOverlay}
+      `;
+
+      slotsContainer.appendChild(slot);
+    });
+
+    // 每行補齊空石槽至 MAX_ROW_SLOTS (8 格)，維持整齊橫向對齊美感
+    const emptyCount = MAX_ROW_SLOTS - group.skills.length;
+    for (let i = 0; i < emptyCount; i++) {
+      const emptySlot = document.createElement("div");
+      emptySlot.className = "skill-slot-box";
+      emptySlot.style.opacity = "0.15";
+      emptySlot.style.cursor = "default";
+      slotsContainer.appendChild(emptySlot);
+    }
+
+    gridContainer.appendChild(rowGroupEl);
+  });
 
   // 渲染右側詳細屬性檢視器 (Inspector)
   if (inspector) {

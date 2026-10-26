@@ -179,49 +179,100 @@ const DB = {
     "技術書(增幅防禦)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 200000, skill: "增幅防禦", desc: "習得騎士強化技術：增幅防禦 (盾牌 AC額外-3)" },
     "技術書(狂暴將軍)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 250000, skill: "狂暴將軍", desc: "習得騎士狂暴技術：狂暴將軍 (力量 STR+3)" },
 
-    // 🏹 妖精專屬精靈水晶 (Elf Spirit Crystals - 1~5 階段共 14 招)
-    "精靈水晶(屬性之火)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 50000, skill: "屬性之火", desc: "習得 1 階精靈火系魔法：屬性之火" },
-    "精靈水晶(屬性之水)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 50000, skill: "屬性之水", desc: "習得 1 階精靈水系魔法：屬性之水" },
-    "精靈水晶(魔法防禦)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 50000, skill: "魔法防禦", desc: "習得 1 階共通精靈秘技：魔法防禦 (MR+10)" },
-    "精靈水晶(屬性之風)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 80000, skill: "屬性之風", desc: "習得 2 階精靈風系魔法：屬性之風" },
-    "精靈水晶(屬性之地)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 80000, skill: "屬性之地", desc: "習得 2 階精靈地系魔法：屬性之地" },
-    "精靈水晶(大地防護)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 80000, skill: "大地防護", desc: "習得 2 階地系精靈秘技：大地防護 (AC-4)" },
-    "精靈水晶(烈炎武器)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 100000, skill: "烈炎武器", desc: "習得 2 階火系精靈秘技：烈炎武器 (近戰傷害+4)" },
-    "精靈水晶(三重矢)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 300000, skill: "三重矢", desc: "習得 3 階妖精王道神技：三重矢 (瞬間連續三發箭矢)" },
-    "精靈水晶(魂體轉換)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 250000, skill: "魂體轉換", desc: "習得 3 階妖精永動機神技：魂體轉換 (HP 轉換為 MP)" },
-    "精靈水晶(風之疾走)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 180000, skill: "風之疾走", desc: "習得 3 階風系精靈秘技：風之疾走 (DEX+3 / 疾走加速)" },
-    "精靈水晶(水之元氣)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 160000, skill: "水之元氣", desc: "習得 3 階水系精靈秘技：水之元氣 (WIS+3)" },
-    "精靈水晶(暴風神射)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 220000, skill: "暴風神射", desc: "習得 4 階風系精靈秘技：暴風神射 (遠程命中+6/傷害增加)" },
-    "精靈水晶(大地的祝福)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 200000, skill: "大地的祝福", desc: "習得 4 階地系精靈秘技：大地的祝福 (物理防禦 AC-5)" },
-    "精靈水晶(自然之祝福)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 350000, skill: "自然之祝福", desc: "習得 5 階水系精靈神技：自然之祝福 (世界樹甘霖全體巨幅回復生命)" },
-
     // 👑 王族皇家魔典 (Prince Royal Books)
     "皇家魔典(精準目標)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 30000, skill: "精準目標", desc: "習得王族鎖定技術：精準目標 (命中+5)" },
     "皇家魔典(皇家血統)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 60000, skill: "皇家血統", desc: "習得王族被動體魄：皇家血統 (HP+50)" },
     "皇家魔典(激勵士氣)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 80000, skill: "激勵士氣", desc: "習得王族戰術光環：激勵士氣" },
 
-    // ✨ 正統一般魔法書 (Circles 1~6 General Magic - 妖精可學至 6 級)
-    "魔法書(光箭術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 5000, skill: "光箭術", desc: "習得 1 級破魔光箭術" },
-    "魔法書(初級治癒術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 5000, skill: "初級治癒術", desc: "習得 1 級神聖回復魔法" },
-    "魔法書(魔法飛彈)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 3000, skill: "魔法飛彈", desc: "習得 1 級秘術飛彈" },
-    "魔法書(保護罩)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 8000, skill: "保護罩", desc: "習得 1 級防護能量盾 (AC-2)" },
-    "魔法書(初級加速術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 20000, skill: "初級加速術", desc: "習得 2 級敏捷加速魔法" },
-    "魔法書(初級體力回復術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 30000, skill: "初級體力回復術", desc: "習得 2 級體力回復術" },
-    "魔法書(解毒術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 15000, skill: "解毒術", desc: "習得 2 級神聖解毒淨化術" },
-    "魔法書(火球術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 40000, skill: "火球術", desc: "習得 3 級火系爆裂魔法" },
-    "魔法書(寒冰氣息)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 35000, skill: "寒冰氣息", desc: "習得 3 級冰晶穿刺魔法" },
-    "魔法書(通暢氣脈術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 60000, skill: "通暢氣脈術", desc: "習得 3 級經絡通暢術 (敏捷 DEX+5)" },
-    "魔法書(極道落雷)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 80000, skill: "極道落雷", desc: "習得 4 級範圍雷電魔法" },
-    "技能書(極道落雷)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 80000, skill: "極道落雷", desc: "習得 4 級範圍雷電魔法 (技能書別名)" },
-    "魔法書(高級治癒術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 120000, skill: "高級治癒術", desc: "習得 4 級單體急救神術" },
-    "魔法書(冥想術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 60000, skill: "冥想術", desc: "習得 4 級靜心冥思術 (精神 WIS+3)" },
-    "魔法書(體魄強健術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 150000, skill: "體魄強健術", desc: "習得 5 級強化魔法 (力量 STR+5)" },
-    "魔法書(加速術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 180000, skill: "加速術", desc: "習得 5 級全速奔馳疾風魔法" },
-    "魔法書(冰雪暴)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 250000, skill: "冰雪暴", desc: "習得 5 級廣域暴風雪極寒魔法" },
-    "魔法書(聖潔之光)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 100000, skill: "聖潔之光", desc: "習得 5 級聖潔淨化驅魔光輝" },
-    "魔法書(祝福魔法武器)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 200000, skill: "祝福魔法武器", desc: "習得 6 級神聖附魔 (命中+3/傷害+2)" },
-    "魔法書(魔法封印)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 280000, skill: "魔法封印", desc: "習得 6 級沉默封鎖神術" },
-    "魔法書(體力回復術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 350000, skill: "體力回復術", desc: "習得 6 級終極大補血醫療術" },
+    // 🏹 妖精專屬精靈水晶（共通與四大屬性共 32 招）
+    // 共通精靈魔法
+    "精靈水晶(魔法防禦)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 50000, skill: "魔法防禦", desc: "習得共通精靈秘技：魔法防禦 (MR+10)" },
+    "精靈水晶(心靈轉換)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 60000, skill: "心靈轉換", desc: "習得共通精靈秘技：心靈轉換 (HP 換 MP)" },
+    "精靈水晶(世界樹的呼喚)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 80000, skill: "世界樹的呼喚", desc: "習得共通精靈秘技：世界樹的呼喚 (瞬間返鄉)" },
+    "精靈水晶(淨化精神)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 100000, skill: "淨化精神", desc: "習得共通精靈秘技：淨化精神 (WIS+2)" },
+    "精靈水晶(屬性防禦)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 120000, skill: "屬性防禦", desc: "習得共通精靈秘技：屬性防禦 (MR+15)" },
+    "精靈水晶(釋放術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 150000, skill: "釋放術", desc: "習得共通精靈秘技：釋放術 (淨化異常)" },
+    "精靈水晶(魂體轉換)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 250000, skill: "魂體轉換", desc: "習得共通妖精永動神技：魂體轉換 (HP 換 15 MP)" },
+    "精靈水晶(單屬性防禦)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 200000, skill: "單屬性防禦", desc: "習得共通精靈秘技：單屬性防禦 (MR+20)" },
+    // 風屬性
+    "精靈水晶(風之神速)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 80000, skill: "風之神速", desc: "習得風系精靈秘技：風之神速 (DEX+2)" },
+    "精靈水晶(風之疾走)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 180000, skill: "風之疾走", desc: "習得風系精靈秘技：風之疾走 (DEX+3 / 疾走加速)" },
+    "精靈水晶(暴風神射)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 220000, skill: "暴風神射", desc: "習得風系弓手核心：暴風神射 (遠程命中+6/傷害增加)" },
+    "精靈水晶(風之枷鎖)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 200000, skill: "風之枷鎖", desc: "習得風系精靈秘技：風之枷鎖 (延遲敵方攻速)" },
+    "精靈水晶(暴風疾馳)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 280000, skill: "暴風疾馳", desc: "習得風系精靈秘技：暴風疾馳 (DEX+5)" },
+    "精靈水晶(三重矢)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 300000, skill: "三重矢", desc: "習得妖精王道神技：三重矢 (瞬間連續三發箭矢)" },
+    "精靈水晶(風之精靈召喚)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 350000, skill: "風之精靈召喚", desc: "習得上位風精靈契約召喚" },
+    // 水屬性
+    "精靈水晶(水之元氣)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 160000, skill: "水之元氣", desc: "習得水系精靈秘技：水之元氣 (WIS+3)" },
+    "精靈水晶(生命之泉)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 150000, skill: "生命之泉", desc: "習得水系精靈秘技：生命之泉 (甘霖急救)" },
+    "精靈水晶(生命的祝福)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 350000, skill: "生命的祝福", desc: "習得水系核心神技：生命的祝福 (全隊大補血)" },
+    "精靈水晶(自然之祝福)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 350000, skill: "生命的祝福", desc: "習得水系核心神技：生命的祝福 (同名水晶)" },
+    "精靈水晶(水之防護)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 180000, skill: "水之防護", desc: "習得水系精靈秘技：水之防護 (AC-4)" },
+    "精靈水晶(污濁之水)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 260000, skill: "污濁之水", desc: "習得水系精靈秘技：污濁之水 (敵方治癒減半)" },
+    "精靈水晶(水之精靈召喚)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 350000, skill: "水之精靈召喚", desc: "習得上位水精靈契約召喚" },
+    // 地屬性
+    "精靈水晶(大地防護)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 80000, skill: "大地防護", desc: "習得地系精靈秘技：大地防護 (AC-4)" },
+    "精靈水晶(大地祝福)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 200000, skill: "大地祝福", desc: "習得地系精靈秘技：大地祝福 (全隊防禦 AC-5)" },
+    "精靈水晶(大地的祝福)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 200000, skill: "大地祝福", desc: "習得地系精靈秘技：大地祝福 (同名水晶)" },
+    "精靈水晶(鋼鐵防護)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 280000, skill: "鋼鐵防護", desc: "習得地系精靈秘技：鋼鐵防護 (AC-8)" },
+    "精靈水晶(體魄強健)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 150000, skill: "體魄強健", desc: "習得地系精靈秘技：體魄強健 (STR+5)" },
+    "精靈水晶(大地屏障)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 300000, skill: "大地屏障", desc: "習得地系精靈秘技：大地屏障 (石化禁錮)" },
+    "精靈水晶(大地精靈召喚)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 350000, skill: "大地精靈召喚", desc: "習得上位大地精靈契約召喚" },
+    "精靈水晶(地之精靈召喚)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 350000, skill: "大地精靈召喚", desc: "習得上位大地精靈契約召喚" },
+    // 火屬性
+    "精靈水晶(火熱武器)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 100000, skill: "火熱武器", desc: "習得火系精靈秘技：火熱武器 (命中+3)" },
+    "精靈水晶(烈炎氣息)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 120000, skill: "烈炎氣息", desc: "習得火系精靈秘技：烈炎氣息 (火焰打擊)" },
+    "精靈水晶(烈炎武器)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 180000, skill: "烈炎武器", desc: "習得火系近戰核心：烈炎武器 (命中+5)" },
+    "精靈水晶(灼熱靈魂)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 300000, skill: "灼熱靈魂", desc: "習得火系烈魂妖神技：灼熱靈魂 (極限傷害/STR+6)" },
+    "精靈水晶(火之精靈召喚)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 350000, skill: "火之精靈召喚", desc: "習得上位烈火精靈契約召喚" },
+
+    // ✨ 正統一般魔法書（1～6 級共 38 招）
+    // 第 1 級
+    "魔法書(光術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 3000, skill: "光術", desc: "習得 1 級神聖照明魔法" },
+    "魔法書(光箭術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 3000, skill: "光術", desc: "習得 1 級神聖光術 (同名書冊)" },
+    "魔法書(保護罩)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 5000, skill: "保護罩", desc: "習得 1 級防護能量盾 (AC-2)" },
+    "魔法書(指定傳送)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 8000, skill: "指定傳送", desc: "習得 1 級空間座標瞬移" },
+    "魔法書(冰箭)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 6000, skill: "冰箭", desc: "習得 1 級寒冰穿刺之箭" },
+    "魔法書(風刃)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 6000, skill: "風刃", desc: "習得 1 級疾風破空風刃" },
+    "魔法書(神聖武器)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 8000, skill: "神聖武器", desc: "習得 1 級神聖兵刃附魔 (命中+1)" },
+    "魔法書(解毒術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 10000, skill: "解毒術", desc: "習得 1 級解毒淨化神術" },
+    "魔法書(盾牌術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 8000, skill: "盾牌術", desc: "習得 1 級堅定盾牌術 (AC-2)" },
+    // 第 2 級
+    "魔法書(初級治癒術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 12000, skill: "初級治癒術", desc: "習得 2 級神聖回復魔法" },
+    "魔法書(日光術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 15000, skill: "日光術", desc: "習得 2 級白晝日光術" },
+    "魔法書(火球術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 20000, skill: "火球術", desc: "習得 2 級火系爆裂球" },
+    "魔法書(通暢氣脈)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 30000, skill: "通暢氣脈", desc: "習得 2 級經絡通暢術 (DEX+5)" },
+    "魔法書(力量提升)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 30000, skill: "力量提升", desc: "習得 2 級肉體肌力激發 (STR+5)" },
+    "魔法書(寒冰氣息)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 25000, skill: "寒冰氣息", desc: "習得 2 級極寒冰霜噴射" },
+    // 第 3 級
+    "魔法書(擬似勇氣)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 40000, skill: "擬似勇氣", desc: "習得 3 級神經攻速加速 (DEX+2)" },
+    "魔法書(極光雷電)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 50000, skill: "極光雷電", desc: "習得 3 級金色極光雷弧" },
+    "魔法書(起死回生術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 60000, skill: "起死回生術", desc: "習得 3 級超渡不死系神術" },
+    "魔法書(中級治癒術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 50000, skill: "中級治癒術", desc: "習得 3 級中度急救神術" },
+    "魔法書(闇盲術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 45000, skill: "闇盲術", desc: "習得 3 級奪取視野詛咒 (命中-5)" },
+    "魔法書(鎧甲護持)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 50000, skill: "鎧甲護持", desc: "習得 3 級甲冑祝福護持 (AC-3)" },
+    // 第 4 級
+    "魔法書(高級治癒術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 80000, skill: "高級治癒術", desc: "習得 4 級神聖大回復術" },
+    "魔法書(燃燒的火球)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 90000, skill: "燃燒的火球", desc: "習得 4 級極巨爆炎火球" },
+    "魔法書(通透術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 70000, skill: "通透術", desc: "習得 4 級洞察弱點術 (命中+3)" },
+    "魔法書(冥想術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 80000, skill: "冥想術", desc: "習得 4 級深度禪定 (WIS+3)" },
+    "魔法書(壞物術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 75000, skill: "壞物術", desc: "習得 4 級兵刃損壞詛咒" },
+    "魔法書(吸血鬼之吻)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 90000, skill: "吸血鬼之吻", desc: "習得 4 級生命汲取魔咒" },
+    // 第 5 級
+    "魔法書(聖潔之光)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 120000, skill: "聖潔之光", desc: "習得 5 級聖潔淨化除咒光芒" },
+    "魔法書(冰雪暴)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 180000, skill: "冰雪暴", desc: "習得 5 級廣域極寒霜暴" },
+    "魔法書(沉睡之霧)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 130000, skill: "沉睡之霧", desc: "習得 5 級催眠昏睡之霧" },
+    "魔法書(緩速術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 120000, skill: "緩速術", desc: "習得 5 級泥沼縛鎖遲緩" },
+    "魔法書(召喚術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 200000, skill: "召喚術", desc: "習得 5 級異界使魔契約召喚" },
+    "魔法書(極道落雷)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 150000, skill: "極道落雷", desc: "習得 5 級紫電狂雷破壞" },
+    "技能書(極道落雷)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 150000, skill: "極道落雷", desc: "習得 5 級紫電狂雷破壞 (別名)" },
+    // 第 6 級
+    "魔法書(加速術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 200000, skill: "加速術", desc: "習得 6 級正統全速奔馳疾風魔法" },
+    "魔法書(地裂術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 250000, skill: "地裂術", desc: "習得 6 級地動山搖剛石迸裂" },
+    "魔法書(魔法相消術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 300000, skill: "魔法相消術", desc: "習得 6 級增益消解法術" },
+    "魔法書(強力加速術)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 320000, skill: "強力加速術", desc: "習得 6 級極限狂暴疾行 (DEX+6)" },
+    "魔法書(魔法屏障)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 280000, skill: "魔法屏障", desc: "習得 6 級神聖反彈屏障 (MR+20)" },
+    "魔法書(創造怪物)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 350000, skill: "創造怪物", desc: "習得 6 級操縱生命之泥創造怪物傀儡" },
 
     // 🧙‍♂️ 法師專屬高階神術 (Mage High Tier Magic)
     "魔法書(聖結界)": { type: "spellbook", tier: "scroll", weight: 5.0, price: 500000, skill: "聖結界", desc: "法師神技：受擊傷害減免 50%" },
@@ -358,33 +409,6 @@ const DB = {
     "狂暴將軍": { skillId: "brave_aura", name: "狂暴將軍", school: "knight", category: "class", reqLv: 55, tier: 3, mpCost: 25, hpCost: 0, materialCost: "無", cooldown: 30000, type: "buff", stat: "str", amount: 3, duration: 180, mode: "active", iconKey: "brave_aura", desc: "激發騎士狂暴之魂，力量 STR+3" },
 
     // =========================================================================
-    // 🏹 專屬精靈魔法 (Elf Spirit Magic - 1~5 階段共 14 招)
-    // =========================================================================
-    // --- 1 階段 (Lv.10) ---
-    "屬性之火": { skillId: "elemental_fire", name: "屬性之火", school: "elf", category: "class", reqLv: 10, tier: 1, mpCost: 10, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 2000, type: "damage", power: 40, mode: "active", iconKey: "elemental_fire", desc: "引導火鳳凰烈焰之力，造成強烈火屬性傷害" },
-    "屬性之水": { skillId: "elemental_water", name: "屬性之水", school: "elf", category: "class", reqLv: 10, tier: 1, mpCost: 10, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 2000, type: "damage", power: 40, mode: "active", iconKey: "elemental_water", desc: "凝聚神聖水元素漩渦打擊目標" },
-    "魔法防禦": { skillId: "mr_defense", name: "魔法防禦", school: "elf", category: "class", reqLv: 10, tier: 1, mpCost: 10, hpCost: 0, materialCost: "無", cooldown: 60000, type: "buff", stat: "mr", amount: 10, duration: 300, mode: "passive", iconKey: "mr_defense", desc: "精靈庇佑護體，自身魔法防禦力 MR+10" },
-
-    // --- 2 階段 (Lv.20) ---
-    "屬性之風": { skillId: "elemental_wind", name: "屬性之風", school: "elf", category: "class", reqLv: 20, tier: 2, mpCost: 12, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 2000, type: "damage", power: 55, mode: "active", iconKey: "elemental_wind", desc: "召喚銳利疾風風刃破空打擊" },
-    "屬性之地": { skillId: "elemental_earth", name: "屬性之地", school: "elf", category: "class", reqLv: 20, tier: 2, mpCost: 12, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 2000, type: "damage", power: 55, mode: "active", iconKey: "elemental_earth", desc: "引動大地剛石結晶重壓目標" },
-    "大地防護": { skillId: "earth_skin", name: "大地防護", school: "elf", category: "class", reqLv: 20, tier: 2, mpCost: 15, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 60000, type: "buff", stat: "ac", amount: -4, duration: 300, mode: "passive", iconKey: "earth_skin", desc: "地系精靈護甲，自身防禦 AC-4" },
-    "烈炎武器": { skillId: "fire_weapon", name: "烈炎武器", school: "elf", category: "class", reqLv: 20, tier: 2, mpCost: 20, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 30000, type: "buff", stat: "hit", amount: 4, duration: 180, mode: "active", iconKey: "fire_weapon", desc: "火系精靈戰刃，提升近戰命中與破壞力" },
-
-    // --- 3 階段 (Lv.30) ---
-    "三重矢": { skillId: "triple_arrow", name: "三重矢", school: "elf", category: "class", reqLv: 30, tier: 3, mpCost: 15, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 2500, type: "damage", power: 90, mode: "active", iconKey: "triple_arrow", desc: "妖精標誌神技，瞬間連續射出三支強烈魔法箭矢" },
-    "魂體轉換": { skillId: "body_to_soul", name: "魂體轉換", school: "elf", category: "class", reqLv: 30, tier: 3, mpCost: 0, hpCost: 40, mpRecovery: 15, materialCost: "無", cooldown: 3000, type: "heal", mode: "active", iconKey: "body_to_soul", desc: "妖精永動機神技，消耗 40 HP 轉換為 15 MP" },
-    "風之疾走": { skillId: "wind_walk", name: "風之疾走", school: "elf", category: "class", reqLv: 30, tier: 3, mpCost: 15, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 30000, type: "buff", stat: "dex", amount: 3, duration: 180, mode: "active", iconKey: "wind_walk", desc: "風系精靈秘技，敏捷 DEX+3，移動與攻擊速度提升" },
-    "水之元氣": { skillId: "water_life", name: "水之元氣", school: "elf", category: "class", reqLv: 30, tier: 3, mpCost: 20, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 60000, type: "buff", stat: "wis", amount: 3, duration: 300, mode: "passive", iconKey: "water_life", desc: "水之洗禮，精神 WIS+3，提升魔法治癒量" },
-
-    // --- 4 階段 (Lv.40) ---
-    "暴風神射": { skillId: "storm_shot", name: "暴風神射", school: "elf", category: "class", reqLv: 40, tier: 4, mpCost: 25, hpCost: 0, materialCost: "精靈玉 x2", cooldown: 40000, type: "buff", stat: "hit", amount: 6, duration: 180, mode: "active", iconKey: "storm_shot", desc: "風系精靈秘技，遠程命中+6、遠程傷害提升" },
-    "大地的祝福": { skillId: "earth_bless", name: "大地的祝福", school: "elf", category: "class", reqLv: 40, tier: 4, mpCost: 25, hpCost: 0, materialCost: "精靈玉 x2", cooldown: 60000, type: "buff", stat: "ac", amount: -5, duration: 300, mode: "passive", iconKey: "earth_bless", desc: "地之母神印記，自身與隊伍物理防禦 AC-5" },
-
-    // --- 5 階段 (Lv.50) ---
-    "自然之祝福": { skillId: "nature_blessing", name: "自然之祝福", school: "elf", category: "class", reqLv: 50, tier: 5, mpCost: 30, hpCost: 0, materialCost: "精靈玉 x2", cooldown: 6000, type: "heal", power: 260, mode: "active", iconKey: "nature_blessing", desc: "水系精靈神技，引世界樹甘霖全體巨幅回復生命" },
-
-    // =========================================================================
     // 👑 專屬王族魔法 (Prince Royal Magic)
     // =========================================================================
     "精準目標": { skillId: "true_target", name: "精準目標", school: "prince", category: "class", reqLv: 15, tier: 1, mpCost: 10, hpCost: 0, materialCost: "無", cooldown: 20000, type: "buff", stat: "hit", amount: 5, duration: 180, mode: "active", iconKey: "true_target", desc: "王族集火目標印記，命中+5" },
@@ -398,39 +422,102 @@ const DB = {
     "究極光裂術": { skillId: "disintegrate", name: "究極光裂術", school: "mage", category: "class", reqLv: 50, tier: 6, mpCost: 60, hpCost: 0, materialCost: "魔力之石 x3", cooldown: 8000, type: "damage", power: 320, mode: "active", iconKey: "disintegrate", desc: "天界裁決之毀滅光芒，終極單體神術" },
 
     // =========================================================================
-    // ✨ 正統 1~6 級一般魔法技能 (Circles 1~6 General Magic - 妖精可學至 6 級)
+    // 🏹 專屬精靈魔法技能（共通與四大屬性共 32 招）
     // =========================================================================
-    // --- 1 級一般魔法 (Circle 1 - 妖精 Lv.8 / 法師 Lv.4 / 騎士 Lv.50 / 王族 Lv.10) ---
-    "光箭術": { skillId: "light_arrow", name: "光箭術", circle: 1, school: "common", category: "common", reqLv: 8, tier: 1, mpCost: 8, hpCost: 0, materialCost: "無", cooldown: 1500, type: "damage", power: 50, mode: "active", iconKey: "light_arrow", desc: "光屬性單體破魔箭矢打擊" },
-    "初級治癒術": { skillId: "heal", name: "初級治癒術", circle: 1, school: "common", category: "common", reqLv: 8, tier: 1, mpCost: 10, hpCost: 0, materialCost: "無", cooldown: 2000, type: "heal", power: 60, mode: "active", iconKey: "heal", desc: "回復少量生命值" },
-    "魔法飛彈": { skillId: "energy_bolt", name: "魔法飛彈", circle: 1, school: "common", category: "common", reqLv: 8, tier: 1, mpCost: 6, hpCost: 0, materialCost: "無", cooldown: 1500, type: "damage", power: 30, mode: "active", iconKey: "energy_bolt", desc: "基礎單體秘術飛彈攻擊" },
-    "保護罩": { skillId: "shield", name: "保護罩", circle: 1, school: "common", category: "common", reqLv: 8, tier: 1, mpCost: 10, hpCost: 0, materialCost: "無", cooldown: 60000, type: "buff", stat: "ac", amount: -2, duration: 300, mode: "passive", iconKey: "shield", desc: "凝固魔力護盾，自身的防禦 AC-2" },
+    // --- 共通魔法 (8 招) ---
+    "魔法防禦": { skillId: "mr_defense", name: "魔法防禦", school: "elf", category: "class", element: "common", tier: 1, reqLv: 10, mpCost: 10, hpCost: 0, materialCost: "無", cooldown: 60000, type: "buff", stat: "mr", amount: 10, duration: 300, mode: "passive", iconKey: "mr_defense", desc: "精靈庇佑護體，自身魔法防禦力 MR+10" },
+    "心靈轉換": { skillId: "mental_convert", name: "心靈轉換", school: "elf", category: "class", element: "common", tier: 1, reqLv: 10, mpCost: 0, hpCost: 20, mpRecovery: 8, materialCost: "無", cooldown: 2000, type: "heal", mode: "active", iconKey: "body_to_soul", desc: "初階心靈轉化，犧牲 20 HP 轉化 8 MP" },
+    "世界樹的呼喚": { skillId: "teleport_mother_tree", name: "世界樹的呼喚", school: "elf", category: "class", element: "common", tier: 2, reqLv: 20, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 5000, type: "active", mode: "active", iconKey: "nature_blessing", desc: "聆聽世界樹指引，瞬間傳送返回母樹村莊" },
+    "淨化精神": { skillId: "clear_mind", name: "淨化精神", school: "elf", category: "class", element: "common", tier: 2, reqLv: 20, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 30000, type: "buff", stat: "wis", amount: 2, duration: 180, mode: "active", iconKey: "meditation", desc: "洗滌精神雜念，精神 WIS+2" },
+    "屬性防禦": { skillId: "resist_element", name: "屬性防禦", school: "elf", category: "class", element: "common", tier: 3, reqLv: 30, mpCost: 20, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 60000, type: "buff", stat: "mr", amount: 15, duration: 300, mode: "passive", iconKey: "earth_skin", desc: "全元素防禦抵抗，MR+15" },
+    "釋放術": { skillId: "release_magic", name: "釋放術", school: "elf", category: "class", element: "common", tier: 3, reqLv: 30, mpCost: 20, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 15000, type: "heal", mode: "active", iconKey: "remove_curse", desc: "釋放並淨化自然界一切異常禁錮與麻痺" },
+    "魂體轉換": { skillId: "body_to_soul", name: "魂體轉換", school: "elf", category: "class", element: "common", tier: 3, reqLv: 30, mpCost: 0, hpCost: 40, mpRecovery: 15, materialCost: "無", cooldown: 2500, type: "heal", mode: "active", iconKey: "body_to_soul", desc: "妖精永動機神技，消耗 40 HP 轉換為 15 MP" },
+    "單屬性防禦": { skillId: "elemental_protection", name: "單屬性防禦", school: "elf", category: "class", element: "common", tier: 4, reqLv: 40, mpCost: 25, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 60000, type: "buff", stat: "mr", amount: 20, duration: 300, mode: "passive", iconKey: "earth_bless", desc: "凝聚單一特定屬性抗性屏障，MR+20" },
 
-    // --- 2 級一般魔法 (Circle 2 - 妖精 Lv.16 / 法師 Lv.8 / 王族 Lv.20) ---
-    "初級加速術": { skillId: "lesser_haste", name: "初級加速術", circle: 2, school: "common", category: "common", reqLv: 16, tier: 2, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 30000, type: "buff", stat: "dex", amount: 2, duration: 120, mode: "active", iconKey: "haste", desc: "疾行雷電祝福，DEX+2" },
-    "初級體力回復術": { skillId: "extra_heal", name: "初級體力回復術", circle: 2, school: "common", category: "common", reqLv: 16, tier: 2, mpCost: 18, hpCost: 0, materialCost: "無", cooldown: 4000, type: "heal", power: 120, mode: "active", iconKey: "extra_heal", desc: "中度體力回復術，回復適量生命值" },
-    "解毒術": { skillId: "cure_poison", name: "解毒術", circle: 2, school: "common", category: "common", reqLv: 16, tier: 2, mpCost: 12, hpCost: 0, materialCost: "無", cooldown: 5000, type: "heal", mode: "active", iconKey: "cure_poison", desc: "神聖純淨之光，瞬間解除體內劇毒狀態" },
+    // --- 風屬性（弓手遠程核心 7 招） ---
+    "風之神速": { skillId: "wind_speed", name: "風之神速", school: "elf", category: "class", element: "wind", tier: 1, reqLv: 10, mpCost: 10, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 30000, type: "buff", stat: "dex", amount: 2, duration: 120, mode: "active", iconKey: "wind_walk", desc: "乘風神速，移動速度與反應大幅提升" },
+    "風之疾走": { skillId: "wind_walk", name: "風之疾走", school: "elf", category: "class", element: "wind", tier: 2, reqLv: 20, mpCost: 15, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 30000, type: "buff", stat: "dex", amount: 3, duration: 180, mode: "active", iconKey: "wind_walk", desc: "風系精靈秘技，敏捷 DEX+3，移動與攻擊速度提升" },
+    "暴風神射": { skillId: "storm_shot", name: "暴風神射", school: "elf", category: "class", element: "wind", tier: 3, reqLv: 30, mpCost: 25, hpCost: 0, materialCost: "精靈玉 x2", cooldown: 40000, type: "buff", stat: "hit", amount: 6, duration: 180, mode: "active", iconKey: "storm_shot", desc: "風系弓手核心，遠程命中+6、遠程傷害提升" },
+    "風之枷鎖": { skillId: "wind_shackle", name: "風之枷鎖", school: "elf", category: "class", element: "wind", tier: 3, reqLv: 30, mpCost: 20, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 15000, type: "buff", stat: "dex", amount: -4, duration: 60, mode: "active", iconKey: "elemental_wind", desc: "逆風漩渦束縛目標，大幅延遲目標攻速" },
+    "暴風疾馳": { skillId: "storm_walk", name: "暴風疾馳", school: "elf", category: "class", element: "wind", tier: 4, reqLv: 40, mpCost: 25, hpCost: 0, materialCost: "精靈玉 x2", cooldown: 45000, type: "buff", stat: "dex", amount: 5, duration: 180, mode: "active", iconKey: "storm_shot", desc: "暴風咆哮疾馳，獲得極致遠程攻擊頻率" },
+    "三重矢": { skillId: "triple_arrow", name: "三重矢", school: "elf", category: "class", element: "wind", tier: 4, reqLv: 40, mpCost: 15, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 2000, type: "damage", power: 90, mode: "active", iconKey: "triple_arrow", desc: "妖精標誌神技，瞬間連續射出三支強烈魔法箭矢" },
+    "風之精靈召喚": { skillId: "summon_wind_spirit", name: "風之精靈召喚", school: "elf", category: "class", element: "wind", tier: 5, reqLv: 50, mpCost: 35, hpCost: 0, materialCost: "精靈玉 x2", cooldown: 60000, type: "buff", stat: "hit", amount: 5, duration: 300, mode: "active", iconKey: "elemental_wind", desc: "召喚上位暴風精靈使，協同遠程傾瀉風刃" },
 
-    // --- 3 級一般魔法 (Circle 3 - 妖精 Lv.24 / 法師 Lv.12) ---
-    "火球術": { skillId: "fireball", name: "火球術", circle: 3, school: "common", category: "common", reqLv: 24, tier: 3, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 3000, type: "damage", power: 80, mode: "active", iconKey: "fireball", desc: "凝聚熾熱爆炎火球轟擊目標" },
-    "寒冰氣息": { skillId: "ice_dagger", name: "寒冰氣息", circle: 3, school: "common", category: "common", reqLv: 24, tier: 3, mpCost: 14, hpCost: 0, materialCost: "無", cooldown: 2500, type: "damage", power: 70, mode: "active", iconKey: "ice_dagger", desc: "凝結極寒冰針穿透目標" },
-    "通暢氣脈術": { skillId: "physical_enchant_dex", name: "通暢氣脈術", circle: 3, school: "common", category: "common", reqLv: 24, tier: 3, mpCost: 20, hpCost: 0, materialCost: "無", cooldown: 60000, type: "buff", stat: "dex", amount: 5, duration: 300, mode: "passive", iconKey: "physical_enchant_dex", desc: "打通全身筋脈，敏捷 DEX+5" },
+    // --- 水屬性（補血與輔助核心 6 招） ---
+    "水之元氣": { skillId: "water_life", name: "水之元氣", school: "elf", category: "class", element: "water", tier: 1, reqLv: 10, mpCost: 20, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 60000, type: "buff", stat: "wis", amount: 3, duration: 300, mode: "passive", iconKey: "water_life", desc: "純水治癒源泉，精神 WIS+3，大幅提升治癒量" },
+    "生命之泉": { skillId: "nature_touch", name: "生命之泉", school: "elf", category: "class", element: "water", tier: 2, reqLv: 20, mpCost: 15, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 4000, type: "heal", power: 100, mode: "active", iconKey: "nature_blessing", desc: "甘霖湧現泉水，持續滋潤生命值" },
+    "生命的祝福": { skillId: "nature_blessing", name: "生命的祝福", school: "elf", category: "class", element: "water", tier: 3, reqLv: 30, mpCost: 30, hpCost: 0, materialCost: "精靈玉 x2", cooldown: 5000, type: "heal", power: 220, mode: "active", iconKey: "nature_blessing", desc: "聖水生命祝福，全隊大量回復生命值" },
+    "水之防護": { skillId: "aqua_protect", name: "水之防護", school: "elf", category: "class", element: "water", tier: 3, reqLv: 30, mpCost: 20, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 60000, type: "buff", stat: "ac", amount: -4, duration: 300, mode: "passive", iconKey: "elemental_water", desc: "水幕柔韌防護壁，物理防禦 AC-4" },
+    "污濁之水": { skillId: "pollute_water", name: "污濁之水", school: "elf", category: "class", element: "water", tier: 4, reqLv: 40, mpCost: 25, hpCost: 0, materialCost: "精靈玉 x2", cooldown: 20000, type: "buff", mode: "active", iconKey: "cure_poison", desc: "污染目標生命源泉，使其受到的治癒量減半" },
+    "水之精靈召喚": { skillId: "summon_water_spirit", name: "水之精靈召喚", school: "elf", category: "class", element: "water", tier: 5, reqLv: 50, mpCost: 35, hpCost: 0, materialCost: "精靈玉 x2", cooldown: 60000, type: "buff", stat: "hp", amount: 150, duration: 300, mode: "active", iconKey: "elemental_water", desc: "召喚上位水之精靈使，提供強大守護治癒光環" },
 
-    // --- 4 級一般魔法 (Circle 4 - 妖精 Lv.32 / 法師 Lv.16) ---
-    "極道落雷": { skillId: "lightning", name: "極道落雷", circle: 4, school: "common", category: "common", reqLv: 32, tier: 4, mpCost: 25, hpCost: 0, materialCost: "無", cooldown: 4000, type: "damage", power: 140, mode: "active", iconKey: "lightning", desc: "召喚黑紫狂雷貫穿目標" },
-    "高級治癒術": { skillId: "greater_heal", name: "高級治癒術", circle: 4, school: "common", category: "common", reqLv: 32, tier: 4, mpCost: 30, hpCost: 0, materialCost: "無", cooldown: 5000, type: "heal", power: 180, mode: "active", iconKey: "greater_heal", desc: "神聖高級急救神術，大量回復生命值" },
-    "冥想術": { skillId: "meditation", name: "冥想術", circle: 4, school: "common", category: "common", reqLv: 32, tier: 4, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 60000, type: "buff", stat: "wis", amount: 3, duration: 300, mode: "passive", iconKey: "meditation", desc: "進入深度冥思，精神 WIS+3" },
+    // --- 地屬性（高防禦與控制 6 招） ---
+    "大地防護": { skillId: "earth_skin", name: "大地防護", school: "elf", category: "class", element: "earth", tier: 1, reqLv: 10, mpCost: 15, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 60000, type: "buff", stat: "ac", amount: -4, duration: 300, mode: "passive", iconKey: "earth_skin", desc: "地系精靈護甲，自身防禦 AC-4" },
+    "大地祝福": { skillId: "earth_bless", name: "大地祝福", school: "elf", category: "class", element: "earth", tier: 2, reqLv: 20, mpCost: 25, hpCost: 0, materialCost: "精靈玉 x2", cooldown: 60000, type: "buff", stat: "ac", amount: -5, duration: 300, mode: "passive", iconKey: "earth_bless", desc: "母神堅定印記，全隊物理防禦 AC-5" },
+    "鋼鐵防護": { skillId: "iron_skin", name: "鋼鐵防護", school: "elf", category: "class", element: "earth", tier: 3, reqLv: 30, mpCost: 25, hpCost: 0, materialCost: "精靈玉 x2", cooldown: 60000, type: "buff", stat: "ac", amount: -8, duration: 300, mode: "passive", iconKey: "solid_carriage", desc: "全身如鋼鐵般堅固，物理防禦 AC-8" },
+    "體魄強健": { skillId: "physical_enchant", name: "體魄強健", school: "elf", category: "class", element: "earth", tier: 3, reqLv: 30, mpCost: 20, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 60000, type: "buff", stat: "str", amount: 5, duration: 300, mode: "passive", iconKey: "physical_enchant", desc: "大地力魄灌注，力量 STR+5" },
+    "大地屏障": { skillId: "earth_bind", name: "大地屏障", school: "elf", category: "class", element: "earth", tier: 4, reqLv: 40, mpCost: 30, hpCost: 0, materialCost: "精靈玉 x2", cooldown: 20000, type: "buff", mode: "active", iconKey: "earth_skin", desc: "剛石岩牢束縛目標，使其陷入完全石化禁錮" },
+    "大地精靈召喚": { skillId: "summon_earth_spirit", name: "大地精靈召喚", school: "elf", category: "class", element: "earth", tier: 5, reqLv: 50, mpCost: 35, hpCost: 0, materialCost: "精靈玉 x2", cooldown: 60000, type: "buff", stat: "ac", amount: -6, duration: 300, mode: "active", iconKey: "elemental_earth", desc: "召喚上位大地精靈使，硬化岩石裝甲 AC-6" },
 
-    // --- 5 級一般魔法 (Circle 5 - 妖精 Lv.40 / 法師 Lv.20) ---
-    "體魄強健術": { skillId: "physical_enchant", name: "體魄強健術", circle: 5, school: "common", category: "common", reqLv: 40, tier: 5, mpCost: 20, hpCost: 0, materialCost: "魔力之石 x1", cooldown: 60000, type: "buff", stat: "str", amount: 5, duration: 300, mode: "passive", iconKey: "physical_enchant", desc: "肌肉力量爆發，力量 STR+5" },
-    "加速術": { skillId: "haste", name: "加速術", circle: 5, school: "common", category: "common", reqLv: 40, tier: 5, mpCost: 25, hpCost: 0, materialCost: "無", cooldown: 45000, type: "buff", stat: "dex", amount: 4, duration: 180, mode: "active", iconKey: "haste", desc: "正統全速奔馳疾風魔法，大幅提升攻擊與移動速度" },
-    "冰雪暴": { skillId: "blizzard", name: "冰雪暴", circle: 5, school: "common", category: "common", reqLv: 40, tier: 5, mpCost: 35, hpCost: 0, materialCost: "魔力之石 x1", cooldown: 6000, type: "damage", power: 220, mode: "active", iconKey: "blizzard", desc: "召喚廣域暴風雪極寒霜凍打擊目標" },
+    // --- 火屬性（近戰烈魂妖 5 招） ---
+    "火熱武器": { skillId: "fire_weapon", name: "火熱武器", school: "elf", category: "class", element: "fire", tier: 1, reqLv: 10, mpCost: 15, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 30000, type: "buff", stat: "hit", amount: 3, duration: 180, mode: "active", iconKey: "fire_weapon", desc: "赤焰灼熱附魔，近戰命中+3" },
+    "烈炎氣息": { skillId: "elemental_fire", name: "烈炎氣息", school: "elf", category: "class", element: "fire", tier: 2, reqLv: 20, mpCost: 12, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 2000, type: "damage", power: 55, mode: "active", iconKey: "elemental_fire", desc: "引導火鳳凰烈炎氣息打擊目標" },
+    "烈炎武器": { skillId: "burning_weapon", name: "烈炎武器", school: "elf", category: "class", element: "fire", tier: 3, reqLv: 30, mpCost: 20, hpCost: 0, materialCost: "精靈玉 x1", cooldown: 30000, type: "buff", stat: "hit", amount: 5, duration: 180, mode: "active", iconKey: "fire_weapon", desc: "火系近戰核心，近戰攻擊力與破壞力大幅飛躍" },
+    "灼熱靈魂": { skillId: "soul_of_flame", name: "灼熱靈魂", school: "elf", category: "class", element: "fire", tier: 4, reqLv: 40, mpCost: 30, hpCost: 0, materialCost: "精靈玉 x2", cooldown: 45000, type: "buff", stat: "str", amount: 6, duration: 180, mode: "active", iconKey: "fireball", desc: "燃燒火妖靈魂戰意，近身每擊皆發揮最高極限傷害" },
+    "火之精靈召喚": { skillId: "summon_fire_spirit", name: "火之精靈召喚", school: "elf", category: "class", element: "fire", tier: 5, reqLv: 50, mpCost: 35, hpCost: 0, materialCost: "精靈玉 x2", cooldown: 60000, type: "buff", stat: "hit", amount: 5, duration: 300, mode: "active", iconKey: "elemental_fire", desc: "召喚上位烈火精靈使，近身狂暴焚燒敵人" },
+
+    // =========================================================================
+    // ✨ 正統 1～6 級一般魔法技能（共 38 招，妖精可學至 6 級）
+    // =========================================================================
+    // --- 第 1 級一般魔法 (8 招) ---
+    "光術": { skillId: "light", name: "光術", circle: 1, school: "common", category: "common", reqLv: 8, tier: 1, mpCost: 5, hpCost: 0, materialCost: "無", cooldown: 2000, type: "buff", duration: 300, mode: "active", iconKey: "light_arrow", desc: "引導光之神恩，照亮周圍黑暗迷霧" },
+    "保護罩": { skillId: "shield", name: "保護罩", circle: 1, school: "common", category: "common", reqLv: 8, tier: 1, mpCost: 10, hpCost: 0, materialCost: "無", cooldown: 60000, type: "buff", stat: "ac", amount: -2, duration: 300, mode: "passive", iconKey: "shield", desc: "凝結魔力能量護盾，物理防禦 AC-2" },
+    "指定傳送": { skillId: "teleport", name: "指定傳送", circle: 1, school: "common", category: "common", reqLv: 8, tier: 1, mpCost: 10, hpCost: 0, materialCost: "無", cooldown: 3000, type: "active", mode: "active", iconKey: "energy_bolt", desc: "空間座標轉移，瞬間移動脫離險境" },
+    "冰箭": { skillId: "ice_dagger", name: "冰箭", circle: 1, school: "common", category: "common", reqLv: 8, tier: 1, mpCost: 6, hpCost: 0, materialCost: "無", cooldown: 1500, type: "damage", power: 45, mode: "active", iconKey: "ice_dagger", desc: "凝聚尖銳寒冰之箭貫穿打擊目標" },
+    "風刃": { skillId: "wind_cutter", name: "風刃", circle: 1, school: "common", category: "common", reqLv: 8, tier: 1, mpCost: 6, hpCost: 0, materialCost: "無", cooldown: 1500, type: "damage", power: 45, mode: "active", iconKey: "elemental_wind", desc: "揮斬疾風風刃破空打擊目標" },
+    "神聖武器": { skillId: "holy_weapon", name: "神聖武器", circle: 1, school: "common", category: "common", reqLv: 8, tier: 1, mpCost: 10, hpCost: 0, materialCost: "無", cooldown: 60000, type: "buff", stat: "hit", amount: 1, duration: 300, mode: "passive", iconKey: "bless_weapon", desc: "神聖力量附魔於武器，命中率+1" },
+    "解毒術": { skillId: "cure_poison", name: "解毒術", circle: 1, school: "common", category: "common", reqLv: 8, tier: 1, mpCost: 12, hpCost: 0, materialCost: "無", cooldown: 5000, type: "heal", mode: "active", iconKey: "cure_poison", desc: "淨化聖潔之光，瞬間解除體內劇毒狀態" },
+    "盾牌術": { skillId: "shield_magic", name: "盾牌術", circle: 1, school: "common", category: "common", reqLv: 8, tier: 1, mpCost: 10, hpCost: 0, materialCost: "無", cooldown: 60000, type: "buff", stat: "ac", amount: -2, duration: 300, mode: "passive", iconKey: "reduction_armor", desc: "強化盾牌堅定壁壘，防禦 AC-2" },
+
+    // --- 第 2 級一般魔法 (6 招) ---
+    "初級治癒術": { skillId: "heal", name: "初級治癒術", circle: 2, school: "common", category: "common", reqLv: 16, tier: 2, mpCost: 10, hpCost: 0, materialCost: "無", cooldown: 2000, type: "heal", power: 60, mode: "active", iconKey: "heal", desc: "回復少量生命值" },
+    "日光術": { skillId: "daylight", name: "日光術", circle: 2, school: "common", category: "common", reqLv: 16, tier: 2, mpCost: 10, hpCost: 0, materialCost: "無", cooldown: 60000, type: "buff", duration: 300, mode: "active", iconKey: "light_arrow", desc: "召喚白晝日光驅散一切陰霾" },
+    "火球術": { skillId: "fireball", name: "火球術", circle: 2, school: "common", category: "common", reqLv: 16, tier: 2, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 3000, type: "damage", power: 80, mode: "active", iconKey: "fireball", desc: "凝聚熾熱爆炎火球轟擊目標" },
+    "通暢氣脈": { skillId: "physical_enchant_dex", name: "通暢氣脈", circle: 2, school: "common", category: "common", reqLv: 16, tier: 2, mpCost: 20, hpCost: 0, materialCost: "無", cooldown: 60000, type: "buff", stat: "dex", amount: 5, duration: 300, mode: "passive", iconKey: "physical_enchant_dex", desc: "打通全身筋脈，敏捷 DEX+5" },
+    "力量提升": { skillId: "physical_enchant_str", name: "力量提升", circle: 2, school: "common", category: "common", reqLv: 16, tier: 2, mpCost: 20, hpCost: 0, materialCost: "無", cooldown: 60000, type: "buff", stat: "str", amount: 5, duration: 300, mode: "passive", iconKey: "physical_enchant", desc: "激發肉體肌力，力量 STR+5" },
+    "寒冰氣息": { skillId: "ice_breath", name: "寒冰氣息", circle: 2, school: "common", category: "common", reqLv: 16, tier: 2, mpCost: 14, hpCost: 0, materialCost: "無", cooldown: 2500, type: "damage", power: 70, mode: "active", iconKey: "ice_dagger", desc: "凝結極寒冰霜噴射打擊目標" },
+
+    // --- 第 3 級一般魔法 (6 招) ---
+    "擬似勇氣": { skillId: "fake_brave", name: "擬似勇氣", circle: 3, school: "common", category: "common", reqLv: 24, tier: 3, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 30000, type: "buff", stat: "dex", amount: 2, duration: 120, mode: "active", iconKey: "haste", desc: "短暫激發神經加速反應，提升攻速" },
+    "極光雷電": { skillId: "lightning_strike", name: "極光雷電", circle: 3, school: "common", category: "common", reqLv: 24, tier: 3, mpCost: 18, hpCost: 0, materialCost: "無", cooldown: 3000, type: "damage", power: 100, mode: "active", iconKey: "lightning", desc: "召喚金色極光雷弧穿擊目標" },
+    "起死回生術": { skillId: "turn_undead", name: "起死回生術", circle: 3, school: "common", category: "common", reqLv: 24, tier: 3, mpCost: 20, hpCost: 0, materialCost: "無", cooldown: 4000, type: "damage", power: 130, mode: "active", iconKey: "disintegrate", desc: "超渡不死生物，對不死系造成毀滅打擊" },
+    "中級治癒術": { skillId: "extra_heal", name: "中級治癒術", circle: 3, school: "common", category: "common", reqLv: 24, tier: 3, mpCost: 18, hpCost: 0, materialCost: "無", cooldown: 3000, type: "heal", power: 120, mode: "active", iconKey: "extra_heal", desc: "中度神聖治癒術，回復適量生命值" },
+    "闇盲術": { skillId: "curse_blind", name: "闇盲術", circle: 3, school: "common", category: "common", reqLv: 24, tier: 3, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 15000, type: "buff", stat: "hit", amount: -5, duration: 60, mode: "active", iconKey: "true_target", desc: "奪取目標視野，大幅降低其攻擊命中" },
+    "鎧甲護持": { skillId: "blessed_armor", name: "鎧甲護持", circle: 3, school: "common", category: "common", reqLv: 24, tier: 3, mpCost: 20, hpCost: 0, materialCost: "無", cooldown: 60000, type: "buff", stat: "ac", amount: -3, duration: 300, mode: "passive", iconKey: "solid_carriage", desc: "祝福自身防具甲冑，防禦 AC-3" },
+
+    // --- 第 4 級一般魔法 (6 招) ---
+    "高級治癒術": { skillId: "greater_heal", name: "高級治癒術", circle: 4, school: "common", category: "common", reqLv: 32, tier: 4, mpCost: 30, hpCost: 0, materialCost: "無", cooldown: 4000, type: "heal", power: 180, mode: "active", iconKey: "greater_heal", desc: "神聖高級急救神術，大量回復生命值" },
+    "燃燒的火球": { skillId: "burning_fireball", name: "燃燒的火球", circle: 4, school: "common", category: "common", reqLv: 32, tier: 4, mpCost: 22, hpCost: 0, materialCost: "無", cooldown: 3500, type: "damage", power: 130, mode: "active", iconKey: "fireball", desc: "極巨型熾熱火焰爆裂球轟殺目標" },
+    "通透術": { skillId: "clairvoyance", name: "通透術", circle: 4, school: "common", category: "common", reqLv: 32, tier: 4, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 60000, type: "buff", stat: "hit", amount: 3, duration: 300, mode: "passive", iconKey: "true_target", desc: "看穿目標防禦弱點，命中率+3" },
+    "冥想術": { skillId: "meditation", name: "冥想術", circle: 4, school: "common", category: "common", reqLv: 32, tier: 4, mpCost: 15, hpCost: 0, materialCost: "無", cooldown: 60000, type: "buff", stat: "wis", amount: 3, duration: 300, mode: "passive", iconKey: "meditation", desc: "進入深度禪定冥想，精神 WIS+3" },
+    "壞物術": { skillId: "weapon_break", name: "壞物術", circle: 4, school: "common", category: "common", reqLv: 32, tier: 4, mpCost: 20, hpCost: 0, materialCost: "無", cooldown: 20000, type: "buff", stat: "ac", amount: -2, duration: 60, mode: "active", iconKey: "shock_stun", desc: "破壞對手兵器鋒芒，削弱目標威脅" },
+    "吸血鬼之吻": { skillId: "vampiric_touch", name: "吸血鬼之吻", circle: 4, school: "common", category: "common", reqLv: 32, tier: 4, mpCost: 20, hpCost: 0, materialCost: "無", cooldown: 5000, type: "damage", power: 80, mode: "active", iconKey: "cure_poison", desc: "吸取目標生命精華回復自身 HP" },
+
+    // --- 第 5 級一般魔法 (6 招) ---
     "聖潔之光": { skillId: "remove_curse", name: "聖潔之光", circle: 5, school: "common", category: "common", reqLv: 40, tier: 5, mpCost: 20, hpCost: 0, materialCost: "無", cooldown: 10000, type: "heal", mode: "active", iconKey: "remove_curse", desc: "聖潔驅魔光輝，淨化詛咒、石化與麻痺狀態" },
+    "冰雪暴": { skillId: "blizzard", name: "冰雪暴", circle: 5, school: "common", category: "common", reqLv: 40, tier: 5, mpCost: 35, hpCost: 0, materialCost: "魔力之石 x1", cooldown: 6000, type: "damage", power: 220, mode: "active", iconKey: "blizzard", desc: "召喚廣域暴風雪極寒霜凍打擊目標" },
+    "沉睡之霧": { skillId: "fog_of_sleeping", name: "沉睡之霧", circle: 5, school: "common", category: "common", reqLv: 40, tier: 5, mpCost: 25, hpCost: 0, materialCost: "無", cooldown: 15000, type: "buff", duration: 30, mode: "active", iconKey: "meditation", desc: "散播催眠迷霧使敵方陷入沉睡" },
+    "緩速術": { skillId: "slow", name: "緩速術", circle: 5, school: "common", category: "common", reqLv: 40, tier: 5, mpCost: 20, hpCost: 0, materialCost: "無", cooldown: 12000, type: "buff", stat: "dex", amount: -3, duration: 60, mode: "active", iconKey: "water_life", desc: "重力泥沼縛鎖目標，大幅降低其敏捷與速度" },
+    "召喚術": { skillId: "summon_monster", name: "召喚術", circle: 5, school: "common", category: "common", reqLv: 40, tier: 5, mpCost: 30, hpCost: 0, materialCost: "魔力之石 x1", cooldown: 60000, type: "buff", stat: "hit", amount: 4, duration: 180, mode: "active", iconKey: "royal_blood", desc: "異界僕從使魔契約召喚，協助戰鬥" },
+    "極道落雷": { skillId: "lightning", name: "極道落雷", circle: 5, school: "common", category: "common", reqLv: 40, tier: 5, mpCost: 25, hpCost: 0, materialCost: "無", cooldown: 4000, type: "damage", power: 160, mode: "active", iconKey: "lightning", desc: "召喚黑紫狂雷貫穿目標" },
 
-    // --- 6 級一般魔法 (Circle 6 - 妖精 Lv.48 / 法師 Lv.24) ---
-    "祝福魔法武器": { skillId: "bless_weapon", name: "祝福魔法武器", circle: 6, school: "common", category: "common", reqLv: 48, tier: 6, mpCost: 30, hpCost: 0, materialCost: "魔力之石 x1", cooldown: 60000, type: "buff", stat: "hit", amount: 3, duration: 300, mode: "passive", iconKey: "bless_weapon", desc: "神聖附魔於武器，命中率+3、額外傷害+2" },
-    "魔法封印": { skillId: "silence", name: "魔法封印", circle: 6, school: "common", category: "common", reqLv: 48, tier: 6, mpCost: 35, hpCost: 0, materialCost: "魔力之石 x1", cooldown: 15000, type: "buff", stat: "ac", amount: -2, duration: 60, mode: "active", iconKey: "silence", desc: "神聖沉默封印，壓制目標之魔法施展" },
-    "體力回復術": { skillId: "full_heal", name: "體力回復術", circle: 6, school: "common", category: "common", reqLv: 48, tier: 6, mpCost: 45, hpCost: 0, materialCost: "魔力之石 x1", cooldown: 8000, type: "heal", power: 350, mode: "active", iconKey: "full_heal", desc: "終極大補血醫療術，巨額回復生命值" }
+    // --- 第 6 級一般魔法 (6 招) ---
+    "加速術": { skillId: "haste", name: "加速術", circle: 6, school: "common", category: "common", reqLv: 48, tier: 6, mpCost: 25, hpCost: 0, materialCost: "無", cooldown: 45000, type: "buff", stat: "dex", amount: 4, duration: 180, mode: "active", iconKey: "haste", desc: "正統全速奔馳疾風魔法，大幅提升攻擊與移動速度" },
+    "地裂術": { skillId: "earthquake", name: "地裂術", circle: 6, school: "common", category: "common", reqLv: 48, tier: 6, mpCost: 35, hpCost: 0, materialCost: "魔力之石 x1", cooldown: 5000, type: "damage", power: 240, mode: "active", iconKey: "elemental_earth", desc: "地動山搖剛石迸裂，粉碎目標大地之怒" },
+    "魔法相消術": { skillId: "cancel", name: "魔法相消術", circle: 6, school: "common", category: "common", reqLv: 48, tier: 6, mpCost: 40, hpCost: 0, materialCost: "魔力之石 x1", cooldown: 20000, type: "buff", mode: "active", iconKey: "silence", desc: "瓦解並消除目標身上所有的增益魔法效果" },
+    "強力加速術": { skillId: "greater_haste", name: "強力加速術", circle: 6, school: "common", category: "common", reqLv: 48, tier: 6, mpCost: 35, hpCost: 0, materialCost: "魔力之石 x1", cooldown: 60000, type: "buff", stat: "dex", amount: 6, duration: 240, mode: "active", iconKey: "haste", desc: "極限狂暴疾行，獲得最高階速度增幅" },
+    "魔法屏障": { skillId: "magic_barrier", name: "魔法屏障", circle: 6, school: "common", category: "common", reqLv: 48, tier: 6, mpCost: 30, hpCost: 0, materialCost: "魔力之石 x1", cooldown: 60000, type: "buff", stat: "mr", amount: 20, duration: 300, mode: "passive", iconKey: "immune_to_harm", desc: "凝聚神聖魔力反彈屏障，魔法防禦 MR+20" },
+    "創造怪物": { skillId: "make_monster", name: "創造怪物", circle: 6, school: "common", category: "common", reqLv: 48, tier: 6, mpCost: 45, hpCost: 0, materialCost: "魔力之石 x2", cooldown: 60000, type: "buff", stat: "str", amount: 5, duration: 180, mode: "active", iconKey: "shock_stun", desc: "操縱生命之泥創造怪物傀儡戰隊" }
   },
   villages: {
     ti_village: {
