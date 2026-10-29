@@ -1,221 +1,168 @@
-// js/mapData.js - Map configurations for background rendering and terrain themes
+// js/mapData.js - 暗黑破壞神五大章節獵場場景與地形視覺設定
 // Keys MUST match the map keys in DB.maps (data_monsters.js)
 window.mapData = {
-  // === 話島區域 ===
-  "talking_island": {
-    name: "話島東郊果園",
-    theme: "forest",
-    bg: "assets/maps/field_bg.jpg",
-    tileBase: "#224726",
-    gridLine: "#2d5e33",
-    grassColor: "rgba(46,160,56,0.35)",
-    treeDensity: 0.08,
+  // === Act 1 羅格營地區域 ===
+  "blood_moor": {
+    name: "鮮血荒地",
+    act: "Act 1",
+    theme: "blood_moor",
+    bg: null,
+    tileBase: "#1a1815",
+    gridLine: "#26221d",
     bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
-  "ti_cave_1f": {
-    name: "話島地監 1F",
-    theme: "cave",
-    bg: "assets/maps/dungeon_bg.jpg",
-    tileBase: "#222733",
-    gridLine: "#2e3646",
-    wallColor: "rgba(70,80,110,0.3)",
-    treeDensity: 0,
+  "stony_field": {
+    name: "石塊曠野",
+    act: "Act 1",
+    theme: "stony_field",
+    bg: null,
+    tileBase: "#252522",
+    gridLine: "#33332e",
     bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
-  "ti_cave_2f": {
-    name: "話島地監 2F",
-    theme: "cave",
-    bg: "assets/maps/dungeon_bg.jpg",
-    tileBase: "#1c212c",
-    gridLine: "#283040",
-    wallColor: "rgba(65,75,105,0.3)",
-    treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
-  },
-  "ti_boss_room": {
-    name: "話島首領密室",
-    theme: "boss",
-    bg: "assets/maps/boss_bg.jpg",
-    tileBase: "#28151a",
-    gridLine: "#3d1e26",
-    wallColor: "rgba(160,30,40,0.3)",
-    treeDensity: 0,
+  "catacombs": {
+    name: "地下墓穴",
+    act: "Act 1",
+    theme: "catacombs",
+    bg: null,
+    tileBase: "#16161b",
+    gridLine: "#24242e",
     bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
 
-  // === 燃柳村區域 ===
-  "werner_village_field": {
-    name: "燃柳村妖魔森林",
-    theme: "dark_forest",
-    bg: "assets/maps/field_bg.jpg",
-    tileBase: "#1c2e1f",
-    gridLine: "#29452e",
-    grassColor: "rgba(30,100,40,0.3)",
-    treeDensity: 0.12,
+  // === Act 2 魯高因沙漠區域 ===
+  "rocky_waste": {
+    name: "碎石荒野",
+    act: "Act 2",
+    theme: "rocky_waste",
+    bg: null,
+    tileBase: "#4d3a24",
+    gridLine: "#5e472c",
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
+  },
+  "ancient_tunnels": {
+    name: "遠古通道",
+    act: "Act 2",
+    theme: "ancient_tunnels",
+    bg: null,
+    tileBase: "#2a2016",
+    gridLine: "#382c20",
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
+  },
+  "tal_rasha_tomb": {
+    name: "塔拉夏古墓",
+    act: "Act 2",
+    theme: "tal_rasha_tomb",
+    bg: null,
+    tileBase: "#1c1218",
+    gridLine: "#2b1c25",
     bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
 
-  // === 風木沙漠 ===
-  "windwood_desert": {
-    name: "風木南部沙漠",
-    theme: "desert",
-    bg: "assets/maps/desert_bg.jpg",
-    tileBase: "#6b5437",
-    gridLine: "#856945",
-    grassColor: "rgba(220,185,110,0.25)",
-    treeDensity: 0.02,
+  // === Act 3 庫拉斯特叢林 ===
+  "spider_forest": {
+    name: "蜘蛛森林",
+    act: "Act 3",
+    theme: "spider_forest",
+    bg: null,
+    tileBase: "#122013",
+    gridLine: "#1a2e1c",
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
+  },
+  "travincal": {
+    name: "崔凡克議會",
+    act: "Act 3",
+    theme: "travincal",
+    bg: null,
+    tileBase: "#242733",
+    gridLine: "#323647",
+    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
+  },
+  "durance_of_hate": {
+    name: "憎恨囚牢",
+    act: "Act 3",
+    theme: "durance_of_hate",
+    bg: null,
+    tileBase: "#220d12",
+    gridLine: "#33131b",
     bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
 
-  // === 古魯丁地監 ===
-  "gludio_1f": {
-    name: "古魯丁地監 1F",
-    theme: "cave",
-    bg: "assets/maps/dungeon_bg.jpg",
-    tileBase: "#222733",
-    gridLine: "#2e3646",
-    wallColor: "rgba(70,80,110,0.3)",
-    treeDensity: 0,
+  // === Act 4 群魔堡壘 ===
+  "plains_of_despair": {
+    name: "神魔平原",
+    act: "Act 4",
+    theme: "plains_of_despair",
+    bg: null,
+    tileBase: "#281717",
+    gridLine: "#382020",
     bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
-  "gludio_2f": {
-    name: "古魯丁地監 2F",
-    theme: "cave",
-    bg: "assets/maps/dungeon_bg.jpg",
-    tileBase: "#1f2430",
-    gridLine: "#2a3243",
-    wallColor: "rgba(65,75,105,0.3)",
-    treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
-  },
-  "gludio_3f": {
-    name: "古魯丁地監 3F",
-    theme: "cave",
-    bg: "assets/maps/dungeon_bg.jpg",
-    tileBase: "#1d212c",
-    gridLine: "#272e3d",
-    wallColor: "rgba(60,70,100,0.3)",
-    treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
-  },
-  "gludio_4f": {
-    name: "古魯丁地監 4F",
-    theme: "dungeon",
-    bg: "assets/maps/dungeon_bg.jpg",
-    tileBase: "#1b202c",
-    gridLine: "#262e3f",
-    wallColor: "rgba(55,65,95,0.3)",
-    treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
-  },
-  "gludio_5f": {
-    name: "古魯丁地監 5F",
-    theme: "dungeon",
-    bg: "assets/maps/dungeon_bg.jpg",
-    tileBase: "#191e29",
-    gridLine: "#232a3a",
-    wallColor: "rgba(50,60,90,0.3)",
-    treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
-  },
-  "gludio_6f": {
-    name: "古魯丁地監 6F",
-    theme: "dungeon",
-    bg: "assets/maps/dungeon_bg.jpg",
-    tileBase: "#171b26",
-    gridLine: "#212736",
-    wallColor: "rgba(45,55,85,0.3)",
-    treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
-  },
-  "gludio_7f": {
-    name: "古監 7F 死騎巢穴",
-    theme: "boss",
-    bg: "assets/maps/boss_bg.jpg",
-    tileBase: "#2a1418",
-    gridLine: "#421d23",
-    wallColor: "rgba(180,30,40,0.35)",
-    treeDensity: 0,
+  "chaos_sanctuary": {
+    name: "混沌避難所",
+    act: "Act 4",
+    theme: "chaos_sanctuary",
+    bg: null,
+    tileBase: "#1a080a",
+    gridLine: "#290c0f",
     bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
 
-  // === 巨蟻洞穴 ===
-  "ant_nest_1f": {
-    name: "巨蟻洞穴 1F",
-    theme: "ant_cave",
-    bg: "assets/maps/dungeon_bg.jpg",
-    tileBase: "#3d2e20",
-    gridLine: "#543f2c",
-    wallColor: "rgba(120,80,45,0.3)",
-    treeDensity: 0,
+  // === Act 5 哈洛加斯 ===
+  "bloody_foothills": {
+    name: "血腥丘陵",
+    act: "Act 5",
+    theme: "bloody_foothills",
+    bg: null,
+    tileBase: "#252833",
+    gridLine: "#333847",
     bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
-  "ant_nest_2f": {
-    name: "巨蟻洞穴 2F",
-    theme: "ant_cave",
-    bg: "assets/maps/dungeon_bg.jpg",
-    tileBase: "#37281a",
-    gridLine: "#4d3824",
-    wallColor: "rgba(110,70,40,0.3)",
-    treeDensity: 0,
+  "arreat_summit": {
+    name: "亞瑞特山頂",
+    act: "Act 5",
+    theme: "arreat_summit",
+    bg: null,
+    tileBase: "#1b1f29",
+    gridLine: "#262b3a",
     bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
-
-  // === 奇岩地監 ===
-  "giran_1f": {
-    name: "奇岩地監 1F",
-    theme: "dungeon",
-    bg: "assets/maps/dungeon_bg.jpg",
-    tileBase: "#1c2331",
-    gridLine: "#293448",
-    wallColor: "rgba(65,80,120,0.3)",
-    treeDensity: 0,
+  "worldstone_chamber": {
+    name: "世界之石大殿",
+    act: "Act 5",
+    theme: "worldstone_chamber",
+    bg: null,
+    tileBase: "#1f0b18",
+    gridLine: "#301126",
     bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   },
-  "giran_4f": {
-    name: "奇岩地監 4F 典獄司",
-    theme: "boss",
-    bg: "assets/maps/boss_bg.jpg",
-    tileBase: "#241830",
-    gridLine: "#38254b",
-    wallColor: "rgba(110,40,150,0.35)",
-    treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
-  },
-
-  // === 銀騎士訓練場 ===
-  "silver_knight_field": {
-    name: "銀騎士訓練場",
-    theme: "field",
-    bg: "assets/maps/field_bg.jpg",
-    tileBase: "#234a26",
-    gridLine: "#316435",
-    grassColor: "rgba(50,160,60,0.3)",
-    treeDensity: 0.06,
-    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
-  },
-
-  // === 海音水底地監 ===
-  "heine_water_dungeon": {
-    name: "海音水底地監",
-    theme: "water",
-    bg: "assets/maps/dungeon_bg.jpg",
-    tileBase: "#0e2b3d",
-    gridLine: "#15425e",
-    wallColor: "rgba(30,110,160,0.35)",
-    treeDensity: 0,
-    bounds: { x: 0, y: 0, width: 2400, height: 1600 }
-  },
-
-  // === 威頓火龍窟 ===
-  "werden_fire_dragon": {
-    name: "威頓火龍窟",
-    theme: "fire",
-    bg: "assets/maps/boss_bg.jpg",
-    tileBase: "#361815",
-    gridLine: "#54231e",
-    wallColor: "rgba(220,60,30,0.35)",
-    treeDensity: 0,
+  "secret_cow_level": {
+    name: "秘密母牛關卡",
+    act: "隱藏",
+    theme: "cow_level",
+    bg: null,
+    tileBase: "#1d3a17",
+    gridLine: "#274f1f",
     bounds: { x: 0, y: 0, width: 2400, height: 1600 }
   }
 };
+
+// 舊版地圖 key 相容映射
+window.mapData["talking_island"] = window.mapData["blood_moor"];
+window.mapData["ti_cave_1f"] = window.mapData["stony_field"];
+window.mapData["ti_cave_2f"] = window.mapData["catacombs"];
+window.mapData["ti_boss_room"] = window.mapData["catacombs"];
+window.mapData["gludio_1f"] = window.mapData["rocky_waste"];
+window.mapData["gludio_2f"] = window.mapData["ancient_tunnels"];
+window.mapData["gludio_3f"] = window.mapData["tal_rasha_tomb"];
+window.mapData["gludio_4f"] = window.mapData["spider_forest"];
+window.mapData["gludio_5f"] = window.mapData["travincal"];
+window.mapData["gludio_6f"] = window.mapData["durance_of_hate"];
+window.mapData["gludio_7f"] = window.mapData["chaos_sanctuary"];
+window.mapData["ant_nest_1f"] = window.mapData["rocky_waste"];
+window.mapData["ant_nest_2f"] = window.mapData["ancient_tunnels"];
+window.mapData["werner_village_field"] = window.mapData["spider_forest"];
+window.mapData["windwood_desert"] = window.mapData["rocky_waste"];
+window.mapData["silver_knight_field"] = window.mapData["bloody_foothills"];
+window.mapData["heine_water_dungeon"] = window.mapData["arreat_summit"];
+window.mapData["werden_fire_dragon"] = window.mapData["worldstone_chamber"];

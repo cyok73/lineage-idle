@@ -235,7 +235,9 @@ function updateLeftPanel() {
     const className = (typeof resolveClassPreset === 'function' ? resolveClassPreset(currentChar.charClass)?.name : null)
       || (typeof ADEN_CLASS_DATA !== 'undefined' ? ADEN_CLASS_DATA[currentChar.charClass]?.name : null)
       || currentChar.charClass;
-    classTag.innerText = className;
+    const classIcons = { barbarian: "🪓", sorceress: "🔮", paladin: "🛡️", necromancer: "💀", amazon: "🏹" };
+    const classIcon = classIcons[currentChar.charClass] || "⚔️";
+    classTag.innerText = `${classIcon} ${className}`;
   }
 
   const plLv = document.getElementById("pl-lv");
@@ -346,7 +348,7 @@ function updateLeftPanel() {
 
   const statLoc = document.getElementById("stat-location");
   if (statLoc) {
-    const curMap = (typeof DB !== 'undefined' && DB.maps && DB.maps[gameState.currentMap]) ? DB.maps[gameState.currentMap] : ((typeof DB !== 'undefined' && DB.maps) ? DB.maps["talking_island"] : null);
+    const curMap = (typeof DB !== 'undefined' && DB.maps && DB.maps[gameState.currentMap]) ? DB.maps[gameState.currentMap] : ((typeof DB !== 'undefined' && DB.maps) ? DB.maps["blood_moor"] : null);
     statLoc.innerText = gameState.inVillage
       ? (typeof DB !== 'undefined' && DB.villages && DB.villages[gameState.viewingVillage]?.name || "村莊")
       : (curMap?.name || "未知獵場");
@@ -476,6 +478,7 @@ function gameTick() {
   updateWorldMobsBehavior();
 
   handlePlayerMovementAndCombat();
+  updateMercenariesCombat();
 
   if (typeof renderRadar === "function") renderRadar();
   updateLeftPanel();
@@ -513,11 +516,11 @@ function initWorldMobs() {
   gameState.respawnQueue = []; // 清空前一張地圖的重生佇列
 
   if (typeof DB !== 'undefined' && DB.maps && !DB.maps[gameState.currentMap]) {
-    gameState.currentMap = "talking_island";
+    gameState.currentMap = "blood_moor";
   }
 
   const cfg = getMapConfig(gameState.currentMap);
-  const mapData = (typeof DB !== 'undefined' && DB.maps && DB.maps[gameState.currentMap]) ? DB.maps[gameState.currentMap] : ((typeof DB !== 'undefined' && DB.maps) ? DB.maps["talking_island"] : null);
+  const mapData = (typeof DB !== 'undefined' && DB.maps && DB.maps[gameState.currentMap]) ? DB.maps[gameState.currentMap] : ((typeof DB !== 'undefined' && DB.maps) ? DB.maps["blood_moor"] : null);
   if (!mapData || !mapData.monsters || mapData.monsters.length === 0) return;
 
   // 依照每一種怪物設定的指定數量，精準生成到地圖上
@@ -912,7 +915,18 @@ function handleMobDeathAndRewards(mob) {
 
           if (typeof addItemToInventory === "function") {
             addItemToInventory(drop.item, count);
-            log(`✨ 拾獲寶物：${drop.item} x${count}`, "drop");
+            const itemDb = (typeof DB !== 'undefined' && DB.items) ? DB.items[drop.item] : null;
+            const tier = itemDb ? itemDb.tier : "white";
+            if (typeof playD2DropSound === "function") playD2DropSound(tier);
+
+            let colorHex = "#ffffff";
+            if (tier === "unique") colorHex = "#f59e0b";
+            else if (tier === "rune") colorHex = "#fb923c";
+            else if (tier === "rare") colorHex = "#facc15";
+            else if (tier === "green" || tier === "set") colorHex = "#22c55e";
+            else if (tier === "blue" || tier === "magic") colorHex = "#38bdf8";
+
+            log(`<span style="color:${colorHex}; font-weight:bold;">✨ 拾獲寶物：【${drop.item}】x${count}</span>`, "drop");
           }
         }
       }
@@ -1018,9 +1032,11 @@ function checkAndExecuteAutoSkillAttack(target, dist, now) {
       continue;
     }
 
-    // 施法距離檢查 (衝擊之暈等近戰技能為 32，遠程法術/三重矢為 190)
-    const isMeleeSkill = (rule.skillName === "衝擊之暈");
-    const skillRange = isMeleeSkill ? 32 : 190;
+    // 施法距離檢查 (近戰技能為 36，遠程弓矛/魔法為 190)
+    const isMeleeSkill = (skill.school === "barbarian" && skill.skillId !== "battle_orders") || 
+                         (rule.skillName === "白熱") || (rule.skillName === "狂亂") || 
+                         (rule.skillName === "旋風斬") || (rule.skillName === "狂戰士");
+    const skillRange = isMeleeSkill ? 36 : 190;
     if (dist > skillRange) {
       return "moving";
     }
@@ -1057,13 +1073,13 @@ function checkAndExecuteAutoSkillAttack(target, dist, now) {
     const stats = (typeof getCalculatedStats === "function") ? getCalculatedStats() : (currentChar.stats || { int: 10, dex: 10, str: 10 });
     const curLv = currentChar.level || 1;
 
-    if (rule.skillName === "三重矢") {
-      // 妖精三重矢：連續三發射擊
-      let arrowUsed = "魔法箭";
-      if (currentChar.inventory) {
+    if (rule.skillName === "多重箭" || rule.skillName === "引導箭" || rule.skillName === "雷擊標槍") {
+      // 亞馬遜遠程箭矢/標槍絕技
+      let ammoUsed = (rule.skillName === "雷擊標槍") ? "雷擊標槍" : "箭矢";
+      if (currentChar.inventory && rule.skillName !== "雷擊標槍") {
         const arrowIdx = currentChar.inventory.findIndex(i => (i.name === "銀箭" || i.name === "箭") && (i.count || 0) > 0);
         if (arrowIdx !== -1) {
-          arrowUsed = currentChar.inventory[arrowIdx].name;
+          ammoUsed = currentChar.inventory[arrowIdx].name;
           currentChar.inventory[arrowIdx].count--;
           if (currentChar.inventory[arrowIdx].count <= 0) currentChar.inventory.splice(arrowIdx, 1);
         }
@@ -1079,34 +1095,38 @@ function checkAndExecuteAutoSkillAttack(target, dist, now) {
 
       const wpn = currentChar.equipped?.weapon;
       const wpnData = (wpn && typeof DB !== 'undefined' && DB.items) ? DB.items[wpn.name] : null;
-      const baseShot = Math.floor((stats.dex || 10) * 1.5) + (wpn?.enchant || 0) * 2 + (wpnData?.extraDmg || 0);
-      skillDamage = Math.max(30, Math.floor((baseShot + (skill.power || 90)) * 1.1));
+      const baseShot = Math.floor((stats.dex || 10) * 1.6) + (wpn?.enchant || 0) * 2 + (wpnData?.extraDmg || 0);
+      skillDamage = Math.max(30, Math.floor((baseShot + (skill.power || 80)) * 1.15));
 
-      log(`🏹✨【三重矢】破空連發！對【${target.name}】連續射出三支破邪強矢，造成 ${skillDamage} 點爆發傷害！`, "atk");
+      log(`🏹⚡【${rule.skillName}】破空疾射！對【${target.name}】造成 ${skillDamage} 點遠程爆發傷害！`, "atk");
 
       if (!gameState.combatEffects) gameState.combatEffects = [];
       gameState.combatEffects.push({
         type: "burst",
         x: target.x,
         y: target.y,
-        color: "#22c55e",
+        color: rule.skillName === "雷擊標槍" ? "#38bdf8" : "#22c55e",
         expire: Date.now() + 250
       });
 
       if (!gameState.floatingTexts) gameState.floatingTexts = [];
       gameState.floatingTexts.push({
         text: `CRIT -${skillDamage}!`,
-        color: "#4ade80",
+        color: rule.skillName === "雷擊標槍" ? "#67e8f9" : "#4ade80",
         x: target.x,
         y: target.y - 12,
         expire: Date.now() + 900
       });
     } else {
-      // 魔法攻擊或戰士重擊
-      const intBonus = Math.floor((stats.int || 10) * 2.2);
-      const basePwr = skill.power || 60;
+      // 魔法攻擊或戰士近戰猛擊
+      let basePwr = skill.power || 60;
+      let scalingStat = stats.int || 10;
+      if (isMeleeSkill) {
+        scalingStat = stats.str || 10;
+      }
+      const statBonus = Math.floor(scalingStat * 2.2);
       const acReduction = 150 / (150 + Math.max(0, -target.ac));
-      skillDamage = Math.max(10, Math.floor((basePwr + intBonus + curLv) * acReduction));
+      skillDamage = Math.max(15, Math.floor((basePwr + statBonus + curLv) * acReduction));
 
       gameState.arrowTrail = {
         fromX: gameState.playerX,
@@ -1116,21 +1136,21 @@ function checkAndExecuteAutoSkillAttack(target, dist, now) {
         expire: Date.now() + 180
       };
 
-      log(`⚡✨ 施展【${rule.skillName}】！一道強烈魔法衝擊命中【${target.name}】，造成 ${skillDamage} 點魔法打擊傷害！`, "atk");
+      log(`⚡✨ 施展【${rule.skillName}】！一道強烈衝擊命中【${target.name}】，造成 ${skillDamage} 點戰鬥傷害！`, "atk");
 
       if (!gameState.combatEffects) gameState.combatEffects = [];
       gameState.combatEffects.push({
-        type: "magic",
+        type: isMeleeSkill ? "burst" : "magic",
         x: target.x,
         y: target.y,
-        color: "#38bdf8",
+        color: isMeleeSkill ? "#ef4444" : "#38bdf8",
         expire: Date.now() + 250
       });
 
       if (!gameState.floatingTexts) gameState.floatingTexts = [];
       gameState.floatingTexts.push({
         text: `-${skillDamage}`,
-        color: "#60a5fa",
+        color: isMeleeSkill ? "#f87171" : "#60a5fa",
         x: target.x,
         y: target.y - 12,
         expire: Date.now() + 850
@@ -1191,3 +1211,172 @@ function onMapSelectChange() {
   if (typeof renderRadar === 'function') renderRadar();
 }
 window.onMapSelectChange = onMapSelectChange;
+
+// ========================================================
+// 🔊 暗黑經典 Web Audio API 掉寶合成音效 (叮！金屬清脆敲擊)
+// ========================================================
+function playD2DropSound(tier) {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    if (!window._d2AudioCtx) window._d2AudioCtx = new AudioCtx();
+    const ctx = window._d2AudioCtx;
+    if (ctx.state === "suspended") ctx.resume();
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    if (tier === "rune" || tier === "unique") {
+      // 經典暗黑神符/暗金 "叮！" 穿透金屬清脆長音
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(1760, now); // A6
+      osc.frequency.exponentialRampToValueAtTime(3520, now + 0.08);
+      osc.frequency.setValueAtTime(2637, now + 0.1); // E7
+      gain.gain.setValueAtTime(0.35, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.85);
+    } else if (tier === "socketed" || tier === "rare" || tier === "green" || tier === "set") {
+      // 鋼鐵金屬底材清脆敲擊
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(1046, now); // C6
+      osc.frequency.exponentialRampToValueAtTime(1318, now + 0.06);
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.45);
+    }
+  } catch (e) {
+    // browser audio context safe fallback
+  }
+}
+window.playD2DropSound = playD2DropSound;
+
+// ========================================================
+// 👥 8 人傭兵追隨者小隊戰場行為與靈氣光環系統
+// ========================================================
+function updateMercenariesCombat() {
+  if (!currentChar || !Array.isArray(currentChar.mercenaries) || currentChar.mercenaries.length === 0) return;
+  if (gameState.inVillage) return;
+
+  const now = Date.now();
+  const livingMercs = currentChar.mercenaries.filter(m => m.currentHp > 0);
+  if (livingMercs.length === 0) return;
+
+  // 1. 傭兵戰術靈氣常駐生效
+  let hasMight = false;
+  let hasPrayer = false;
+  let hasHolyFreeze = false;
+
+  livingMercs.forEach(m => {
+    if (m.aura === "might") hasMight = true;
+    if (m.aura === "prayer") hasPrayer = true;
+    if (m.aura === "holy_freeze") hasHolyFreeze = true;
+  });
+
+  gameState.mercMightBuff = hasMight;
+  gameState.mercHolyFreeze = hasHolyFreeze;
+
+  // 祈禱靈氣：每 2 秒全隊回血 25 點
+  if (hasPrayer && (!gameState.lastPrayerHeal || now - gameState.lastPrayerHeal > 2000)) {
+    gameState.lastPrayerHeal = now;
+    const healAmount = 25;
+    currentChar.hp = Math.min(currentChar.maxHp, (currentChar.hp || 0) + healAmount);
+    livingMercs.forEach(m => {
+      m.currentHp = Math.min(m.maxHp, m.currentHp + healAmount);
+    });
+  }
+
+  // 神聖冰凍：減速周圍 240px 怪物
+  if (hasHolyFreeze && Array.isArray(gameState.mobs)) {
+    gameState.mobs.forEach(mob => {
+      if (!mob.isDead && Math.hypot(mob.x - gameState.playerX, mob.y - gameState.playerY) < 240) {
+        mob.isChilled = true;
+      }
+    });
+  }
+
+  // 2. 8人傭兵環狀戰陣跟隨 (Formation Position Update)
+  const totalMercs = livingMercs.length;
+  const radius = 55 + Math.min(25, totalMercs * 3);
+  const timeAngle = (now / 3500);
+
+  livingMercs.forEach((m, idx) => {
+    const angle = (idx * (2 * Math.PI / totalMercs)) + timeAngle;
+    const targetX = gameState.playerX + Math.cos(angle) * radius;
+    const targetY = gameState.playerY + Math.sin(angle) * radius;
+
+    if (m.x === undefined) m.x = targetX;
+    if (m.y === undefined) m.y = targetY;
+
+    m.x += (targetX - m.x) * 0.18;
+    m.y += (targetY - m.y) * 0.18;
+
+    // 3. 傭兵自動鎖定打擊
+    if (!m.lastAttackTime) m.lastAttackTime = 0;
+    const atkInterval = m.attackSpeed || 1200;
+
+    if (now - m.lastAttackTime >= atkInterval) {
+      // 優先攻擊主角鎖定的怪，若無則鎖定自身射程內最近的怪
+      let targetMob = gameState.targetMob;
+      if (!targetMob || targetMob.isDead || targetMob.currentHp <= 0 || Math.hypot(targetMob.x - m.x, targetMob.y - m.y) > (m.range || 50) + 30) {
+        targetMob = null;
+        if (Array.isArray(gameState.mobs)) {
+          let nearestDist = (m.range || 50) + 30;
+          for (let mob of gameState.mobs) {
+            if (!mob.isDead && mob.currentHp > 0) {
+              const d = Math.hypot(mob.x - m.x, mob.y - m.y);
+              if (d <= nearestDist) {
+                nearestDist = d;
+                targetMob = mob;
+              }
+            }
+          }
+        }
+      }
+
+      if (targetMob && !targetMob.isDead && targetMob.currentHp > 0) {
+        m.lastAttackTime = now;
+        let baseDmg = m.baseAtk || 50;
+        baseDmg = Math.floor(baseDmg * (1 + (currentChar.level || 1) * 0.04) + (Math.random() * 12));
+        if (hasMight) baseDmg = Math.floor(baseDmg * 1.25);
+
+        const acReduction = 150 / (150 + Math.max(0, -targetMob.ac));
+        const finalDmg = Math.max(1, Math.floor(baseDmg * acReduction));
+
+        targetMob.currentHp -= finalDmg;
+        targetMob.isAggroed = true;
+
+        // 戰場飄字 (傭兵傷害飄字為天藍色)
+        if (!gameState.floatingTexts) gameState.floatingTexts = [];
+        gameState.floatingTexts.push({
+          text: `-${finalDmg}`,
+          color: "#38bdf8",
+          x: targetMob.x + (Math.random() * 20 - 10),
+          y: targetMob.y - 12,
+          expire: now + 750
+        });
+
+        // 傭兵攻擊特效
+        if (!gameState.combatEffects) gameState.combatEffects = [];
+        gameState.combatEffects.push({
+          type: (m.range > 60) ? "projectile" : "slash",
+          x: targetMob.x,
+          y: targetMob.y,
+          color: (m.type === "iron_wolf") ? "#38bdf8" : (m.type === "rogue" ? "#fbbf24" : "#f87171"),
+          expire: now + 200
+        });
+
+        if (targetMob.currentHp <= 0) {
+          handleMobDeathAndRewards(targetMob);
+        }
+      }
+    }
+  });
+}
+window.updateMercenariesCombat = updateMercenariesCombat;

@@ -4,19 +4,33 @@
    ========================================================================== */
 
 :root {
-  --bg-dark: #0a0b0e;
-  --panel-bg: #14171d;
-  --panel-header: #1c212a;
-  --border-color: #2e3440;
-  --gold: #d4af37;
-  --green: #2ecc71;
-  --red: #e74c3c;
-  --blue: #3498db;
-  --purple: #9b59b6;
-  --orange: #e67e22;
-  --text: #eceff4;
-  --text-muted: #7e889b;
+  --bg-dark: #08090c;
+  --panel-bg: #101217;
+  --panel-header: #1a0e10;
+  --border-color: #5c1818;
+  --border-stone: #7f1d1d;
+  --border-stone-light: #991b1b;
+  --gold: #f59e0b; /* 經典暗黑暗金色 */
+  --green: #22c55e; /* 套裝綠色 */
+  --red: #ef4444;
+  --blue: #38bdf8; /* 魔法藍色 */
+  --yellow: #facc15; /* 稀有黃色 */
+  --orange: #fb923c; /* 符文橘色 */
+  --white: #ffffff; /* 普通白色 */
+  --purple: #a855f7;
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
 }
+
+/* ==========================================================================
+   暗黑破壞神 Gothic 石質雕花邊框與掉寶品級色彩規範
+   ========================================================================== */
+.tier-white, .drop-tier-white { color: #ffffff !important; }
+.tier-blue, .tier-magic, .drop-tier-blue { color: #38bdf8 !important; }
+.tier-yellow, .tier-rare, .drop-tier-yellow { color: #facc15 !important; font-weight: bold; }
+.tier-green, .tier-set, .drop-tier-green { color: #22c55e !important; font-weight: bold; }
+.tier-gold, .tier-unique, .drop-tier-gold { color: #f59e0b !important; font-weight: bold; text-shadow: 0 0 4px rgba(245,158,11,0.5); }
+.tier-rune, .tier-orange, .drop-tier-rune { color: #fb923c !important; font-weight: bold; text-shadow: 0 0 5px rgba(251,146,60,0.6); }
 
 * {
   box-sizing: border-box;
@@ -69,13 +83,13 @@ body {
 }
 
 .auth-card {
-  background: var(--panel-bg);
-  border: 1px solid var(--gold);
+  background: #0f1118;
+  border: 2px solid var(--border-stone);
   border-radius: 8px;
   width: 440px;
   max-width: 92vw;
   padding: 24px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  box-shadow: inset 0 0 20px rgba(127, 29, 29, 0.25), 0 10px 30px rgba(0, 0, 0, 0.9);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -87,6 +101,9 @@ body {
   font-size: 20px;
   font-weight: bold;
   letter-spacing: 2px;
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+  border-bottom: 1px solid var(--border-stone);
+  padding-bottom: 8px;
 }
 
 .auth-input-group {
@@ -184,10 +201,11 @@ header {
 }
 
 .nav-btn.active {
-  background: #252a34;
+  background: linear-gradient(180deg, #2a0e12 0%, #17080a 100%);
   color: var(--gold);
-  border-color: var(--gold);
+  border-color: #f59e0b;
   font-weight: bold;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.25);
 }
 
 .game-container {
@@ -225,20 +243,24 @@ header {
 
 .panel {
   background: var(--panel-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border: 1px solid var(--border-stone);
+  border-radius: 6px;
   padding: 8px 10px;
   display: flex;
   flex-direction: column;
   gap: 6px;
   overflow-y: auto;
+  box-shadow: inset 0 0 12px rgba(127, 29, 29, 0.12), 0 4px 16px rgba(0, 0, 0, 0.7);
 }
 
 h2 {
   font-size: 13px;
   color: var(--gold);
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 3px;
+  border-bottom: 1px solid var(--border-stone);
+  padding: 4px 8px;
+  margin-bottom: 4px;
+  background: linear-gradient(90deg, #1c080b 0%, #101217 100%);
+  border-radius: 3px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -354,12 +376,8 @@ h2 {
   max-height: none;
   aspect-ratio: 16 / 9;
   object-fit: contain;
-  background-color: #121820;
-  background-image: url("assets/maps/field_bg.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  border: 1px solid #334155;
+  background-color: #0b0d12;
+  border: 1px solid #7f1d1d;
   border-radius: 4px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
 }
@@ -609,10 +627,10 @@ input[type="number"] {
 }
 
 .lineage-win {
-  background: linear-gradient(180deg, #252830 0%, #16171b 40px, #101114 100%);
-  border: 2px solid #3c414c;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 0 0 1px #050608;
-  border-radius: 4px;
+  background: linear-gradient(180deg, #1c0e12 0%, #12090c 40px, #0b090b 100%);
+  border: 2px solid var(--border-stone);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(245, 158, 11, 0.15), inset 0 0 10px rgba(127, 29, 29, 0.2);
+  border-radius: 6px;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -631,8 +649,8 @@ input[type="number"] {
 
 .lineage-win-title {
   height: 28px;
-  background: linear-gradient(180deg, #323742 0%, #20232a 100%);
-  border-bottom: 1px solid #14161a;
+  background: linear-gradient(180deg, #2e0f14 0%, #19080a 100%);
+  border-bottom: 1px solid var(--border-stone);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1121,11 +1139,11 @@ input[type="number"] {
 .lineage-skill-book-wrapper {
   display: flex;
   gap: 16px;
-  background: #101217;
-  border: 2px solid #2e3440;
+  background: #0f1118;
+  border: 2px solid var(--border-stone);
   border-radius: 6px;
   padding: 14px;
-  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8), 0 4px 16px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 0 20px rgba(127, 29, 29, 0.2), 0 4px 16px rgba(0, 0, 0, 0.85);
   max-width: 960px;
   margin: 0 auto;
 }

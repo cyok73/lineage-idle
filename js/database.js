@@ -178,7 +178,7 @@ function renderDatabaseTab() {
       <div class="db-search-box-row">
         <div style="position:relative; flex:1;">
           <input type="text" id="db-search-input" value="${curQuery}" 
-                 placeholder="${mode === 'items' ? '🔍 輸入道具名稱 (如: 武卷, 瑟魯基, 骨盔, 三重矢, 綠水)...' : (mode === 'monsters' ? '🔍 輸入怪物名稱 (如: 食屍鬼, 死亡騎士, 巴風特, 狼人)...' : '🔍 輸入地圖名稱 (如: 話島, 古魯丁, 奇岩, 地監)...')}" 
+                 placeholder="${mode === 'items' ? '🔍 輸入道具名稱 (如: 喬丹之石, 謎團, 軍帽, 30號, 武卷)...' : (mode === 'monsters' ? '🔍 輸入怪物名稱 (如: 安達利爾, 督瑞爾, 墨菲斯托, 暗黑破壞神, 巴爾, 母牛之王)...' : '🔍 輸入地圖名稱 (如: 鮮血荒地, 地下墓穴, 塔拉夏古墓, 混沌避難所, 世界之石大殿)...')}" 
                  oninput="onDBSearchInput(this.value)">
           ${curQuery ? `<span class="db-search-clear" onclick="clearDBSearch()">✕</span>` : ''}
         </div>
@@ -206,11 +206,11 @@ function renderQuickTags() {
   const mode = dbSearchState.mode;
   let tags = [];
   if (mode === "items") {
-    tags = ["對武器施法的卷軸", "對防具施法的卷軸", "瑟魯基之劍", "大馬士革刀", "精靈金屬鎧甲", "抗魔法斗篷", "精靈水晶(三重矢)", "精靈水晶(魂體轉換)", "紅色藥水", "銀箭", "黑寶石"];
+    tags = ["喬丹之石 (Stone of Jordan)", "軍帽 (Harlequin Crest)", "謎團 (Enigma)", "泰瑞爾之力 (Tyrael's Might)", "巫師之刺 (Wizardspike)", "30號 貝 (Ber)", "31號 喬 (Jah)", "33號 薩德 (Zod)", "水晶劍 [4孔]", "對武器施法的卷軸", "對防具施法的卷軸", "白色藥水", "勇敢藥水"];
   } else if (mode === "monsters") {
-    tags = ["食屍鬼", "死亡騎士", "巴風特", "巨蟻女皇", "卡斯帕", "骷髏斧手", "食人妖精", "塞尼斯"];
+    tags = ["安達利爾", "督瑞爾", "墨菲斯托", "暗黑破壞神", "巴爾", "母牛之王", "沉淪魔", "飢餓殭屍", "劍齒貓掠奪者", "沙漠沙蟲", "巨型毒棘蜘蛛", "攻城投石巨獸"];
   } else {
-    tags = ["話島地監 2F", "話島首領密室", "古監 7F", "奇岩地監 4F", "巨蟻洞穴 2F", "古魯丁地監 4F"];
+    tags = ["鮮血荒地", "石塊曠野", "地下墓穴", "碎石荒野", "遠古通道", "塔拉夏古墓", "蜘蛛森林", "崔凡克議會", "憎恨囚牢", "神魔平原", "混沌避難所", "血腥丘陵", "亞瑞特山頂", "世界之石大殿", "秘密母牛關卡"];
   }
 
   return tags.map(t => `

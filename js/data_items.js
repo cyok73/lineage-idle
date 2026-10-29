@@ -115,693 +115,6 @@ window.DB.items = {
     "price": 100,
     "desc": "法師與高階正統魔法施展的必備魔力結晶"
   },
-  "技術書(衝擊之暈)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 300000,
-    "skill": "衝擊之暈",
-    "desc": "習得騎士神技：衝擊之暈 (揮斬暈眩目標)"
-  },
-  "技術書(堅固防護)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 120000,
-    "skill": "堅固防護",
-    "desc": "習得騎士防護技術：堅固防護 (自身防禦 AC-2)"
-  },
-  "技術書(反擊屏障)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 800000,
-    "skill": "反擊屏障",
-    "desc": "習得騎士終極神技：反擊屏障 (反彈近身物理攻擊)"
-  },
-  "技術書(增幅防禦)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 200000,
-    "skill": "增幅防禦",
-    "desc": "習得騎士強化技術：增幅防禦 (盾牌 AC額外-3)"
-  },
-  "技術書(狂暴將軍)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 250000,
-    "skill": "狂暴將軍",
-    "desc": "習得騎士狂暴技術：狂暴將軍 (力量 STR+3)"
-  },
-  "皇家魔典(精準目標)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 30000,
-    "skill": "精準目標",
-    "desc": "習得王族鎖定技術：精準目標 (命中+5)"
-  },
-  "皇家魔典(皇家血統)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 60000,
-    "skill": "皇家血統",
-    "desc": "習得王族被動體魄：皇家血統 (HP+50)"
-  },
-  "皇家魔典(激勵士氣)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 80000,
-    "skill": "激勵士氣",
-    "desc": "習得王族戰術光環：激勵士氣"
-  },
-  "精靈水晶(魔法防禦)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 50000,
-    "skill": "魔法防禦",
-    "desc": "習得共通精靈秘技：魔法防禦 (MR+10)"
-  },
-  "精靈水晶(心靈轉換)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 60000,
-    "skill": "心靈轉換",
-    "desc": "習得共通精靈秘技：心靈轉換 (HP 換 MP)"
-  },
-  "精靈水晶(世界樹的呼喚)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 80000,
-    "skill": "世界樹的呼喚",
-    "desc": "習得共通精靈秘技：世界樹的呼喚 (瞬間返鄉)"
-  },
-  "精靈水晶(淨化精神)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 100000,
-    "skill": "淨化精神",
-    "desc": "習得共通精靈秘技：淨化精神 (WIS+2)"
-  },
-  "精靈水晶(屬性防禦)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 120000,
-    "skill": "屬性防禦",
-    "desc": "習得共通精靈秘技：屬性防禦 (MR+15)"
-  },
-  "精靈水晶(釋放術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 150000,
-    "skill": "釋放術",
-    "desc": "習得共通精靈秘技：釋放術 (淨化異常)"
-  },
-  "精靈水晶(魂體轉換)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 250000,
-    "skill": "魂體轉換",
-    "desc": "習得共通妖精永動神技：魂體轉換 (HP 換 15 MP)"
-  },
-  "精靈水晶(單屬性防禦)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 200000,
-    "skill": "單屬性防禦",
-    "desc": "習得共通精靈秘技：單屬性防禦 (MR+20)"
-  },
-  "精靈水晶(風之神速)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 80000,
-    "skill": "風之神速",
-    "desc": "習得風系精靈秘技：風之神速 (DEX+2)"
-  },
-  "精靈水晶(風之疾走)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 180000,
-    "skill": "風之疾走",
-    "desc": "習得風系精靈秘技：風之疾走 (DEX+3 / 疾走加速)"
-  },
-  "精靈水晶(暴風神射)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 220000,
-    "skill": "暴風神射",
-    "desc": "習得風系弓手核心：暴風神射 (遠程命中+6/傷害增加)"
-  },
-  "精靈水晶(風之枷鎖)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 200000,
-    "skill": "風之枷鎖",
-    "desc": "習得風系精靈秘技：風之枷鎖 (延遲敵方攻速)"
-  },
-  "精靈水晶(暴風疾馳)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 280000,
-    "skill": "暴風疾馳",
-    "desc": "習得風系精靈秘技：暴風疾馳 (DEX+5)"
-  },
-  "精靈水晶(三重矢)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 300000,
-    "skill": "三重矢",
-    "desc": "習得妖精王道神技：三重矢 (瞬間連續三發箭矢)"
-  },
-  "精靈水晶(風之精靈召喚)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 350000,
-    "skill": "風之精靈召喚",
-    "desc": "習得上位風精靈契約召喚"
-  },
-  "精靈水晶(水之元氣)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 160000,
-    "skill": "水之元氣",
-    "desc": "習得水系精靈秘技：水之元氣 (WIS+3)"
-  },
-  "精靈水晶(生命之泉)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 150000,
-    "skill": "生命之泉",
-    "desc": "習得水系精靈秘技：生命之泉 (甘霖急救)"
-  },
-  "精靈水晶(生命的祝福)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 350000,
-    "skill": "生命的祝福",
-    "desc": "習得水系核心神技：生命的祝福 (全隊大補血)"
-  },
-  "精靈水晶(自然之祝福)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 350000,
-    "skill": "生命的祝福",
-    "desc": "習得水系核心神技：生命的祝福 (同名水晶)"
-  },
-  "精靈水晶(水之防護)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 180000,
-    "skill": "水之防護",
-    "desc": "習得水系精靈秘技：水之防護 (AC-4)"
-  },
-  "精靈水晶(污濁之水)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 260000,
-    "skill": "污濁之水",
-    "desc": "習得水系精靈秘技：污濁之水 (敵方治癒減半)"
-  },
-  "精靈水晶(水之精靈召喚)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 350000,
-    "skill": "水之精靈召喚",
-    "desc": "習得上位水精靈契約召喚"
-  },
-  "精靈水晶(大地防護)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 80000,
-    "skill": "大地防護",
-    "desc": "習得地系精靈秘技：大地防護 (AC-4)"
-  },
-  "精靈水晶(大地祝福)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 200000,
-    "skill": "大地祝福",
-    "desc": "習得地系精靈秘技：大地祝福 (全隊防禦 AC-5)"
-  },
-  "精靈水晶(大地的祝福)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 200000,
-    "skill": "大地祝福",
-    "desc": "習得地系精靈秘技：大地祝福 (同名水晶)"
-  },
-  "精靈水晶(鋼鐵防護)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 280000,
-    "skill": "鋼鐵防護",
-    "desc": "習得地系精靈秘技：鋼鐵防護 (AC-8)"
-  },
-  "精靈水晶(體魄強健)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 150000,
-    "skill": "體魄強健",
-    "desc": "習得地系精靈秘技：體魄強健 (STR+5)"
-  },
-  "精靈水晶(大地屏障)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 300000,
-    "skill": "大地屏障",
-    "desc": "習得地系精靈秘技：大地屏障 (石化禁錮)"
-  },
-  "精靈水晶(大地精靈召喚)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 350000,
-    "skill": "大地精靈召喚",
-    "desc": "習得上位大地精靈契約召喚"
-  },
-  "精靈水晶(地之精靈召喚)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 350000,
-    "skill": "大地精靈召喚",
-    "desc": "習得上位大地精靈契約召喚"
-  },
-  "精靈水晶(火熱武器)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 100000,
-    "skill": "火熱武器",
-    "desc": "習得火系精靈秘技：火熱武器 (命中+3)"
-  },
-  "精靈水晶(烈炎氣息)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 120000,
-    "skill": "烈炎氣息",
-    "desc": "習得火系精靈秘技：烈炎氣息 (火焰打擊)"
-  },
-  "精靈水晶(烈炎武器)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 180000,
-    "skill": "烈炎武器",
-    "desc": "習得火系近戰核心：烈炎武器 (命中+5)"
-  },
-  "精靈水晶(灼熱靈魂)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 300000,
-    "skill": "灼熱靈魂",
-    "desc": "習得火系烈魂妖神技：灼熱靈魂 (極限傷害/STR+6)"
-  },
-  "精靈水晶(火之精靈召喚)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 350000,
-    "skill": "火之精靈召喚",
-    "desc": "習得上位烈火精靈契約召喚"
-  },
-  "魔法書(光術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 3000,
-    "skill": "光術",
-    "desc": "習得 1 級神聖照明魔法"
-  },
-  "魔法書(光箭術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 3000,
-    "skill": "光術",
-    "desc": "習得 1 級神聖光術 (同名書冊)"
-  },
-  "魔法書(保護罩)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 5000,
-    "skill": "保護罩",
-    "desc": "習得 1 級防護能量盾 (AC-2)"
-  },
-  "魔法書(指定傳送)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 8000,
-    "skill": "指定傳送",
-    "desc": "習得 1 級空間座標瞬移"
-  },
-  "魔法書(冰箭)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 6000,
-    "skill": "冰箭",
-    "desc": "習得 1 級寒冰穿刺之箭"
-  },
-  "魔法書(風刃)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 6000,
-    "skill": "風刃",
-    "desc": "習得 1 級疾風破空風刃"
-  },
-  "魔法書(神聖武器)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 8000,
-    "skill": "神聖武器",
-    "desc": "習得 1 級神聖兵刃附魔 (命中+1)"
-  },
-  "魔法書(解毒術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 10000,
-    "skill": "解毒術",
-    "desc": "習得 1 級解毒淨化神術"
-  },
-  "魔法書(盾牌術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 8000,
-    "skill": "盾牌術",
-    "desc": "習得 1 級堅定盾牌術 (AC-2)"
-  },
-  "魔法書(初級治癒術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 12000,
-    "skill": "初級治癒術",
-    "desc": "習得 2 級神聖回復魔法"
-  },
-  "魔法書(日光術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 15000,
-    "skill": "日光術",
-    "desc": "習得 2 級白晝日光術"
-  },
-  "魔法書(火球術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 20000,
-    "skill": "火球術",
-    "desc": "習得 2 級火系爆裂球"
-  },
-  "魔法書(通暢氣脈)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 30000,
-    "skill": "通暢氣脈",
-    "desc": "習得 2 級經絡通暢術 (DEX+5)"
-  },
-  "魔法書(力量提升)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 30000,
-    "skill": "力量提升",
-    "desc": "習得 2 級肉體肌力激發 (STR+5)"
-  },
-  "魔法書(寒冰氣息)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 25000,
-    "skill": "寒冰氣息",
-    "desc": "習得 2 級極寒冰霜噴射"
-  },
-  "魔法書(擬似勇氣)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 40000,
-    "skill": "擬似勇氣",
-    "desc": "習得 3 級神經攻速加速 (DEX+2)"
-  },
-  "魔法書(極光雷電)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 50000,
-    "skill": "極光雷電",
-    "desc": "習得 3 級金色極光雷弧"
-  },
-  "魔法書(起死回生術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 60000,
-    "skill": "起死回生術",
-    "desc": "習得 3 級超渡不死系神術"
-  },
-  "魔法書(中級治癒術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 50000,
-    "skill": "中級治癒術",
-    "desc": "習得 3 級中度急救神術"
-  },
-  "魔法書(闇盲術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 45000,
-    "skill": "闇盲術",
-    "desc": "習得 3 級奪取視野詛咒 (命中-5)"
-  },
-  "魔法書(鎧甲護持)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 50000,
-    "skill": "鎧甲護持",
-    "desc": "習得 3 級甲冑祝福護持 (AC-3)"
-  },
-  "魔法書(高級治癒術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 80000,
-    "skill": "高級治癒術",
-    "desc": "習得 4 級神聖大回復術"
-  },
-  "魔法書(燃燒的火球)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 90000,
-    "skill": "燃燒的火球",
-    "desc": "習得 4 級極巨爆炎火球"
-  },
-  "魔法書(通透術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 70000,
-    "skill": "通透術",
-    "desc": "習得 4 級洞察弱點術 (命中+3)"
-  },
-  "魔法書(冥想術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 80000,
-    "skill": "冥想術",
-    "desc": "習得 4 級深度禪定 (WIS+3)"
-  },
-  "魔法書(壞物術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 75000,
-    "skill": "壞物術",
-    "desc": "習得 4 級兵刃損壞詛咒"
-  },
-  "魔法書(吸血鬼之吻)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 90000,
-    "skill": "吸血鬼之吻",
-    "desc": "習得 4 級生命汲取魔咒"
-  },
-  "魔法書(聖潔之光)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 120000,
-    "skill": "聖潔之光",
-    "desc": "習得 5 級聖潔淨化除咒光芒"
-  },
-  "魔法書(冰雪暴)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 180000,
-    "skill": "冰雪暴",
-    "desc": "習得 5 級廣域極寒霜暴"
-  },
-  "魔法書(沉睡之霧)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 130000,
-    "skill": "沉睡之霧",
-    "desc": "習得 5 級催眠昏睡之霧"
-  },
-  "魔法書(緩速術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 120000,
-    "skill": "緩速術",
-    "desc": "習得 5 級泥沼縛鎖遲緩"
-  },
-  "魔法書(召喚術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 200000,
-    "skill": "召喚術",
-    "desc": "習得 5 級異界使魔契約召喚"
-  },
-  "魔法書(極道落雷)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 150000,
-    "skill": "極道落雷",
-    "desc": "習得 5 級紫電狂雷破壞"
-  },
-  "技能書(極道落雷)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 150000,
-    "skill": "極道落雷",
-    "desc": "習得 5 級紫電狂雷破壞 (別名)"
-  },
-  "魔法書(加速術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 200000,
-    "skill": "加速術",
-    "desc": "習得 6 級正統全速奔馳疾風魔法"
-  },
-  "魔法書(地裂術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 250000,
-    "skill": "地裂術",
-    "desc": "習得 6 級地動山搖剛石迸裂"
-  },
-  "魔法書(魔法相消術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 300000,
-    "skill": "魔法相消術",
-    "desc": "習得 6 級增益消解法術"
-  },
-  "魔法書(強力加速術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 320000,
-    "skill": "強力加速術",
-    "desc": "習得 6 級極限狂暴疾行 (DEX+6)"
-  },
-  "魔法書(魔法屏障)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 280000,
-    "skill": "魔法屏障",
-    "desc": "習得 6 級神聖反彈屏障 (MR+20)"
-  },
-  "魔法書(創造怪物)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 350000,
-    "skill": "創造怪物",
-    "desc": "習得 6 級操縱生命之泥創造怪物傀儡"
-  },
-  "魔法書(聖結界)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 500000,
-    "skill": "聖結界",
-    "desc": "法師神技：受擊傷害減免 50%"
-  },
-  "魔法書(究極光裂術)": {
-    "type": "spellbook",
-    "tier": "scroll",
-    "weight": 5,
-    "price": 2000000,
-    "skill": "究極光裂術",
-    "desc": "法師終極單體毀滅魔法"
-  },
-  "妖魔圖騰": {
-    "type": "etc",
-    "tier": "mat",
-    "weight": 1,
-    "price": 200,
-    "desc": "燃柳村羅浮專用高價收購圖騰"
-  },
   "粗糙皮革": {
     "type": "mat",
     "tier": "mat",
@@ -980,19 +293,6 @@ window.DB.items = {
     "extraDmg": 2,
     "weight": 50,
     "price": 12000
-  },
-  "巴風特魔杖": {
-    "type": "weapon",
-    "tier": "blue",
-    "slot": "weapon",
-    "small": 2,
-    "large": 3,
-    "safe": 6,
-    "material": "wood",
-    "extraDmg": 3,
-    "intBonus": 1,
-    "weight": 30,
-    "price": 100000
   },
   "皮背心": {
     "type": "armor",
@@ -1244,16 +544,6 @@ window.DB.items = {
     "price": 20000,
     "desc": "防禦 AC-2"
   },
-  "妖魔戰士耳環": {
-    "type": "accessory",
-    "tier": "white",
-    "slot": "earring",
-    "ac": 0,
-    "hpBonus": 20,
-    "weight": 5,
-    "price": 15000,
-    "desc": "生命 HP+20"
-  },
   "骷髏耳環": {
     "type": "accessory",
     "tier": "green",
@@ -1272,17 +562,6 @@ window.DB.items = {
     "weight": 3,
     "price": 25000,
     "desc": "魔防 MR+5"
-  },
-  "巨蟻女皇戒指": {
-    "type": "accessory",
-    "tier": "blue",
-    "slot": "ring",
-    "ac": 0,
-    "hpBonus": 30,
-    "weightMultiplier": 1.1,
-    "weight": 5,
-    "price": 300000,
-    "desc": "HP+30，負重+10%"
   },
   "瞬間移動控制戒指": {
     "type": "accessory",
@@ -1360,338 +639,421 @@ window.DB.items = {
     "weight": 2,
     "price": 50000,
     "desc": "刻有疾風印記的古老符石 (DEX+1)"
+  },
+
+  // ===== 暗黑破壞神經典暗金神裝 (Unique Items) =====
+  "喬丹之石 (Stone of Jordan)": {
+    "type": "accessory",
+    "tier": "unique",
+    "slot": "ring1",
+    "ac": 0,
+    "allSkills": 1,
+    "maxMpPercent": 25,
+    "mpBonus": 20,
+    "weight": 0.5,
+    "price": 1500000,
+    "desc": "傳奇暗金之戒：+1 全技能等級，最大魔力上限提升 25%，法力+20"
+  },
+  "軍帽 (Harlequin Crest 諧角之冠)": {
+    "type": "armor",
+    "tier": "unique",
+    "slot": "head",
+    "ac": -6,
+    "safe": 4,
+    "allSkills": 2,
+    "hpBonus": 80,
+    "mpBonus": 80,
+    "mf": 50,
+    "damageReduction": 10,
+    "weight": 4,
+    "price": 3000000,
+    "desc": "神級暗金綠帽：+2 全技能，生命法力+80，+50% 尋寶率 (MF)，傷害減免 10%"
+  },
+  "泰瑞爾之力 (Tyrael's Might)": {
+    "type": "armor",
+    "tier": "unique",
+    "slot": "body",
+    "ac": -25,
+    "safe": 4,
+    "cannotBeFrozen": true,
+    "allResist": 30,
+    "strBonus": 30,
+    "weight": 10,
+    "price": 8000000,
+    "desc": "大天使神聖戰甲：無法被冰凍，全元素抗性+30%，力量+30，超高防禦"
+  },
+  "巫師之刺 (Wizardspike)": {
+    "type": "weapon",
+    "tier": "unique",
+    "slot": "weapon",
+    "weaponType": "dagger",
+    "dmgSmall": 18,
+    "dmgLarge": 18,
+    "safe": 6,
+    "castRate": 50,
+    "allResist": 75,
+    "maxMpPercent": 15,
+    "weight": 3,
+    "price": 2500000,
+    "desc": "傳奇骨匕：快速施法速度 +50%，全元素抗性 +75%，法力上限 +15%"
+  },
+
+  // ===== 暗黑孔位底材裝備 (Socketed Base Items) =====
+  "水晶劍 [4孔]": {
+    "type": "weapon",
+    "tier": "socketed",
+    "slot": "weapon",
+    "weaponType": "sword",
+    "dmgSmall": 14,
+    "dmgLarge": 16,
+    "safe": 6,
+    "sockets": 4,
+    "socketedRunes": [],
+    "weight": 6,
+    "price": 80000,
+    "desc": "天然 4 孔底材單手劍 (符文之語精神/眼光絕佳基底)"
+  },
+  "幻化之刃 [5孔]": {
+    "type": "weapon",
+    "tier": "socketed",
+    "slot": "weapon",
+    "weaponType": "sword",
+    "dmgSmall": 22,
+    "dmgLarge": 24,
+    "safe": 6,
+    "sockets": 5,
+    "socketedRunes": [],
+    "weight": 5,
+    "price": 350000,
+    "desc": "天然 5 孔極速底材劍 (符文之語悔恨 Grief 最強底模)"
+  },
+  "法師鎧甲 [2孔]": {
+    "type": "armor",
+    "tier": "socketed",
+    "slot": "body",
+    "ac": -5,
+    "safe": 4,
+    "sockets": 2,
+    "socketedRunes": [],
+    "weight": 7,
+    "price": 50000,
+    "desc": "天然 2 孔輕便底材胸甲 (符文之語隱密 Stealth 初期神器底材)"
+  },
+  "執政官鎧甲 [3孔]": {
+    "type": "armor",
+    "tier": "socketed",
+    "slot": "body",
+    "ac": -14,
+    "safe": 4,
+    "sockets": 3,
+    "socketedRunes": [],
+    "weight": 9,
+    "price": 500000,
+    "desc": "天然 3 孔高防精英胸甲 (符文之語謎團 Enigma 終極底模)"
+  },
+  "神聖盔甲 [4孔]": {
+    "type": "armor",
+    "tier": "socketed",
+    "slot": "body",
+    "ac": -18,
+    "safe": 4,
+    "sockets": 4,
+    "socketedRunes": [],
+    "weight": 14,
+    "price": 600000,
+    "desc": "天然 4 孔重型板甲 (符文之語剛毅 Fortitude 頂級底材)"
+  },
+  "統治者大盾 [4孔]": {
+    "type": "armor",
+    "tier": "socketed",
+    "slot": "shield",
+    "ac": -8,
+    "safe": 4,
+    "sockets": 4,
+    "socketedRunes": [],
+    "weight": 10,
+    "price": 300000,
+    "desc": "天然 4 孔輕量精英大盾 (全職業精神盾必備底材)"
+  },
+  "巨神長柄 [4孔]": {
+    "type": "weapon",
+    "tier": "socketed",
+    "slot": "weapon",
+    "weaponType": "polearm",
+    "dmgSmall": 28,
+    "dmgLarge": 36,
+    "safe": 6,
+    "sockets": 4,
+    "socketedRunes": [],
+    "weight": 15,
+    "price": 450000,
+    "desc": "天然 4 孔精英長柄兵器 (傭兵眼光/無限頂級基底)"
+  },
+  "骨杖 [2孔]": {
+    "type": "weapon",
+    "tier": "socketed",
+    "slot": "weapon",
+    "weaponType": "wand",
+    "dmgSmall": 10,
+    "dmgLarge": 12,
+    "safe": 6,
+    "sockets": 2,
+    "socketedRunes": [],
+    "weight": 3,
+    "price": 60000,
+    "desc": "天然 2 孔死靈白骨手杖 (符文之語白骨 White 必備底模)"
+  },
+
+  // ===== 1號 ~ 33號 經典符文 (Diablo Runes) =====
+  "1號 艾爾 (El)": { "type": "rune", "tier": "rune", "runeNumber": 1, "weight": 0.1, "price": 1000, "desc": "1號符文：武器命中+50 / 防具防禦+15" },
+  "2號 艾德 (Eld)": { "type": "rune", "tier": "rune", "runeNumber": 2, "weight": 0.1, "price": 1500, "desc": "2號符文：武器對不死命中+75% / 防具格擋率+7%" },
+  "3號 提爾 (Tir)": { "type": "rune", "tier": "rune", "runeNumber": 3, "weight": 0.1, "price": 2500, "desc": "3號符文：每殺死一名敵人獲得 +2 點法力" },
+  "4號 那夫 (Nef)": { "type": "rune", "tier": "rune", "runeNumber": 4, "weight": 0.1, "price": 3500, "desc": "4號符文：武器擊退怪物 / 防具對遠程防禦+30" },
+  "5號 愛斯 (Eth)": { "type": "rune", "tier": "rune", "runeNumber": 5, "weight": 0.1, "price": 5000, "desc": "5號符文：武器-25%目標防禦 / 防具法力自然回復+15%" },
+  "6號 伊夫 (Ith)": { "type": "rune", "tier": "rune", "runeNumber": 6, "weight": 0.1, "price": 7000, "desc": "6號符文：武器最大傷害+9 / 防具受傷15%轉魔力" },
+  "7號 塔爾 (Tal)": { "type": "rune", "tier": "rune", "runeNumber": 7, "weight": 0.1, "price": 10000, "desc": "7號符文：武器+75毒傷 / 防具毒素抗性+35%" },
+  "8號 拉爾 (Ral)": { "type": "rune", "tier": "rune", "runeNumber": 8, "weight": 0.1, "price": 15000, "desc": "8號符文：武器+5~30火焰傷害 / 防具火焰抗性+35%" },
+  "9號 歐特 (Ort)": { "type": "rune", "tier": "rune", "runeNumber": 9, "weight": 0.1, "price": 20000, "desc": "9號符文：武器+1~50閃電傷害 / 防具閃電抗性+35%" },
+  "10號 書爾 (Thul)": { "type": "rune", "tier": "rune", "runeNumber": 10, "weight": 0.1, "price": 25000, "desc": "10號符文：武器+3~14冰冷傷害 / 防具冰冷抗性+35%" },
+  "11號 安姆 (Amn)": { "type": "rune", "tier": "rune", "runeNumber": 11, "weight": 0.1, "price": 35000, "desc": "11號符文：武器每次命中偷取 7% 生命 / 防具反彈14物理傷害" },
+  "12號 索爾 (Sol)": { "type": "rune", "tier": "rune", "runeNumber": 12, "weight": 0.1, "price": 45000, "desc": "12號符文：武器最小傷害+9 / 防具承受傷害減免 7 點" },
+  "13號 夏 (Shael)": { "type": "rune", "tier": "rune", "runeNumber": 13, "weight": 0.1, "price": 60000, "desc": "13號符文：武器攻擊速度+20% / 防具快速打擊恢復+20%" },
+  "14號 多爾 (Dol)": { "type": "rune", "tier": "rune", "runeNumber": 14, "weight": 0.1, "price": 80000, "desc": "14號符文：武器使怪物逃跑 / 防具生命回復+7" },
+  "15號 海爾 (Hel)": { "type": "rune", "tier": "rune", "runeNumber": 15, "weight": 0.1, "price": 100000, "desc": "15號符文：裝備需求屬性與等級減少 20%" },
+  "16號 愛歐 (Io)": { "type": "rune", "tier": "rune", "runeNumber": 16, "weight": 0.1, "price": 120000, "desc": "16號符文：體質/活力 +10" },
+  "17號 盧姆 (Lum)": { "type": "rune", "tier": "rune", "runeNumber": 17, "weight": 0.1, "price": 150000, "desc": "17號符文：智力/精力 +10" },
+  "18號 科 (Ko)": { "type": "rune", "tier": "rune", "runeNumber": 18, "weight": 0.1, "price": 200000, "desc": "18號符文：敏捷 DEX +10" },
+  "19號 法爾 (Fal)": { "type": "rune", "tier": "rune", "runeNumber": 19, "weight": 0.1, "price": 250000, "desc": "19號符文：力量 STR +10" },
+  "20號 藍姆 (Lem)": { "type": "rune", "tier": "rune", "runeNumber": 20, "weight": 0.1, "price": 350000, "desc": "20號符文：怪物金幣額外掉落 +75%" },
+  "21號 普爾 (Pul)": { "type": "rune", "tier": "rune", "runeNumber": 21, "weight": 0.1, "price": 500000, "desc": "21號符文：武器對惡魔命中+75 / 防具防禦力提升+30%" },
+  "22號 烏姆 (Um)": { "type": "rune", "tier": "rune", "runeNumber": 22, "weight": 0.1, "price": 750000, "desc": "22號符文：撕開傷口 25% / 防具全元素抗性+15 (盾牌+22)" },
+  "23號 馬爾 (Mal)": { "type": "rune", "tier": "rune", "runeNumber": 23, "weight": 0.1, "price": 1000000, "desc": "23號符文：防止怪物自我治療 / 魔法傷害減少 7 點" },
+  "24號 伊斯特 (Ist)": { "type": "rune", "tier": "rune", "runeNumber": 24, "weight": 0.1, "price": 1500000, "desc": "24號符文：尋獲魔法物品機率 (MF) +25%" },
+  "25號 古爾 (Gul)": { "type": "rune", "tier": "rune", "runeNumber": 25, "weight": 0.1, "price": 2000000, "desc": "25號符文：攻擊命中率 +20% / 最大毒素抗性+5%" },
+  "26號 伐克斯 (Vex)": { "type": "rune", "tier": "rune", "runeNumber": 26, "weight": 0.1, "price": 2800000, "desc": "26號符文：命中偷取 7% 法力 / 最大火焰抗性+5%" },
+  "27號 歐姆 (Ohm)": { "type": "rune", "tier": "rune", "runeNumber": 27, "weight": 0.1, "price": 3800000, "desc": "27號符文：增強物理傷害 +50% / 最大冰冷抗性+5%" },
+  "28號 羅 (Lo)": { "type": "rune", "tier": "rune", "runeNumber": 28, "weight": 0.1, "price": 5000000, "desc": "28號符文：致命打擊 20% (雙倍傷害) / 最大閃電抗性+5%" },
+  "29號 瑟 (Sur)": { "type": "rune", "tier": "rune", "runeNumber": 29, "weight": 0.1, "price": 6500000, "desc": "29號符文：命中致盲目標 / 最大法力上限+5%" },
+  "30號 貝 (Ber)": { "type": "rune", "tier": "rune", "runeNumber": 30, "weight": 0.1, "price": 9000000, "desc": "30號符文神符：20% 壓碎打擊 (CB百分比扣血) / 物理傷害減免 8%" },
+  "31號 喬 (Jah)": { "type": "rune", "tier": "rune", "runeNumber": 31, "weight": 0.1, "price": 12000000, "desc": "31號符文神符：無視目標防禦力 / 最大生命上限+5%" },
+  "32號 查姆 (Cham)": { "type": "rune", "tier": "rune", "runeNumber": 32, "weight": 0.1, "price": 15000000, "desc": "32號符文：命中凍結目標 / 防具無法被冰凍 (Cannot be Frozen)" },
+  "33號 薩德 (Zod)": { "type": "rune", "tier": "rune", "runeNumber": 33, "weight": 0.1, "price": 20000000, "desc": "33號至尊神符：永不毀損 (Indestructible)！衝裝失敗絕不爆裝！" }
+};
+
+// ===== 經典符文之語配方表 (Runewords) =====
+window.DB.runewords = {
+  "隱密 (Stealth)": {
+    name: "隱密 (Stealth)",
+    slot: "body",
+    runes: ["7號 塔爾 (Tal)", "5號 愛斯 (Eth)"],
+    reqSockets: 2,
+    bonus: {
+      speed: 2,
+      castRate: 25,
+      mpRegen: 15,
+      ac: -4,
+      desc: "跑速大幅加快、快速施法速度+25%、法力自然回復+15%、防禦AC-4"
+    }
+  },
+  "精神 (Spirit)": {
+    name: "精神 (Spirit)",
+    slot: "weapon|shield",
+    runes: ["7號 塔爾 (Tal)", "10號 書爾 (Thul)", "9號 歐特 (Ort)", "11號 安姆 (Amn)"],
+    reqSockets: 4,
+    bonus: {
+      allSkills: 2,
+      castRate: 35,
+      mpBonus: 90,
+      mr: 35,
+      ac: -5,
+      desc: "+2 所有技能等級、快速施法速度+35%、法力上限+90、魔法防禦+35%、AC-5"
+    }
+  },
+  "眼光 (Insight)": {
+    name: "眼光 (Insight)",
+    slot: "weapon",
+    runes: ["8號 拉爾 (Ral)", "3號 提爾 (Tir)", "7號 塔爾 (Tal)", "12號 索爾 (Sol)"],
+    reqSockets: 4,
+    bonus: {
+      extraDmg: 45,
+      hitBonus: 15,
+      meditationAura: true,
+      desc: "賦予冥想靈氣 (每秒大幅回復全隊法力！)、額外傷害+45、命中+15"
+    }
+  },
+  "白骨 (White)": {
+    name: "白骨 (White)",
+    slot: "weapon",
+    runes: ["14號 多爾 (Dol)", "16號 愛歐 (Io)"],
+    reqSockets: 2,
+    bonus: {
+      necroSkills: 3,
+      castRate: 20,
+      mpBonus: 50,
+      extraDmg: 20,
+      desc: "+3 死靈法術技能、快速施法速度+20%、法力+50"
+    }
+  },
+  "悔恨 (Grief)": {
+    name: "悔恨 (Grief)",
+    slot: "weapon",
+    runes: ["5號 愛斯 (Eth)", "3號 提爾 (Tir)", "28號 羅 (Lo)", "23號 馬爾 (Mal)", "8號 拉爾 (Ral)"],
+    reqSockets: 5,
+    bonus: {
+      extraDmg: 150,
+      ignoreDefense: true,
+      attackSpeed: 40,
+      deadlyStrike: 20,
+      desc: "近戰天花板神裝！額外物理傷害+150、100%無視目標防禦、攻速+40%、20%致命雙倍打擊"
+    }
+  },
+  "謎團 (Enigma)": {
+    name: "謎團 (Enigma)",
+    slot: "body",
+    runes: ["31號 喬 (Jah)", "6號 伊夫 (Ith)", "30號 貝 (Ber)"],
+    reqSockets: 3,
+    bonus: {
+      allSkills: 2,
+      unlockTeleport: true,
+      mf: 90,
+      damageReduction: 8,
+      ac: -16,
+      desc: "終極神甲！+2 全技能、全職業解鎖【傳送術】、+90% 尋寶率 (MF)、8% 物理減免、AC-16"
+    }
+  },
+  "無限 (Infinity)": {
+    name: "無限 (Infinity)",
+    slot: "weapon",
+    runes: ["30號 貝 (Ber)", "23號 馬爾 (Mal)", "30號 貝 (Ber)", "24號 伊斯特 (Ist)"],
+    reqSockets: 4,
+    bonus: {
+      convictionAura: true,
+      crushingBlow: 40,
+      mf: 35,
+      extraDmg: 60,
+      desc: "破免神器！自帶審判靈氣 (破除敵怪元素抗性並降防85%)、40% 壓碎打擊削血、+35% MF"
+    }
+  },
+  "剛毅 (Fortitude)": {
+    name: "剛毅 (Fortitude)",
+    slot: "body",
+    runes: ["1號 艾爾 (El)", "12號 索爾 (Sol)", "14號 多爾 (Dol)", "28號 羅 (Lo)"],
+    reqSockets: 4,
+    bonus: {
+      extraDmg: 60,
+      allResist: 30,
+      hpBonus: 120,
+      ac: -22,
+      desc: "攻守兼備神甲！傷害增幅+60、全元素抗性+30%、生命值+120、防禦AC-22"
+    }
   }
 };
 
 window.DB.villages = {
-  "ti_village": {
-    "name": "說話之島村莊",
+  "rogue_encampment": {
+    "name": "羅格營地 (Act 1)",
     "shops": [
       {
-        "title": "雜貨商・潘朵拉",
-        "desc": "新手冒險藥水、回捲與普通箭矢",
+        "title": "修女・阿卡拉 (藥水與卷軸)",
+        "desc": "販售天堂藥水、生命藥水與回城瞬間卷軸",
         "items": [
           "紅色藥水",
           "澄色藥水",
           "藍色藥水",
-          "綠色藥水",
-          "傳送回家的卷軸",
-          "瞬間移動卷軸",
-          "箭",
-          "魔力之石"
-        ]
-      },
-      {
-        "title": "鐵匠・亞特巴",
-        "desc": "基礎鋼鐵兵器與防具",
-        "items": [
-          "短劍",
-          "闊劍",
-          "皮背心",
-          "木盾",
-          "侏儒圓盾"
-        ]
-      },
-      {
-        "title": "技能導師・梅林",
-        "desc": "販售 1~6 級官方正統魔法書與魔力之石",
-        "items": [
-          "魔法書(光箭術)",
-          "魔法書(初級治癒術)",
-          "魔法書(保護罩)",
-          "魔法書(初級加速術)",
-          "魔法書(解毒術)",
-          "魔法書(火球術)",
-          "魔法書(極道落雷)",
-          "魔法書(高級治癒術)",
-          "魔法書(體魄強健術)",
-          "魔法書(加速術)",
-          "魔法書(祝福魔法武器)",
-          "魔法書(體力回復術)",
-          "魔法書(聖結界)",
-          "魔法書(究極光裂術)",
-          "魔力之石"
-        ]
-      }
-    ]
-  },
-  "elf_forest": {
-    "name": "妖精森林母樹村莊",
-    "shops": [
-      {
-        "title": "精靈神匠・娜魯帕",
-        "desc": "妖精專屬精靈金屬鎧甲、弓箭與神兵",
-        "items": [
-          "精靈金屬鎧甲",
-          "獵人之弓",
-          "十字弓",
-          "箭",
-          "銀箭",
-          "銀長劍"
-        ]
-      },
-      {
-        "title": "母樹守護者・精靈使",
-        "desc": "森林天然靈藥與解毒翡翠藥水",
-        "items": [
-          "紅色藥水",
-          "澄色藥水",
-          "綠色藥水",
-          "翡翠藥水",
-          "瞬間移動卷軸",
-          "傳送回家的卷軸",
-          "精靈玉"
-        ]
-      },
-      {
-        "title": "精靈導師・艾羅溫",
-        "desc": "研習妖精專屬精靈水晶與精靈玉",
-        "items": [
-          "精靈水晶(三重矢)",
-          "精靈水晶(魂體轉換)",
-          "精靈水晶(風之疾走)",
-          "精靈水晶(暴風神射)",
-          "精靈水晶(大地的祝福)",
-          "精靈水晶(大地防護)",
-          "精靈水晶(烈炎武器)",
-          "精靈水晶(自然之祝福)",
-          "精靈水晶(屬性之火)",
-          "精靈水晶(屬性之水)",
-          "精靈水晶(屬性之風)",
-          "精靈水晶(屬性之地)",
-          "精靈水晶(水之元氣)",
-          "精靈水晶(魔法防禦)",
-          "精靈玉"
-        ]
-      }
-    ]
-  },
-  "werner_village_town": {
-    "name": "燃柳妖魔部落村莊",
-    "shops": [
-      {
-        "title": "高價收購商・羅浮",
-        "desc": "高價回收【妖魔圖騰】(200 金幣/個)，並販售戰備補給",
-        "items": [
-          "紅色藥水",
-          "澄色藥水",
-          "綠色藥水",
-          "箭",
-          "銀箭",
-          "傳送回家的卷軸"
-        ]
-      },
-      {
-        "title": "部落鐵匠・都達瑪拉",
-        "desc": "妖魔戰士常用兵器與皮背心",
-        "items": [
-          "短劍",
-          "闊劍",
-          "長劍",
-          "皮背心",
-          "木盾"
-        ]
-      }
-    ]
-  },
-  "gludio_village": {
-    "name": "古魯丁港口村莊",
-    "shops": [
-      {
-        "title": "港口雜貨商・露西亞",
-        "desc": "販售騎士狂暴勇水與強力白水",
-        "items": [
-          "紅色藥水",
-          "白色藥水",
-          "勇敢藥水",
-          "綠色藥水",
-          "藍色藥水",
-          "傳送回家的卷軸",
-          "瞬間移動卷軸"
-        ]
-      },
-      {
-        "title": "重裝武器坊・杜巴",
-        "desc": "骷髏套裝與大馬士革刀",
-        "items": [
-          "長劍",
-          "銀長劍",
-          "大馬士革刀",
-          "骷髏頭盔",
-          "骷髏盾牌",
-          "骷髏盔甲",
-          "鎖子甲"
-        ]
-      }
-    ]
-  },
-  "kent_village": {
-    "name": "肯特城堡村莊",
-    "shops": [
-      {
-        "title": "城堡雜貨商・艾莉絲",
-        "desc": "妖精遠程破邪銀箭與必備補給",
-        "items": [
-          "紅色藥水",
-          "白色藥水",
-          "銀箭",
-          "翡翠藥水",
-          "綠色藥水",
-          "勇敢藥水",
-          "傳送回家的卷軸",
-          "瞬間移動卷軸"
-        ]
-      },
-      {
-        "title": "城堡軍需官・克林特",
-        "desc": "精靈神兵、十字弓與抗魔斗篷",
-        "items": [
-          "獵人之弓",
-          "十字弓",
-          "雙手劍",
-          "抗魔法斗篷",
-          "精靈金屬鎧甲"
-        ]
-      }
-    ]
-  },
-  "windwood_village": {
-    "name": "風木綠洲村莊",
-    "shops": [
-      {
-        "title": "沙漠商隊・哈桑",
-        "desc": "沙漠探險解毒翡翠藥水與物資",
-        "items": [
-          "紅色藥水",
-          "澄色藥水",
-          "白色藥水",
-          "翡翠藥水",
           "綠色藥水",
           "傳送回家的卷軸",
           "瞬間移動卷軸",
           "箭",
           "銀箭"
         ]
-      }
-    ]
-  },
-  "giran_village": {
-    "name": "奇岩商業都市中心",
-    "shops": [
+      },
       {
-        "title": "奇岩名譽雜貨商・馬斯克",
-        "desc": "高級補給與每日限量武防卷軸",
+        "title": "盲眼鐵匠・恰西 (兵器與孔位底材)",
+        "desc": "販售普通武器防具與天然孔位底材",
         "items": [
-          "紅色藥水",
-          "白色藥水",
-          "勇敢藥水",
-          "藍色藥水",
+          "短劍",
+          "闊劍",
+          "皮背心",
+          "水晶劍 [4孔]",
+          "法師鎧甲 [2孔]"
+        ]
+      },
+      {
+        "title": "賭徒商人・基德 (符文與神裝試煉)",
+        "desc": "流通初階符文與對武器防具施法卷軸",
+        "items": [
+          "1號 艾爾 (El)",
+          "2號 艾德 (Eld)",
+          "3號 提爾 (Tir)",
+          "5號 愛斯 (Eth)",
+          "7號 塔爾 (Tal)",
+          "8號 拉爾 (Ral)",
           "對武器施法的卷軸",
-          "對防具施法的卷軸",
-          "傳送回家的卷軸",
-          "瞬間移動卷軸"
-        ]
-      },
-      {
-        "title": "工坊神兵大師・莫里",
-        "desc": "瑟魯基之劍、力量手套與稀世魔法書",
-        "items": [
-          "瑟魯基之劍",
-          "大馬士革刀",
-          "雙手劍",
-          "力量手套",
-          "魔法書(高級治癒術)",
-          "魔法書(體魄強健術)"
+          "對防具施法的卷軸"
         ]
       }
     ]
   },
-  "silver_knight_village": {
-    "name": "銀騎士村莊",
+  "lut_gholein": {
+    "name": "魯高因 (Act 2)",
     "shops": [
       {
-        "title": "銀騎軍需官・蘭斯洛特",
-        "desc": "騎士訓練所補給與銀製裝備",
-        "items": [
-          "紅色藥水",
-          "白色藥水",
-          "勇敢藥水",
-          "傳送回家的卷軸",
-          "瞬間移動卷軸",
-          "銀長劍",
-          "力量手套"
-        ]
+        "title": "法師・卓格南 (高階魔力藥劑)",
+        "desc": "強效魔力藥劑與沙漠解毒藥劑",
+        "items": ["白色藥水", "藍色藥水", "綠色藥水", "勇敢藥水", "傳送回家的卷軸", "瞬間移動卷軸"]
       },
       {
-        "title": "銀騎鐵匠・杜蘭",
-        "desc": "銀騎士專用武器與重甲",
-        "items": [
-          "大馬士革刀",
-          "雙手劍",
-          "銀原石",
-          "精靈金屬鎧甲",
-          "抗魔法斗篷"
-        ]
+        "title": "鐵匠・法拉 (重甲與長柄兵刃)",
+        "desc": "提供巨神長柄孔位與堅固盾甲",
+        "items": ["水晶劍 [4孔]", "巨神長柄 [4孔]", "統治者大盾 [4孔]", "對武器施法的卷軸", "對防具施法的卷軸"]
       }
     ]
   },
-  "heine_village": {
-    "name": "海音村莊",
+  "kurast_docks": {
+    "name": "庫拉斯特海港 (Act 3)",
     "shops": [
       {
-        "title": "海音雜貨商・瑪琳",
-        "desc": "水都補給與魔法書",
-        "items": [
-          "紅色藥水",
-          "白色藥水",
-          "藍色藥水",
-          "翡翠藥水",
-          "傳送回家的卷軸",
-          "瞬間移動卷軸",
-          "魔法書(高級治癒術)"
-        ]
+        "title": "奧瑪斯之廬 (神秘藥鋪)",
+        "desc": "提供戰鬥所需全套強力藥水與瞬移道具",
+        "items": ["白色藥水", "藍色藥水", "勇敢藥水", "瞬間移動卷軸"]
       },
       {
-        "title": "海音武器坊・卡西",
-        "desc": "水底探險武器與防具",
-        "items": [
-          "銀長劍",
-          "十字弓",
-          "瑟魯基之劍",
-          "抗魔法斗篷",
-          "精靈金屬鎧甲"
-        ]
+        "title": "鐵匠・赫拉鐵力 (符文鑲嵌)",
+        "desc": "販售中階符文與精英孔位胸甲",
+        "items": ["執政官鎧甲 [3孔]", "幻化之刃 [5孔]", "骨杖 [2孔]", "對武器施法的卷軸", "對防具施法的卷軸"]
       }
     ]
   },
-  "werden_village": {
-    "name": "威頓村莊",
+  "pandemonium_fortress": {
+    "name": "群魔堡壘 (Act 4)",
     "shops": [
       {
-        "title": "威頓補給商・阿格",
-        "desc": "火龍窟探險補給",
-        "items": [
-          "紅色藥水",
-          "白色藥水",
-          "勇敢藥水",
-          "翡翠藥水",
-          "傳送回家的卷軸",
-          "瞬間移動卷軸"
-        ]
+        "title": "聖堂巫女・賈梅拉",
+        "desc": "提供神聖庇護藥水與強效補給",
+        "items": ["白色藥水", "勇敢藥水", "傳送回家的卷軸", "瞬間移動卷軸"]
       },
       {
-        "title": "威頓鐵匠・凡恩",
-        "desc": "抗火裝備與高階武器",
-        "items": [
-          "瑟魯基之劍",
-          "大馬士革刀",
-          "雙手劍",
-          "力量手套",
-          "抗魔法斗篷"
-        ]
+        "title": "神聖鐵砧・海爾布",
+        "desc": "神聖盔甲 4 孔與高階武防卷軸",
+        "items": ["神聖盔甲 [4孔]", "統治者大盾 [4孔]", "對武器施法的卷軸", "對防具施法的卷軸"]
       }
     ]
-  }
+  },
+  "harrogath": {
+    "name": "哈洛加斯 (Act 5)",
+    "shops": [
+      {
+        "title": "長老醫者・瑪拉",
+        "desc": "亞瑞特聖山補給站，生命魔力完全回復",
+        "items": ["白色藥水", "勇敢藥水", "瞬間移動卷軸", "傳送回家的卷軸"]
+      },
+      {
+        "title": "神匠・拉蘇克",
+        "desc": "為英雄提供至尊神兵與防具強化卷軸",
+        "items": ["幻化之刃 [5孔]", "執政官鎧甲 [3孔]", "對武器施法的卷軸", "對防具施法的卷軸"]
+      }
+    ]
+  },
 };
 
 // ---------------- 經典天堂 1 像素圖標對應系統 ----------------
@@ -1706,7 +1068,6 @@ const ITEM_SPRITE_CONFIG = {
   "瑟魯基之劍": { sheet: "items", c: 1, r: 0 },
   "獵人之弓": { sheet: "items", c: 4, r: 0 },
   "十字弓": { sheet: "items", c: 0, r: 1 },
-  "巴風特魔杖": { sheet: "items", c: 3, r: 1 },
 
   // 🏹 箭矢與彈藥
   "箭": { sheet: "items", c: 1, r: 1 },
@@ -1751,10 +1112,8 @@ const ITEM_SPRITE_CONFIG = {
   "敏捷項鍊": { sheet: "acc", c: 1, r: 3 },
   "智力項鍊": { sheet: "acc", c: 2, r: 3 },
   "骷髏項鍊": { sheet: "acc", c: 3, r: 3 },
-  "妖魔戰士耳環": { sheet: "acc", c: 3, r: 3 },
   "骷髏耳環": { sheet: "acc", c: 2, r: 4 },
   "抗魔戒指": { sheet: "acc", c: 4, r: 3 },
-  "巨蟻女皇戒指": { sheet: "acc", c: 0, r: 4 },
   "瞬間移動控制戒指": { sheet: "acc", c: 1, r: 4 },
   "皮腰帶": { sheet: "acc", c: 5, r: 3 },
   "多羅皮帶": { sheet: "cng", c: 1, r: 3 },
@@ -1789,7 +1148,6 @@ const ITEM_SPRITE_CONFIG = {
   "黑寶石": { sheet: "mat", c: 2, r: 2 },
   "米索莉原石": { sheet: "mat", c: 3, r: 2 },
   "溶解液": { sheet: "mat", c: 0, r: 4 },
-  "妖魔圖騰": { sheet: "mat", c: 1, r: 4 },
   "金幣": { sheet: "mat", c: 2, r: 1 }
 };
 
@@ -1799,28 +1157,26 @@ function getItemIconStyle(itemName) {
 
   let cfg = ITEM_SPRITE_CONFIG[cleanName];
 
-  // 智慧配對技能書、精靈水晶與特殊秘典
+  // 智慧配對暗黑符文、底材與暗金神裝
   if (!cfg) {
-    if (cleanName.includes("精靈水晶")) {
-      if (cleanName.includes("風") || cleanName.includes("暴風") || cleanName.includes("三重矢")) {
-        cfg = { sheet: "mat", c: 3, r: 0 }; // 綠色風之水晶
-      } else if (cleanName.includes("水") || cleanName.includes("生命") || cleanName.includes("泉")) {
-        cfg = { sheet: "mat", c: 4, r: 0 }; // 藍色水滴水晶
-      } else if (cleanName.includes("地") || cleanName.includes("大地") || cleanName.includes("鋼鐵") || cleanName.includes("體魄")) {
-        cfg = { sheet: "mat", c: 0, r: 1 }; // 褐色地之水晶
-      } else if (cleanName.includes("火") || cleanName.includes("烈炎") || cleanName.includes("灼熱")) {
-        cfg = { sheet: "mat", c: 1, r: 1 }; // 赤焰火之水晶
-      } else {
-        cfg = { sheet: "mat", c: 3, r: 0 };
-      }
-    } else if (cleanName.includes("魔法書")) {
-      if (cleanName.includes("地裂") || cleanName.includes("相消") || cleanName.includes("極道落雷") || cleanName.includes("冰雪暴") || cleanName.includes("聖潔") || cleanName.includes("強力加速") || cleanName.includes("創造怪物")) {
-        cfg = { sheet: "mat", c: 1, r: 0 }; // 藍皮高階魔法書
-      } else {
-        cfg = { sheet: "mat", c: 0, r: 0 }; // 紅皮經典魔法書
-      }
-    } else if (cleanName.includes("技術書") || cleanName.includes("魔典")) {
-      cfg = { sheet: "mat", c: 2, r: 0 }; // 黑皮禁忌之書
+    if (cleanName.includes("號") || cleanName.includes("符文")) {
+      cfg = { sheet: "mat", c: 1, r: 5 }; // 符文專屬
+    } else if (cleanName.includes("喬丹之石")) {
+      cfg = { sheet: "acc", c: 4, r: 3 }; // 經典暗金戒指
+    } else if (cleanName.includes("軍帽") || cleanName.includes("諧角之冠")) {
+      cfg = { sheet: "items", c: 3, r: 3 }; // 經典軍帽
+    } else if (cleanName.includes("泰瑞爾之力")) {
+      cfg = { sheet: "items", c: 1, r: 2 }; // 天使神聖聖衣
+    } else if (cleanName.includes("巫師之刺")) {
+      cfg = { sheet: "items", c: 2, r: 0 }; // 骨匕
+    } else if (cleanName.includes("水晶劍")) {
+      cfg = { sheet: "items", c: 1, r: 0 };
+    } else if (cleanName.includes("長柄")) {
+      cfg = { sheet: "items", c: 3, r: 0 };
+    } else if (cleanName.includes("鎧甲")) {
+      cfg = { sheet: "items", c: 2, r: 2 };
+    } else if (cleanName.includes("大盾")) {
+      cfg = { sheet: "items", c: 4, r: 3 };
     }
   }
 

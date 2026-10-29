@@ -50,8 +50,7 @@ function initBotStrategyDefaults() {
 
   if (!gameState.botSettings.itemRules || typeof gameState.botSettings.itemRules !== "object") {
     gameState.botSettings.itemRules = {
-      "妖魔圖騰": { pick: true, autoSell: true, store: false, keep: 0, restockFromStorage: false },
-      "短劍": { pick: true, autoSell: true, store: false, keep: 0, restockFromStorage: false },
+            "短劍": { pick: true, autoSell: true, store: false, keep: 0, restockFromStorage: false },
       "對武器施法的卷軸": { pick: true, autoSell: false, store: true, keep: 0, restockFromStorage: false },
       "瞬間移動卷軸": { pick: true, autoSell: false, store: true, keep: 20, restockFromStorage: true },
       "傳送回家的卷軸": { pick: true, autoSell: false, store: true, keep: 5, restockFromStorage: true }
@@ -77,7 +76,7 @@ function initBotStrategyDefaults() {
       buffRules: {},   // { [skillName]: { enabled: true, minMpPercent: 20 } }
       healRules: {
         enabled: true,
-        skillName: "auto", // "auto" 自動依序選高級/中級/初級治癒術/生祝
+        skillName: "auto", // "auto" 自動施放防護/恢復神技
         hpThreshold: 70,
         minMpPercent: 10,
         autoCurePoison: true
@@ -181,8 +180,8 @@ function handleStrategyAI() {
     if (hr.enabled && hpPercent <= (hr.hpThreshold || 70)) {
       const curMpPercent = (currentChar.mp / Math.max(1, currentChar.maxMp)) * 100;
       if (curMpPercent >= (hr.minMpPercent || 10)) {
-        const healCandidates = ["生命的祝福", "高級治癒術", "中級治癒術", "初級治癒術"];
-        for (let hName of healCandidates) {
+        const defCandidates = ["神聖之盾", "白骨裝甲", "能量護盾"];
+        for (let hName of defCandidates) {
           if (currentChar.skills && currentChar.skills.includes(hName)) {
             const sk = (typeof DB !== "undefined" && DB.skills) ? DB.skills[hName] : null;
             if (sk && (currentChar.mp || 0) >= (sk.mpCost || 0) && (typeof canUseSkill === "function" && canUseSkill(hName))) {
@@ -200,16 +199,8 @@ function handleStrategyAI() {
     const bRules = autoSkills.buffRules;
     const curMpPercent = (currentChar.mp / Math.max(1, currentChar.maxMp)) * 100;
 
-    // 妖精專屬神技：魂體轉換 (HP >= 65% 且 MP <= 70% 時自動將 HP 轉為 MP)
-    if (bRules["魂體轉換"] && bRules["魂體轉換"].enabled && currentChar.skills && currentChar.skills.includes("魂體轉換")) {
-      if (hpPercent >= 65 && curMpPercent <= 70 && (typeof canUseSkill === "function" && canUseSkill("魂體轉換"))) {
-        useSkill("魂體轉換");
-      }
-    }
-
-    // 常態 Buff 維持
+    // 暗黑各職業常態 Buff 與靈氣維持
     for (let bName in bRules) {
-      if (bName === "魂體轉換") continue;
       const bRule = bRules[bName];
       if (!bRule || !bRule.enabled) continue;
       if (!currentChar.skills || !currentChar.skills.includes(bName)) continue;
@@ -285,7 +276,7 @@ function handleStrategyAI() {
       if (b.enabled && hasItem(b.item)) {
         if (b.item === "綠色藥水" && currentChar.buffs && currentChar.buffs.green <= (b.advanceSec || 5)) {
           useItemByName("綠色藥水");
-        } else if (b.item === "勇敢藥水" && currentChar.charClass === "knight" && currentChar.buffs && currentChar.buffs.brave <= (b.advanceSec || 5)) {
+        } else if (b.item === "勇敢藥水" && (currentChar.charClass === "barbarian" || currentChar.charClass === "paladin" || currentChar.charClass === "knight") && currentChar.buffs && currentChar.buffs.brave <= (b.advanceSec || 5)) {
           useItemByName("勇敢藥水");
         }
       }
@@ -560,7 +551,7 @@ function executePipelineSOP(isStartup = false) {
   log(`⚖️【負重檢查】目前負重 ${currentWeight}%，狀態良好！`, "sys");
 
   // 【重返獵場】
-  const curMapName = (typeof DB !== "undefined" && DB.maps && DB.maps[gameState.currentMap]) ? DB.maps[gameState.currentMap].name : "說話之島地表";
+  const curMapName = (typeof DB !== "undefined" && DB.maps && DB.maps[gameState.currentMap]) ? DB.maps[gameState.currentMap].name : "鮮血荒地";
   log(`🚀【重返獵場】出發前往【${curMapName}】，開始自動打怪！`, "sys");
 
   gameState.isRestocking = false;
@@ -589,7 +580,7 @@ function getAllCandidateItems() {
   const mapDropsSet = new Set();
   const curMapData = (typeof DB !== "undefined" && DB.maps && DB.maps[gameState.currentMap])
     ? DB.maps[gameState.currentMap]
-    : ((typeof DB !== "undefined" && DB.maps) ? DB.maps["talking_island"] : null);
+    : ((typeof DB !== "undefined" && DB.maps) ? DB.maps["blood_moor"] : null);
 
   if (curMapData && curMapData.monsters) {
     curMapData.monsters.forEach(m => {
@@ -1144,33 +1135,34 @@ function updateBluePotionMp(val) {
 
 // 取得該職業全套可選技能清單 (無論已學或未學皆可預設配置，學會後自動生效)
 function getAvailableSkillsForAuto() {
-  const charClass = currentChar?.charClass || "elf";
+  const charClass = currentChar?.charClass || "barbarian";
   const learned = (currentChar && Array.isArray(currentChar.skills)) ? currentChar.skills : [];
   const allDb = (typeof DB !== "undefined" && DB.skills) ? DB.skills : {};
 
   // 各職業經典攻擊技能池
   const classAttackMap = {
-    elf: ["三重矢", "極道落雷", "烈炎氣息", "火球術", "冰箭", "風刃", "吸血鬼之吻", "地裂術"],
-    mage: ["極道落雷", "火球術", "吸血鬼之吻", "地裂術", "冰雪暴", "究極光裂術", "極光雷電", "寒冰氣息", "燃燒的火球", "起死回生術"],
-    knight: ["衝擊之暈"],
-    prince: ["火球術", "極道落雷"]
+    barbarian: ["狂亂", "旋風斬", "狂戰士"],
+    sorceress: ["隕石火球", "連鎖閃電", "暴風雪", "冰封球"],
+    paladin: ["白熱", "祝福之槌"],
+    necromancer: ["骨矛", "屍體爆炸"],
+    amazon: ["多重箭", "引導箭", "雷擊標槍"]
   };
 
-  // 各職業經典輔助技能池
+  // 各職業暗黑經典輔助與靈氣技能池
   const classBuffMap = {
-    elf: ["魂體轉換", "風之疾走", "暴風神射", "暴風疾馳", "通暢氣脈", "體魄強健", "神聖武器", "鎧甲護持", "淨化精神", "屬性防禦", "鋼鐵防護", "火熱武器", "烈炎武器", "灼熱靈魂"],
-    mage: ["聖結界", "通暢氣脈", "體魄強健", "神聖武器", "鎧甲護持", "冥想術", "通透術", "保護罩", "盾牌術", "力量提升", "魔法屏障"],
-    knight: ["堅固防護", "反擊屏障", "增幅防禦", "狂暴將軍", "擬似勇氣", "神聖武器", "鎧甲護持"],
-    prince: ["精準目標", "皇家血統", "激勵士氣", "神聖武器", "鎧甲護持", "通暢氣脈", "體魄強健"]
+    barbarian: ["專精近戰", "戰鬥咆哮"],
+    sorceress: ["傳送術", "能量護盾"],
+    paladin: ["專注靈氣", "狂熱靈氣", "神聖之盾"],
+    necromancer: ["召喚骷髏", "白骨裝甲", "衰老詛咒"],
+    amazon: ["女武神", "閃避神技"]
   };
 
-  // 各職業回復與解毒
-  const healSkills = ["初級治癒術", "中級治癒術", "高級治癒術", "生命的祝福", "生命之泉", "解毒術"];
-  // 各職業逃生
-  const escapeSkills = ["指定傳送", "世界樹的呼喚"];
+  // 回復與逃生技能池
+  const healSkills = ["白骨裝甲", "神聖之盾", "能量護盾"];
+  const escapeSkills = ["傳送術"];
 
-  const rawAtk = classAttackMap[charClass] || classAttackMap.elf;
-  const rawBuff = classBuffMap[charClass] || classBuffMap.elf;
+  const rawAtk = classAttackMap[charClass] || classAttackMap.barbarian || [];
+  const rawBuff = classBuffMap[charClass] || classBuffMap.barbarian || [];
 
   // 整理攻擊技能選項 (已學會排前)
   const attackSkills = rawAtk.map(name => ({
@@ -1197,7 +1189,7 @@ function renderAutoSkillsSection() {
   const { attackSkills, buffSkills, healSkills, escapeSkills } = getAvailableSkillsForAuto();
 
   const mapData = (typeof DB !== 'undefined' && DB.maps && DB.maps[gameState.currentMap]) || null;
-  const mapMobs = mapData?.monsters ? mapData.monsters.map(m => m.name) : ["狼人", "妖魔", "歐克", "骷髏", "地精", "高崙石頭怪"];
+  const mapMobs = mapData?.monsters ? mapData.monsters.map(m => m.name) : ["沉淪魔", "飢餓殭屍", "沉淪魔巫師"];
 
   const curMp = currentChar ? (currentChar.mp || 0) : 0;
   const maxMp = currentChar ? Math.max(1, currentChar.maxMp || 1) : 1;
@@ -1708,84 +1700,72 @@ function updateAutoEscapeSetting(prop, val) {
 // ⚡ 一鍵導入職業推薦經典神技配置
 function applyClassPresetSkills() {
   initBotStrategyDefaults();
-  const cClass = currentChar?.charClass || "elf";
+  const cClass = currentChar?.charClass || "barbarian";
 
-  if (cClass === "elf") {
+  if (cClass === "barbarian") {
     gameState.botSettings.autoSkills.attackRules = [
-      { id: "atk_preset_1", skillName: "三重矢", minMpPercent: 20, mode: "always", chainSkill: "", enabled: true, targetMobs: [] },
-      { id: "atk_preset_2", skillName: "極道落雷", lv: 10, minMpPercent: 35, mode: "always", chainSkill: "", enabled: true, targetMobs: [] }
+      { id: "atk_preset_barb_1", skillName: "旋風斬", minMpPercent: 15, mode: "always", chainSkill: "", enabled: true, targetMobs: [] },
+      { id: "atk_preset_barb_2", skillName: "狂亂", minMpPercent: 10, mode: "always", chainSkill: "", enabled: true, targetMobs: [] }
     ];
     gameState.botSettings.autoSkills.buffRules = {
-      "魂體轉換": { enabled: true, minMpPercent: 20 },
-      "風之疾走": { enabled: true, minMpPercent: 15 },
-      "暴風神射": { enabled: true, minMpPercent: 20 },
-      "通暢氣脈": { enabled: true, minMpPercent: 15 },
-      "體魄強健": { enabled: true, minMpPercent: 15 }
+      "專精近戰": { enabled: true, minMpPercent: 0 },
+      "戰鬥咆哮": { enabled: true, minMpPercent: 10 }
     };
-    gameState.botSettings.autoSkills.healRules = {
-      enabled: true,
-      skillName: "auto",
-      hpThreshold: 70,
-      minMpPercent: 10,
-      autoCurePoison: true
-    };
-    gameState.botSettings.autoSkills.escapeRules = {
-      enabled: true,
-      skillName: "世界樹的呼喚",
-      hpThreshold: 20
-    };
-  } else if (cClass === "knight") {
+    gameState.botSettings.autoSkills.healRules = { enabled: false, skillName: "auto", hpThreshold: 50, minMpPercent: 0 };
+    gameState.botSettings.autoSkills.escapeRules = { enabled: false, skillName: "無", hpThreshold: 20 };
+  } else if (cClass === "sorceress") {
     gameState.botSettings.autoSkills.attackRules = [
-      { id: "atk_preset_k1", skillName: "衝擊之暈", lv: 10, minMpPercent: 15, mode: "once", chainSkill: "", enabled: true, targetMobs: [] }
+      { id: "atk_preset_sorc_1", skillName: "暴風雪", minMpPercent: 25, mode: "always", chainSkill: "冰封球", enabled: true, targetMobs: [] },
+      { id: "atk_preset_sorc_2", skillName: "連鎖閃電", minMpPercent: 15, mode: "always", chainSkill: "", enabled: true, targetMobs: [] }
     ];
     gameState.botSettings.autoSkills.buffRules = {
-      "堅固防護": { enabled: true, minMpPercent: 20 },
-      "反擊屏障": { enabled: true, minMpPercent: 25 },
-      "增幅防禦": { enabled: true, minMpPercent: 20 },
-      "擬似勇氣": { enabled: true, minMpPercent: 15 }
+      "傳送術": { enabled: true, minMpPercent: 20 },
+      "能量護盾": { enabled: true, minMpPercent: 15 }
     };
-    gameState.botSettings.autoSkills.healRules = {
-      enabled: true,
-      skillName: "auto",
-      hpThreshold: 60,
-      minMpPercent: 10,
-      autoCurePoison: true
+    gameState.botSettings.autoSkills.healRules = { enabled: false, skillName: "auto", hpThreshold: 50, minMpPercent: 0 };
+    gameState.botSettings.autoSkills.escapeRules = { enabled: true, skillName: "傳送術", hpThreshold: 25 };
+  } else if (cClass === "paladin") {
+    gameState.botSettings.autoSkills.attackRules = [
+      { id: "atk_preset_pal_1", skillName: "祝福之槌", minMpPercent: 15, mode: "always", chainSkill: "", enabled: true, targetMobs: [] },
+      { id: "atk_preset_pal_2", skillName: "白熱", minMpPercent: 5, mode: "always", chainSkill: "", enabled: true, targetMobs: [] }
+    ];
+    gameState.botSettings.autoSkills.buffRules = {
+      "專注靈氣": { enabled: true, minMpPercent: 0 },
+      "狂熱靈氣": { enabled: true, minMpPercent: 0 },
+      "神聖之盾": { enabled: true, minMpPercent: 10 }
     };
-    gameState.botSettings.autoSkills.escapeRules = {
-      enabled: true,
-      skillName: "指定傳送",
-      hpThreshold: 20
+    gameState.botSettings.autoSkills.healRules = { enabled: false, skillName: "auto", hpThreshold: 50, minMpPercent: 0 };
+    gameState.botSettings.autoSkills.escapeRules = { enabled: false, skillName: "無", hpThreshold: 20 };
+  } else if (cClass === "necromancer") {
+    gameState.botSettings.autoSkills.attackRules = [
+      { id: "atk_preset_necro_1", skillName: "骨矛", minMpPercent: 15, mode: "always", chainSkill: "屍體爆炸", enabled: true, targetMobs: [] },
+      { id: "atk_preset_necro_2", skillName: "屍體爆炸", minMpPercent: 10, mode: "always", chainSkill: "", enabled: true, targetMobs: [] }
+    ];
+    gameState.botSettings.autoSkills.buffRules = {
+      "召喚骷髏": { enabled: true, minMpPercent: 10 },
+      "白骨裝甲": { enabled: true, minMpPercent: 10 },
+      "衰老詛咒": { enabled: true, minMpPercent: 15 }
     };
+    gameState.botSettings.autoSkills.healRules = { enabled: false, skillName: "auto", hpThreshold: 50, minMpPercent: 0 };
+    gameState.botSettings.autoSkills.escapeRules = { enabled: false, skillName: "無", hpThreshold: 20 };
   } else {
-    // 法師 / 王族
+    // 亞馬遜 (amazon)
     gameState.botSettings.autoSkills.attackRules = [
-      { id: "atk_preset_m1", skillName: "極道落雷", lv: 10, minMpPercent: 30, mode: "always", chainSkill: "吸血鬼之吻", enabled: true, targetMobs: [] },
-      { id: "atk_preset_m2", skillName: "火球術", lv: 10, minMpPercent: 20, mode: "always", chainSkill: "", enabled: true, targetMobs: [] }
+      { id: "atk_preset_ama_1", skillName: "多重箭", minMpPercent: 15, mode: "always", chainSkill: "", enabled: true, targetMobs: [] },
+      { id: "atk_preset_ama_2", skillName: "引導箭", minMpPercent: 10, mode: "always", chainSkill: "", enabled: true, targetMobs: [] },
+      { id: "atk_preset_ama_3", skillName: "雷擊標槍", minMpPercent: 20, mode: "always", chainSkill: "", enabled: true, targetMobs: [] }
     ];
     gameState.botSettings.autoSkills.buffRules = {
-      "聖結界": { enabled: true, minMpPercent: 20 },
-      "通暢氣脈": { enabled: true, minMpPercent: 15 },
-      "體魄強健": { enabled: true, minMpPercent: 15 },
-      "神聖武器": { enabled: true, minMpPercent: 10 },
-      "鎧甲護持": { enabled: true, minMpPercent: 10 }
+      "女武神": { enabled: true, minMpPercent: 20 },
+      "閃避神技": { enabled: true, minMpPercent: 0 }
     };
-    gameState.botSettings.autoSkills.healRules = {
-      enabled: true,
-      skillName: "auto",
-      hpThreshold: 75,
-      minMpPercent: 10,
-      autoCurePoison: true
-    };
-    gameState.botSettings.autoSkills.escapeRules = {
-      enabled: true,
-      skillName: "指定傳送",
-      hpThreshold: 20
-    };
+    gameState.botSettings.autoSkills.healRules = { enabled: false, skillName: "auto", hpThreshold: 50, minMpPercent: 0 };
+    gameState.botSettings.autoSkills.escapeRules = { enabled: false, skillName: "無", hpThreshold: 20 };
   }
 
   saveStrategySettings();
   renderStrategyTab();
-  log("⚡ 已為您一鍵配置職業經典神技掛機組合！", "sys");
+  log("⚡ 已為您一鍵配置暗黑經典神技掛機組合！", "sys");
 }
 
 window.renderAutoSkillsSection = renderAutoSkillsSection;

@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Lineage Idle - 天堂 1.82 經典復刻版</title>
-  <link rel="stylesheet" href="style.css?v=52">
+  <title>Diablo II Idle - 暗黑破壞神經典放置版</title>
+  <link rel="stylesheet" href="style.css?v=53">
 </head>
 
 <body>
@@ -13,7 +13,7 @@
   <div id="view-auth" class="view-screen active">
     <!-- 登入卡片 -->
     <div id="box-login" class="auth-card">
-      <div class="auth-title">🛡️ LINEAGE 1.82 IDLE</div>
+      <div class="auth-title">⚔️ DIABLO IDLE 暗黑破壞神</div>
       <div class="auth-input-group">
         <label>冒險者帳號：</label>
         <input type="text" id="login-user" value="" placeholder="請輸入帳號" onkeydown="if(event.key==='Enter') handleLoginOrRegister()">
@@ -61,10 +61,11 @@
         <label for="new-char-class" style="font-weight:bold;">選擇職業：</label>
         <select id="new-char-class" onchange="onClassSelectChange()"
           style="flex:1; margin-left:10px; padding:6px 10px; background:#1e293b; color:#fff; border:1px solid #475569; border-radius:4px; font-size:13px;">
-          <option value="prince">王族 (自由點數 9 點)</option>
-          <option value="knight">騎士 (自由點數 4 點)</option>
-          <option value="elf">妖精 (自由點數 7 點)</option>
-          <option value="mage">法師 (自由點數 16 點)</option>
+          <option value="barbarian">野蠻人 (Barbarian - 自由點數 4 點)</option>
+          <option value="sorceress">魔法使 (Sorceress - 自由點數 14 點)</option>
+          <option value="paladin">聖騎士 (Paladin - 自由點數 6 點)</option>
+          <option value="necromancer">死靈法師 (Necromancer - 自由點數 10 點)</option>
+          <option value="amazon">亞馬遜 (Amazon - 自由點數 7 點)</option>
         </select>
       </div>
 
@@ -138,15 +139,16 @@
   <div id="view-game" class="view-screen" style="flex-direction:column;">
     <header>
       <div class="brand">
-        <span>🛡️ LINEAGE 1.82 IDLE</span>
+        <span>⚔️ DIABLO IDLE</span>
         <span style="font-size:11px; color:var(--text-muted);" id="header-user-info">| 角色: -</span>
       </div>
       <div class="nav-tabs">
         <button class="nav-btn active" onclick="switchTab('battle')">⚔️ 實體戰場</button>
         <button class="nav-btn" onclick="switchTab('char')">👤 人物狀態與裝備</button>
         <button class="nav-btn" onclick="switchTab('skills')">✨ 技能欄</button>
-        <button class="nav-btn" onclick="switchTab('inventory')">🎒 背包與衝裝</button>
-        <button class="nav-btn" onclick="switchTab('village')">🏛️ 各大陸村莊</button>
+        <button class="nav-btn" onclick="switchTab('inventory')">🎒 背包衝裝與符文</button>
+        <button class="nav-btn" onclick="switchTab('mercenary')" style="border-color:#fbbf24; color:#fbbf24; font-weight:bold;">👥 傭兵追隨者 (8人戰隊)</button>
+        <button class="nav-btn" onclick="switchTab('village')">🏛️ 五大營地村莊</button>
         <button class="nav-btn" onclick="switchTab('storage')">🏦 個人倉庫</button>
         <button class="nav-btn" onclick="switchTab('strategy')">⚙️ 掛機戰術設定</button>
         <button class="nav-btn" onclick="switchTab('database')" style="border-color:#38bdf8; color:#38bdf8; font-weight:bold;">📖 掉落寶典 / 查詢</button>
@@ -159,7 +161,7 @@
     <div class="game-container">
       <!-- 左側面板 (支援手機折疊詳細數值) -->
       <div class="panel sidebar-left" id="left-panel">
-        <h2><span>角色資訊</span><span id="pl-class-tag" style="font-size:11px; color:#fff;">騎士</span></h2>
+        <h2><span>角色資訊</span><span id="pl-class-tag" style="font-size:12px; color:#f59e0b; font-weight:bold;">🪓 野蠻人</span></h2>
         <div class="bar-group">
           <div style="display:flex; justify-content:space-between; font-size:11px;">
             <span>等級：<b id="pl-lv">Lv.1</b></span>
@@ -192,7 +194,7 @@
           <div class="stat-row"><span>防禦力 (AC)</span><b id="stat-ac" style="color:#60a5fa;">10</b></div>
           <div class="stat-row"><span>攻擊命中 / 額外傷害</span><b id="stat-hit-dmg">+0 / +0</b></div>
           <div class="stat-row"><span>攻速間隔</span><b id="stat-speed">1.20 秒/次</b></div>
-          <div class="stat-row"><span>當前所在位置</span><b id="stat-location" style="color:var(--gold);">說話之島地表</b></div>
+          <div class="stat-row"><span>當前所在位置</span><b id="stat-location" style="color:var(--gold);">鮮血荒地 (Act 1)</b></div>
           <div class="stat-row"><span>箭矢存量</span><b id="stat-arrows" style="color:#86efac;">普:0 / 銀:0</b></div>
           <div class="stat-row"><span>正被攻擊隻數 / 鎖定中</span><b id="stat-surround-info" style="color:#f87171;">0 隻 / 無</b></div>
           <div class="stat-row"><span>狀態效果</span><span id="stat-buffs" style="font-size:11px;">無</span></div>
@@ -214,7 +216,7 @@
           <!-- 上方雷達與操作固定區 -->
           <div class="radar-fixed-section">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
-              <h2><span>🗺️ 亞丁經典戰場</span><span id="battle-mode-tag" style="font-size:11px; color:var(--text-muted); margin-left:6px;">[野外待機中]</span></h2>
+              <h2><span>🗺️ 聖休亞瑞戰場 (Sanctuary - Act 1~5)</span><span id="battle-mode-tag" style="font-size:11px; color:var(--text-muted); margin-left:6px;">[野外待機中]</span></h2>
               <div style="font-size:11px; color:var(--gold);">⚔️ 2.5D 精靈人物 | 金環:鎖定目標 | 👑:首領Boss | 戰鬥傷害實時飄字</div>
             </div>
 
@@ -223,28 +225,23 @@
             </div>
 
             <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-              <span style="font-size:12px; color:var(--gold);">預選野外地圖：</span>
+              <span style="font-size:12px; color:var(--gold);">暗黑章節獵場：</span>
               <select id="map-select" onchange="onMapSelectChange()" style="flex:1; min-width:180px;">
-                <option value="talking_island">說話之島東郊果園</option>
-                <option value="ti_cave_1f">話島地監 1 樓</option>
-                <option value="ti_cave_2f">話島地監 2 樓</option>
-                <option value="ti_boss_room">話島首領密室 (Lv 35 Boss 巴風特)</option>
-                <option value="gludio_1f">古魯丁地監 1 樓</option>
-                <option value="gludio_2f">古魯丁地監 2 樓</option>
-                <option value="gludio_3f">古魯丁地監 3 樓</option>
-                <option value="gludio_4f">古魯丁地監 4 樓 (卡斯帕四法師)</option>
-                <option value="gludio_5f">古魯丁地監 5 樓</option>
-                <option value="gludio_6f">古魯丁地監 6 樓</option>
-                <option value="gludio_7f">古監 7 樓 (Boss 死亡騎士)</option>
-                <option value="ant_nest_1f">巨蟻洞穴 1 樓</option>
-                <option value="ant_nest_2f">巨蟻洞穴 2 樓 (Boss 巨蟻女皇)</option>
-                <option value="werner_village_field">燃柳村妖魔森林</option>
-                <option value="windwood_desert">風木南部沙漠</option>
-                <option value="giran_1f">奇岩地監 1 樓</option>
-                <option value="giran_4f">奇岩地監 4 樓 (Boss 塞尼斯)</option>
-                <option value="silver_knight_field">銀騎士訓練場</option>
-                <option value="heine_water_dungeon">海音水底地監</option>
-                <option value="werden_fire_dragon">威頓火龍窟 (Boss 巴拉卡斯)</option>
+                <option value="blood_moor">【Act 1】鮮血荒地 (Lv 1~6 沉淪魔/殭屍)</option>
+                <option value="stony_field">【Act 1】石塊曠野 (Lv 6~12 羊頭怪/利爪蝮蛇)</option>
+                <option value="catacombs">【Act 1】地下墓穴 (Lv 12~18 👑Boss 安達利爾)</option>
+                <option value="rocky_waste">【Act 2】碎石荒野 (Lv 18~22 劍齒貓/沙蟲)</option>
+                <option value="ancient_tunnels">【Act 2】遠古通道 (Lv 22~26 木乃伊/死雷電金龜)</option>
+                <option value="tal_rasha_tomb">【Act 2】塔拉夏古墓 (Lv 26~28 👑Boss 督瑞爾)</option>
+                <option value="spider_forest">【Act 3】蜘蛛森林 (Lv 28~31 叢林小矮人/巨毒蛛)</option>
+                <option value="travincal">【Act 3】崔凡克議會 (Lv 31~34 狂信徒/議會長老)</option>
+                <option value="durance_of_hate">【Act 3】憎恨囚牢 (Lv 34~36 👑Boss 墨菲斯托)</option>
+                <option value="plains_of_despair">【Act 4】神魔平原 (Lv 36~40 冥火狂犬/熾天使)</option>
+                <option value="chaos_sanctuary">【Act 4】混沌避難所 (Lv 40~45 👑Boss 暗黑破壞神)</option>
+                <option value="bloody_foothills">【Act 5】血腥丘陵 (Lv 45~50 投石巨獸/督軍山克)</option>
+                <option value="arreat_summit">【Act 5】亞瑞特山頂 (Lv 50~55 遠古三野蠻人)</option>
+                <option value="worldstone_chamber">【Act 5】世界之石大殿 (Lv 55~60+ 👑Boss 巴爾)</option>
+                <option value="secret_cow_level">【隱藏彩蛋】秘密母牛關卡 🐄 (Lv 60+ 👑母牛之王)</option>
               </select>
               <button type="button" class="btn btn-gold" onclick="exitVillageToField()">出發打怪</button>
             </div>
@@ -467,10 +464,10 @@
           </div>
         </div>
 
-        <!-- 背包面板 -->
+        <!-- 冒險背包面板 -->
         <div id="tab-inventory" class="tab-content">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2><span>冒險背包</span><span style="font-size:11px; color:var(--text-muted);">(點擊武防卷軸即可選擇目標衝裝)</span></h2>
+            <h2><span>🎒 冒險背包與符文底材</span><span style="font-size:11px; color:var(--text-muted);">(點擊卷軸可衝裝，點擊符文可鑲嵌孔位)</span></h2>
             <span id="inv-village-sell-hint" style="font-size:11px; color:var(--gold);">🏛️ 村莊中：可自訂數量或按 MAX 出售</span>
           </div>
           <table>
@@ -486,10 +483,35 @@
           </table>
         </div>
 
+        <!-- 👥 傭兵追隨者面板 (最多 8 人隊伍組隊) -->
+        <div id="tab-mercenary" class="tab-content">
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #7f1d1d; padding-bottom:8px;">
+            <div>
+              <h2 style="border:none; margin:0; padding:0;"><span>👥 傭兵追隨者 (8人遠征軍團)</span></h2>
+              <p style="font-size:11px; color:var(--text-muted); margin-top:2px;">雇傭暗黑追隨者共同出戰！傭兵自帶強大戰鬥靈氣，可為全隊提供光環加成並即時在 2.5D 戰場協同作戰！</p>
+            </div>
+            <div style="text-align:right;">
+              <span style="font-size:12px; color:var(--gold);">當前編隊：<b id="merc-party-count">0 / 8</b> 人</span>
+            </div>
+          </div>
+
+          <!-- 當前已組隊的 8 人傭兵卡片槽 -->
+          <h3 style="font-size:13px; color:var(--gold); margin:12px 0 6px 0;">⚔️ 當前出戰追隨者小隊 (最多 8 人)</h3>
+          <div id="merc-active-grid" class="mercenary-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px;">
+            <!-- 由 character.js 動態渲染 -->
+          </div>
+
+          <!-- 可招募傭兵名冊 -->
+          <h3 style="font-size:13px; color:#38bdf8; margin:18px 0 6px 0;">🏛️ 營地傭兵招募所 (點擊支付金幣雇傭)</h3>
+          <div id="merc-recruit-grid" class="mercenary-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px;">
+            <!-- 由 character.js 動態渲染 -->
+          </div>
+        </div>
+
         <!-- 村莊設施面板 -->
         <div id="tab-village" class="tab-content">
           <div class="village-status-banner">
-            <div><span>目前檢視城鎮：</span><b id="current-village-name" style="color:var(--gold);">說話之島村莊</b><span
+            <div><span>目前檢視城鎮：</span><b id="current-village-name" style="color:var(--gold);">羅格營地 (Act 1)</b><span
                 id="village-location-indicator" style="font-size:11px; color:#aaa; margin-left:8px;">(遠端檢視中)</span>
             </div>
             <button class="btn btn-gold" id="btn-return-village" onclick="flyBackToVillage()">點擊回城休整 (停止掛機)</button>
@@ -497,16 +519,11 @@
           <div style="display:flex; gap:6px; align-items:center; margin-top:4px;">
             <span style="font-size:12px; color:var(--gold);">拜訪其他村莊：</span>
             <select id="village-select" onchange="viewOtherVillage()" style="flex:1;">
-              <option value="ti_village">說話之島村莊</option>
-              <option value="gludio_village">古魯丁村莊</option>
-              <option value="kent_village">肯特村莊</option>
-              <option value="elf_forest">妖精森林</option>
-              <option value="windwood_village">風木村莊</option>
-              <option value="werner_village_town">燃柳村莊</option>
-              <option value="giran_village">奇岩城鎮</option>
-              <option value="silver_knight_village">銀騎士村莊</option>
-              <option value="heine_village">海音村莊</option>
-              <option value="werden_village">威頓村莊</option>
+              <option value="rogue_encampment">羅格營地 (Act 1)</option>
+              <option value="lut_gholein">魯高因 (Act 2)</option>
+              <option value="kurast_docks">庫拉斯特海港 (Act 3)</option>
+              <option value="pandemonium_fortress">群魔堡壘 (Act 4)</option>
+              <option value="harrogath">哈洛加斯 (Act 5)</option>
             </select>
           </div>
           <h2>村莊 NPC 商店與設施</h2>

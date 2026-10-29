@@ -11,7 +11,8 @@ function isStackableItem(dbItem) {
     dbItem.type === "ammo" ||
     dbItem.type === "mat" ||
     dbItem.type === "spellbook" ||
-    dbItem.type === "etc"
+    dbItem.type === "etc" ||
+    dbItem.type === "rune"
   );
 }
 
@@ -61,7 +62,7 @@ function sanitizeInventoryAndEquipped(targetChar) {
 
   // 🚨 新手初始背包補給：若背包無任何道具，自動發放冒險初期物資
   if (stackedInventory.length === 0 && (!char.level || char.level <= 5)) {
-    const isElf = char.charClass === "elf";
+    const isRanged = char.charClass === "amazon";
     const starterPack = [
       { name: "紅色藥水", count: 80 },
       { name: "澄色藥水", count: 10 },
@@ -70,21 +71,21 @@ function sanitizeInventoryAndEquipped(targetChar) {
       { name: "對武器施法的卷軸", count: 2 },
       { name: "對防具施法的卷軸", count: 2 }
     ];
-    if (isElf) {
+    if (isRanged) {
       starterPack.push({ name: "箭", count: 1000 }, { name: "銀箭", count: 500 });
     }
     stackedInventory.push(...starterPack);
   }
 
   char.inventory = stackedInventory;
-  // 嚴格清洗非對應職業之技能 (保留本職業專屬與通用正統魔法)
+  // 嚴格清洗非對應職業之技能 (保留本職業專屬暗黑技能)
   if (Array.isArray(char.skills)) {
-    const charCls = char.charClass || "prince";
+    const charCls = char.charClass || "barbarian";
     char.skills = char.skills.filter(sn => {
       const sk = (typeof DB !== "undefined" && DB.skills) ? DB.skills[sn] : null;
       if (!sk) return false;
       if (typeof isSkillMatchClass === "function") return isSkillMatchClass(sk, charCls);
-      return sk.school === charCls || sk.school === "common" || sk.category === "common" || (charCls === "mage" && sk.school === "mage");
+      return sk.school === charCls;
     });
   }
 
@@ -220,6 +221,11 @@ function useItemByIndex(idx) {
     return;
   }
 
+  if (dbItem && dbItem.type === "rune") {
+    openSocketModal(idx);
+    return;
+  }
+
   if (item.name === "紅色藥水") {
     const heal = Math.floor(Math.random() * 16) + 35;
     currentChar.hp = Math.min(currentChar.maxHp, currentChar.hp + heal);
@@ -272,10 +278,10 @@ function useItemByIndex(idx) {
 
     if (skillName && typeof DB !== "undefined" && DB.skills && DB.skills[skillName]) {
       const targetSkill = DB.skills[skillName];
-      const charCls = (currentChar && currentChar.charClass) || "prince";
+      const charCls = (currentChar && currentChar.charClass) || "barbarian";
       const isMatch = (typeof isSkillMatchClass === "function")
         ? isSkillMatchClass(targetSkill, charCls)
-        : (targetSkill.school === charCls || targetSkill.school === "common" || targetSkill.category === "common" || (charCls === "mage" && targetSkill.school === "mage"));
+        : (targetSkill.school === charCls);
       if (!isMatch) {
         log(`⚠️ 你的職業無法學習【${skillName}】（非本職業專屬秘笈）！`, "sys");
         return;
@@ -562,12 +568,17 @@ function executeEnchantTarget(source, key) {
         log(`📢【世界廣播】狂賀！玩家 ${currentUser ? currentUser.username : '英雄'} 成功突破鍛造出神兵【+${targetItem.enchant} ${targetItem.name}】！`, "sys");
       }
     } else {
-      log(`💥 產生了強烈的銀色光芒後化為烏有！【+${currentEnchant} ${targetItem.name}】化為灰燼爆碎損毀！`, "mob");
-      if (source === "equipped") {
-        currentChar.equipped[key] = null;
+      const hasZod = (targetItem.socketedRunes || []).some(r => r.includes("薩德") || r.includes("Zod"));
+      if (hasZod) {
+        log(`🛡️【33號 薩德神符庇護】至尊薩德不可毀損 (Indestructible) 誓約顯現！抵消了裝備粉碎的滅頂厄運，【+${currentEnchant} ${targetItem.name}】完好無損！`, "heal");
       } else {
-        const itemIdx = currentChar.inventory.indexOf(targetItem);
-        if (itemIdx !== -1) currentChar.inventory.splice(itemIdx, 1);
+        log(`💥 產生了強烈的銀色光芒後化為烏有！【+${currentEnchant} ${targetItem.name}】化為灰燼爆碎損毀！`, "mob");
+        if (source === "equipped") {
+          currentChar.equipped[key] = null;
+        } else {
+          const itemIdx = currentChar.inventory.indexOf(targetItem);
+          if (itemIdx !== -1) currentChar.inventory.splice(itemIdx, 1);
+        }
       }
     }
   }
@@ -588,6 +599,143 @@ function executeEnchantTarget(source, key) {
   }
 }
 
+function openSocketModal(runeInvIdx) {
+  const modal = document.getElementById("modal-enchant");
+  if (!modal) return;
+  const title = document.getElementById("enchant-modal-title");
+  const listContainer = document.getElementById("enchant-target-list");
+
+  const runeItem = currentChar.inventory[runeInvIdx];
+  if (!runeItem) return;
+
+  title.innerText = `💎 鑲嵌符文：【${runeItem.name}】`;
+  listContainer.innerHTML = "";
+
+  const candidates = [];
+  // 檢索身上穿戴之孔位裝備
+  for (let slot in currentChar.equipped) {
+    const eq = currentChar.equipped[slot];
+    if (eq) {
+      const dbEq = DB.items ? DB.items[eq.name] : null;
+      const maxSockets = eq.sockets || (dbEq && dbEq.sockets) || 0;
+      const currentRunes = eq.socketedRunes || [];
+      if (maxSockets > 0 && currentRunes.length < maxSockets) {
+        candidates.push({ source: "equipped", slot: slot, item: eq, maxSockets, label: `[穿戴中] +${eq.enchant || 0} ${eq.name}` });
+      }
+    }
+  }
+
+  // 檢索背包中之孔位裝備
+  currentChar.inventory.forEach((invItem, idx) => {
+    const dbEq = DB.items ? DB.items[invItem.name] : null;
+    const maxSockets = invItem.sockets || (dbEq && dbEq.sockets) || 0;
+    const currentRunes = invItem.socketedRunes || [];
+    if (maxSockets > 0 && currentRunes.length < maxSockets) {
+      candidates.push({ source: "inventory", invIdx: idx, item: invItem, maxSockets, label: `[背包] +${invItem.enchant || 0} ${invItem.name}` });
+    }
+  });
+
+  if (candidates.length === 0) {
+    listContainer.innerHTML = `<div style="color:#f87171; padding:12px; text-align:center;">身上沒有具有剩餘孔位的底材裝備！請先獲取孔位裝備（如水晶劍[4孔]、法師鎧甲[2孔]等）。</div>`;
+  } else {
+    candidates.forEach(cand => {
+      const currentRunes = cand.item.socketedRunes || [];
+      const row = document.createElement("div");
+      row.style.display = "flex";
+      row.style.justifyContent = "space-between";
+      row.style.alignItems = "center";
+      row.style.padding = "6px 8px";
+      row.style.borderBottom = "1px solid #222";
+
+      row.innerHTML = `
+        <div>
+          <b style="color:#fb923c;">${cand.label}</b>
+          <div style="font-size:11px; color:#94a3b8;">
+            孔位進度：<b style="color:#facc15;">${currentRunes.length} / ${cand.maxSockets}</b>
+            ${currentRunes.length > 0 ? `(${currentRunes.join(", ")})` : "(尚無鑲嵌)"}
+          </div>
+        </div>
+        <button class="btn btn-gold" onclick="executeSocketTarget(${runeInvIdx}, '${cand.source}', '${cand.slot !== undefined ? cand.slot : cand.invIdx}')">鑲入此孔</button>
+      `;
+      listContainer.appendChild(row);
+    });
+  }
+
+  modal.style.display = "flex";
+}
+window.openSocketModal = openSocketModal;
+
+function executeSocketTarget(runeInvIdx, source, key) {
+  const runeItem = currentChar.inventory[runeInvIdx];
+  if (!runeItem) return;
+
+  let targetItem = null;
+  if (source === "equipped") {
+    targetItem = currentChar.equipped[key];
+  } else {
+    targetItem = currentChar.inventory[parseInt(key)];
+  }
+
+  if (!targetItem) {
+    alert("找不到目標裝備！");
+    return;
+  }
+
+  const dbEq = DB.items ? DB.items[targetItem.name] : null;
+  const maxSockets = targetItem.sockets || (dbEq && dbEq.sockets) || 0;
+  if (!Array.isArray(targetItem.socketedRunes)) targetItem.socketedRunes = [];
+
+  if (targetItem.socketedRunes.length >= maxSockets) {
+    alert("該裝備孔位已滿！");
+    return;
+  }
+
+  const runeName = runeItem.name;
+  targetItem.socketedRunes.push(runeName);
+
+  // 扣除符文
+  runeItem.count = (runeItem.count || 1) - 1;
+  if (runeItem.count <= 0) {
+    const rIdx = currentChar.inventory.indexOf(runeItem);
+    if (rIdx !== -1) currentChar.inventory.splice(rIdx, 1);
+  }
+
+  log(`💎 將【${runeName}】成功鑲入【${targetItem.name}】(${targetItem.socketedRunes.length}/${maxSockets} 孔)！`, "drop");
+
+  // 檢查是否激發符文之語 (Runewords)
+  if (targetItem.socketedRunes.length === maxSockets && DB.runewords) {
+    for (let rwKey in DB.runewords) {
+      const rw = DB.runewords[rwKey];
+      if (rw.reqSockets === maxSockets) {
+        // 檢查順序是否吻合
+        let match = true;
+        for (let i = 0; i < maxSockets; i++) {
+          if (!targetItem.socketedRunes[i].includes(rw.runes[i].split(" ")[0])) {
+            match = false;
+            break;
+          }
+        }
+        if (match) {
+          // 激發符文之語！
+          targetItem.name = `${rw.name} ${targetItem.name}`;
+          targetItem.runeword = rwKey;
+          targetItem.runewordBonus = rw.bonus;
+          log(`🎉【符文之語激發】恭喜成功組出傳奇符文之語：【${rw.name}】！${rw.bonus.desc}`, "drop");
+          if (typeof playD2DropSound === "function") playD2DropSound("unique");
+          break;
+        }
+      }
+    }
+  }
+
+  closeEnchantModal();
+  updateLeftPanel();
+  renderInventoryTab();
+  if (typeof renderCharTab === "function") renderCharTab();
+  if (typeof saveAccountData === "function") saveAccountData();
+}
+window.executeSocketTarget = executeSocketTarget;
+
 function renderInventoryTab() {
   const tbody = document.getElementById("inv-table-body");
   if (!tbody) return;
@@ -603,12 +751,14 @@ function renderInventoryTab() {
     const tr = document.createElement("tr");
 
     let actionBtn = "";
-    if (dbItem.type === "weapon" || dbItem.type === "armor" || dbItem.type === "accessory") {
+    if (dbItem.type === "weapon" || dbItem.type === "armor" || dbItem.type === "accessory" || dbItem.type === "socketed") {
       actionBtn = `<button class="btn btn-success" onclick="equipItemFromInventory(${idx})">裝備</button>`;
     } else if (dbItem.type === "potion" || dbItem.type === "scroll" || dbItem.type === "spellbook") {
       actionBtn = `<button class="btn" onclick="useItemByIndex(${idx})">使用</button>`;
     } else if (dbItem.type === "enchant_w" || dbItem.type === "enchant_a") {
       actionBtn = `<button class="btn btn-gold" onclick="useItemByIndex(${idx})">✨ 點卷軸</button>`;
+    } else if (dbItem.type === "rune") {
+      actionBtn = `<button class="btn btn-gold" style="background:#c2410c; border-color:#fb923c;" onclick="useItemByIndex(${idx})">💎 鑲嵌</button>`;
     }
 
     if (gameState.inVillage) {
@@ -622,17 +772,36 @@ function renderInventoryTab() {
       `;
     }
 
-    const tierColor = dbItem.tier === "red" ? "#ef4444" : (dbItem.tier === "blue" ? "#38bdf8" : (dbItem.tier === "green" ? "#22c55e" : "#e2e8f0"));
+    // 暗黑色彩規範：白、藍、黃、綠、金(暗金)、橘(符文)
+    let tierColor = "#ffffff";
+    if (dbItem.tier === "unique" || item.runeword) tierColor = "#f59e0b";
+    else if (dbItem.tier === "rune") tierColor = "#fb923c";
+    else if (dbItem.tier === "rare") tierColor = "#facc15";
+    else if (dbItem.tier === "green" || dbItem.tier === "set") tierColor = "#22c55e";
+    else if (dbItem.tier === "blue" || dbItem.tier === "magic") tierColor = "#38bdf8";
+    else if (dbItem.tier === "socketed") tierColor = "#94a3b8";
+    else if (dbItem.tier === "red") tierColor = "#ef4444";
+
+    let descHtml = dbItem.desc || ('重量: ' + (dbItem.weight || 1));
+    const maxSockets = item.sockets || dbItem.sockets || 0;
+    if (maxSockets > 0) {
+      const currentRunes = item.socketedRunes || [];
+      descHtml += `<div style="color:#fb923c; margin-top:2px; font-weight:bold;">[孔數: ${currentRunes.length}/${maxSockets}] ${currentRunes.length > 0 ? `<span style="color:#facc15;">(${currentRunes.join(", ")})</span>` : ''}</div>`;
+    }
+    if (item.runewordBonus) {
+      descHtml += `<div style="color:#f59e0b; margin-top:2px;">🌟 ${item.runewordBonus.desc || ''}</div>`;
+    }
+
     const iconHtml = (typeof getItemIconHtml === "function") ? getItemIconHtml(item.name) : "";
     tr.innerHTML = `
-      <td style="color:${tierColor}; font-weight:${dbItem.tier === 'blue' || dbItem.tier === 'red' ? 'bold' : 'normal'};">
+      <td style="color:${tierColor}; font-weight:${tierColor !== '#ffffff' ? 'bold' : 'normal'};">
         <div style="display:flex; align-items:center; gap:8px;">
           ${iconHtml}
           <span>${item.enchant !== undefined && item.enchant > 0 ? '+' + item.enchant : ''} ${item.name}</span>
         </div>
       </td>
       <td>${item.count || 1}</td>
-      <td style="color:#aaa; font-size:11px;">${dbItem.desc || '重量: ' + (dbItem.weight || 1)}</td>
+      <td style="color:#aaa; font-size:11px;">${descHtml}</td>
       <td>${actionBtn}</td>
     `;
     tbody.appendChild(tr);
@@ -663,7 +832,7 @@ function sellItemCustomQty(idx) {
 }
 
 function renderVillageTab() {
-  const villageData = DB.villages[gameState.viewingVillage] || DB.villages["ti_village"];
+  const villageData = DB.villages[gameState.viewingVillage] || DB.villages["rogue_encampment"] || DB.villages["ti_village"];
   const nameEl = document.getElementById("current-village-name");
   if (nameEl) nameEl.innerText = villageData.name;
 

@@ -15,7 +15,7 @@ async function saveAccountData() {
     currentChar.savedState.isRunning = !!gameState.isRunning;
     currentChar.savedState.botStatus = gameState.botStatus || (gameState.inVillage ? "village" : "idle");
     currentChar.savedState.inVillage = !!gameState.inVillage;
-    currentChar.savedState.currentMap = gameState.currentMap || "talking_island";
+    currentChar.savedState.currentMap = gameState.currentMap || "blood_moor";
     currentChar.savedState.playerX = gameState.playerX || 1200;
     currentChar.savedState.playerY = gameState.playerY || 800;
   }
@@ -207,7 +207,7 @@ function calculateOfflineGains() {
 
   if (diffMinutes >= 2) {
     const calcMinutes = Math.min(diffMinutes, 1440);
-    const mapData = (typeof DB !== 'undefined' && DB.maps && DB.maps[gameState.currentMap]) ? DB.maps[gameState.currentMap] : (DB.maps ? DB.maps["talking_island"] : null);
+    const mapData = (typeof DB !== 'undefined' && DB.maps && DB.maps[gameState.currentMap]) ? DB.maps[gameState.currentMap] : (DB.maps ? DB.maps["blood_moor"] : null);
     if (!mapData || !mapData.monsters) return;
 
     const totalKills = calcMinutes * 4;

@@ -4,7 +4,7 @@ let currentChar = null;
 
 const WORLD_WIDTH = 2400;
 const WORLD_HEIGHT = 1600;
-const BOSS_NAMES = ["巴風特", "死亡騎士", "巨蟻女皇"];
+const BOSS_NAMES = ["安達利爾", "督瑞爾", "墨菲斯托", "暗黑破壞神", "巴爾", "母牛之王"];
 const ALLOWED_BUY_ITEMS = [
   "紅色藥水", "橙色藥水", "白色藥水", "綠色藥水", "勇敢藥水", "翡翠藥水",
   "傳送回家的卷軸", "瞬間移動卷軸", "對武器施法的卷軸", "對防具施法的卷軸",
@@ -22,8 +22,8 @@ let gameState = {
   isRunning: false,
   loopTimer: null,
   cloudSaveTimer: null,
-  currentMap: "talking_island",
-  viewingVillage: "ti_village",
+  currentMap: "blood_moor",
+  viewingVillage: "rogue_encampment",
   inVillage: false,
   isRestocking: false,
   deathCount: 0,
@@ -64,7 +64,7 @@ if (typeof window !== "undefined") {
 let canvas, ctx;
 
 function getMapConfig(mapId) {
-  const mapData = (typeof DB !== 'undefined' && DB.maps && DB.maps[mapId]) ? DB.maps[mapId] : ((typeof DB !== 'undefined' && DB.maps) ? DB.maps["talking_island"] : { monsters: [] });
+  const mapData = (typeof DB !== 'undefined' && DB.maps && DB.maps[mapId]) ? DB.maps[mapId] : ((typeof DB !== 'undefined' && DB.maps) ? DB.maps["blood_moor"] : { monsters: [] });
 
   // 若 GM 有自訂過該地圖的各怪物數量設定
   if (gmSettings.customMapConfigs && gmSettings.customMapConfigs[mapId]) {
@@ -258,6 +258,7 @@ function switchTab(tabId) {
     if (tabId === "inventory" && typeof renderInventoryTab === "function") renderInventoryTab();
     if (tabId === "village" && typeof renderVillageTab === "function") renderVillageTab();
     if (tabId === "storage" && typeof renderStorageTab === "function") renderStorageTab();
+    if (tabId === "mercenary" && typeof renderMercenariesTab === "function") renderMercenariesTab();
     if (tabId === "strategy" && typeof renderStrategyTab === "function") renderStrategyTab();
     if (tabId === "skills" && typeof renderSkillTab === "function") renderSkillTab();
     if (tabId === "admin" && typeof renderAdminTab === "function") renderAdminTab();
@@ -278,7 +279,7 @@ function saveAccountData() {
   currentChar.savedState.isRunning = !!gameState.isRunning;
   currentChar.savedState.botStatus = gameState.botStatus || (gameState.inVillage ? "village" : "idle");
   currentChar.savedState.inVillage = !!gameState.inVillage;
-  currentChar.savedState.currentMap = gameState.currentMap || "talking_island";
+  currentChar.savedState.currentMap = gameState.currentMap || "blood_moor";
   currentChar.savedState.playerX = gameState.playerX || 1200;
   currentChar.savedState.playerY = gameState.playerY || 800;
   currentChar.savedState.deathCount = gameState.deathCount || 0;

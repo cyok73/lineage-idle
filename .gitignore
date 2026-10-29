@@ -1,3 +1,6 @@
 scratch/
 .system_generated/
 *.log
+assets/d2r_extracted/
+tools/
+*.bat

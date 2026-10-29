@@ -1,50 +1,59 @@
 // js/character.js - 角色管理、創角配點與【進入世界】黑屏自癒修復版
 
 const ADEN_CLASS_DATA = {
-  prince: {
-    name: "王族",
-    base: { str: 13, dex: 10, con: 10, int: 10, wis: 11, cha: 12 },
-    bonusPoints: 9,
-    initWeapon: "短劍",
-    initArmor: "皮背心"
-  },
-  knight: {
-    name: "騎士",
-    base: { str: 16, dex: 12, con: 14, int: 8, wis: 9, cha: 12 },
+  barbarian: {
+    name: "野蠻人",
+    base: { str: 16, dex: 13, con: 15, int: 8, wis: 8, cha: 10 },
     bonusPoints: 4,
     initWeapon: "短劍",
     initArmor: "皮背心"
   },
-  elf: {
-    name: "妖精",
-    base: { str: 11, dex: 12, con: 12, int: 12, wis: 12, cha: 9 },
+  sorceress: {
+    name: "魔法使",
+    base: { str: 9, dex: 10, con: 11, int: 16, wis: 14, cha: 10 },
+    bonusPoints: 14,
+    initWeapon: "法杖",
+    initArmor: "皮背心"
+  },
+  paladin: {
+    name: "聖騎士",
+    base: { str: 14, dex: 12, con: 14, int: 10, wis: 12, cha: 12 },
+    bonusPoints: 6,
+    initWeapon: "短劍",
+    initArmor: "皮背心"
+  },
+  necromancer: {
+    name: "死靈法師",
+    base: { str: 10, dex: 11, con: 13, int: 14, wis: 12, cha: 10 },
+    bonusPoints: 10,
+    initWeapon: "短劍",
+    initArmor: "皮背心"
+  },
+  amazon: {
+    name: "亞馬遜",
+    base: { str: 12, dex: 16, con: 13, int: 10, wis: 10, cha: 9 },
     bonusPoints: 7,
     initWeapon: "獵人之弓",
     initArmor: "皮背心"
   },
-  mage: {
-    name: "法師",
-    base: { str: 8, dex: 7, con: 12, int: 12, wis: 12, cha: 8 },
-    bonusPoints: 16,
-    initWeapon: "短劍",
-    initArmor: "皮背心"
-  }
+
 };
 
 const CharCreator = {
-  currentClass: "prince",
-  stats: { str: 13, dex: 10, con: 10, int: 10, wis: 11, cha: 12 },
-  remainPoints: 9
+  currentClass: "barbarian",
+  stats: { str: 16, dex: 13, con: 15, int: 8, wis: 8, cha: 10 },
+  remainPoints: 4
 };
 
 function resolveClassPreset(clsKey) {
-  if (!clsKey) return ADEN_CLASS_DATA.prince;
+  if (!clsKey) return ADEN_CLASS_DATA.barbarian;
   const k = String(clsKey).trim().toLowerCase();
-  if (k === "王族" || k === "prince") return ADEN_CLASS_DATA.prince;
-  if (k === "騎士" || k === "knight") return ADEN_CLASS_DATA.knight;
-  if (k === "妖精" || k === "elf") return ADEN_CLASS_DATA.elf;
-  if (k === "法師" || k === "mage" || k === "wizard") return ADEN_CLASS_DATA.mage;
-  return ADEN_CLASS_DATA[k] || ADEN_CLASS_DATA.prince;
+  if (k === "野蠻人" || k === "barbarian" || k === "騎士" || k === "knight") return ADEN_CLASS_DATA.barbarian;
+  if (k === "魔法使" || k === "sorceress" || k === "法師" || k === "mage" || k === "wizard") return ADEN_CLASS_DATA.sorceress;
+  if (k === "聖騎士" || k === "paladin" || k === "王族" || k === "prince") return ADEN_CLASS_DATA.paladin;
+  if (k === "死靈法師" || k === "necromancer") return ADEN_CLASS_DATA.necromancer;
+  if (k === "亞馬遜" || k === "amazon" || k === "妖精" || k === "elf") return ADEN_CLASS_DATA.amazon;
+  return ADEN_CLASS_DATA[k] || ADEN_CLASS_DATA.barbarian;
 }
 
 // ---------------- 1. 深度資料清洗與裝備欄位初始化 ----------------
@@ -79,7 +88,7 @@ function sanitizeInventoryAndEquipped(targetChar) {
 
   // 🚨 新手初始背包補給：若背包無任何道具，自動發放冒險初期物資
   if (char.inventory.length === 0 && (!char.level || char.level <= 5)) {
-    const isElf = char.charClass === "elf";
+    const isRanged = (char.charClass === "amazon");
     const starterPack = [
       { name: "紅色藥水", count: 80 },
       { name: "澄色藥水", count: 10 },
@@ -110,8 +119,58 @@ function sanitizeCharacterData(char) {
   }
   if (typeof char !== "object") return null;
 
-  if (!char.name) char.name = "亞丁冒險者";
-  if (!char.charClass) char.charClass = "prince";
+  if (!char.name) char.name = "聖休亞瑞冒險者";
+  
+  // 暗黑職業相容與自動升級遷移
+  const CLASS_MIGRATION = {
+    knight: "barbarian",
+    prince: "paladin",
+    elf: "amazon",
+    mage: "sorceress",
+    "騎士": "barbarian",
+    "王族": "paladin",
+    "妖精": "amazon",
+    "法師": "sorceress"
+  };
+  if (CLASS_MIGRATION[char.charClass]) {
+    char.charClass = CLASS_MIGRATION[char.charClass];
+  }
+  if (!char.charClass || !ADEN_CLASS_DATA[char.charClass]) {
+    char.charClass = "barbarian";
+  }
+
+  // 暗黑五大章節獵場自動升級遷移
+  const MAP_MIGRATION = {
+    "talking_island": "blood_moor",
+    "ti_cave_1f": "stony_field",
+    "ti_cave_2f": "catacombs",
+    "ti_boss_room": "catacombs",
+    "gludio_1f": "rocky_waste",
+    "gludio_2f": "ancient_tunnels",
+    "gludio_3f": "tal_rasha_tomb",
+    "gludio_4f": "spider_forest",
+    "gludio_5f": "travincal",
+    "gludio_6f": "durance_of_hate",
+    "gludio_7f": "chaos_sanctuary",
+    "ant_nest_1f": "rocky_waste",
+    "ant_nest_2f": "ancient_tunnels",
+    "werner_village_field": "spider_forest",
+    "windwood_desert": "rocky_waste",
+    "giran_1f": "travincal",
+    "giran_4f": "durance_of_hate",
+    "silver_knight_field": "bloody_foothills",
+    "heine_water_dungeon": "arreat_summit",
+    "werden_fire_dragon": "worldstone_chamber"
+  };
+  if (char.savedState) {
+    if (char.savedState.currentMap && MAP_MIGRATION[char.savedState.currentMap]) {
+      char.savedState.currentMap = MAP_MIGRATION[char.savedState.currentMap];
+    }
+    if (!char.savedState.currentMap || char.savedState.currentMap === "talking_island") {
+      char.savedState.currentMap = "blood_moor";
+    }
+  }
+
   if (!char.level || isNaN(char.level)) char.level = 1;
   if (!char.exp || isNaN(char.exp)) char.exp = 0;
   if (char.gold === undefined || isNaN(char.gold)) char.gold = 5000;
@@ -143,6 +202,20 @@ function sanitizeCharacterData(char) {
   if (!Array.isArray(char.skills)) {
     char.skills = [];
   }
+  // 清洗舊版天堂技能並自動習得符合等級之暗黑神技
+  if (typeof DB !== "undefined" && DB.skills) {
+    const validD2Skills = Object.keys(DB.skills);
+    char.skills = char.skills.filter(sn => validD2Skills.includes(sn));
+    const curLv = char.level || 1;
+    const curCls = char.charClass || "barbarian";
+    Object.values(DB.skills).forEach(sk => {
+      if (sk.school === curCls && (sk.reqLv || 1) <= curLv) {
+        if (!char.skills.includes(sk.name)) {
+          char.skills.push(sk.name);
+        }
+      }
+    });
+  }
 
   if (!char.botSettings || typeof char.botSettings !== "object") {
     char.botSettings = {
@@ -168,6 +241,7 @@ function sanitizeCharacterData(char) {
   sanitizeInventoryAndEquipped(char);
   return char;
 }
+window.sanitizeCharacterData = sanitizeCharacterData;
 
 // ---------------- 2. 【進入世界】核心切換 (具備 DOM 自動解套自癒技術) ----------------
 function selectChar(index) {
@@ -220,13 +294,39 @@ function selectChar(index) {
     if (currentChar.potionThresholds) {
       gameState.potionThresholds = JSON.parse(JSON.stringify(currentChar.potionThresholds));
     }
+    const MAP_MIGRATION = {
+      "talking_island": "blood_moor",
+      "ti_cave_1f": "stony_field",
+      "ti_cave_2f": "catacombs",
+      "ti_boss_room": "catacombs",
+      "gludio_1f": "rocky_waste",
+      "gludio_2f": "ancient_tunnels",
+      "gludio_3f": "tal_rasha_tomb",
+      "gludio_4f": "spider_forest",
+      "gludio_5f": "travincal",
+      "gludio_6f": "durance_of_hate",
+      "gludio_7f": "chaos_sanctuary",
+      "ant_nest_1f": "rocky_waste",
+      "ant_nest_2f": "ancient_tunnels",
+      "werner_village_field": "spider_forest",
+      "windwood_desert": "rocky_waste",
+      "giran_1f": "travincal",
+      "giran_4f": "durance_of_hate",
+      "silver_knight_field": "bloody_foothills",
+      "heine_water_dungeon": "arreat_summit",
+      "werden_fire_dragon": "worldstone_chamber"
+    };
+
     if (typeof DB !== "undefined" && DB.maps && !DB.maps[gameState.currentMap]) {
-      gameState.currentMap = "talking_island";
+      gameState.currentMap = "blood_moor";
     }
 
     // 🚨 核心邏輯：讀取上次下線前的掛機與地圖座標狀態
     if (currentChar.savedState) {
-      gameState.currentMap = currentChar.savedState.currentMap || "talking_island";
+      gameState.currentMap = currentChar.savedState.currentMap || "blood_moor";
+      if (MAP_MIGRATION[gameState.currentMap]) {
+        gameState.currentMap = MAP_MIGRATION[gameState.currentMap];
+      }
 
       if (currentChar.savedState.isRunning) {
         gameState.isRunning = true;
@@ -242,9 +342,20 @@ function selectChar(index) {
         console.log("🏛️ 檢測到上次已停止掛機，於村莊安全區登入。");
       }
     } else {
+      gameState.currentMap = "blood_moor";
       gameState.isRunning = false;
       gameState.botStatus = "village";
       gameState.inVillage = true;
+    }
+
+    // 同步 UI 獵場與城鎮下拉選單
+    const mapSelect = document.getElementById("map-select");
+    if (mapSelect && gameState.currentMap) {
+      mapSelect.value = gameState.currentMap;
+    }
+    const villageSelect = document.getElementById("village-select");
+    if (villageSelect && gameState.viewingVillage) {
+      villageSelect.value = gameState.viewingVillage;
     }
 
     // C. 🚨 核心黑屏自癒：檢測 #view-game 是否被意外包在 #view-auth 內，自動移至 body！
@@ -387,10 +498,12 @@ function renderCharList() {
     const card = document.createElement("div");
     card.className = "char-select-card";
     const className = resolveClassPreset(c.charClass)?.name || c.charClass || "冒險者";
+    const classIcons = { barbarian: "🪓", sorceress: "🔮", paladin: "🛡️", necromancer: "💀", amazon: "🏹" };
+    const classIcon = classIcons[c.charClass] || "⚔️";
 
     card.innerHTML = `
  <div>
- <b style="color:var(--gold, #f59e0b); font-size:14px;">${c.name || '無名氏'}</b>
+ <b style="color:var(--gold, #f59e0b); font-size:14px;">${classIcon} ${c.name || '無名氏'}</b>
  <span style="font-size:11px; margin-left:8px; color:#aaa;">Lv.${c.level || 1} ${className}</span>
  </div>
  <div style="display:flex; gap:6px;">
@@ -439,7 +552,7 @@ function showCreateCharBox() {
 
   const clsSelect = document.getElementById("new-char-class");
   if (clsSelect) {
-    clsSelect.value = "prince";
+    clsSelect.value = "barbarian";
   }
   onClassSelectChange();
 }
@@ -452,7 +565,7 @@ function cancelCreateChar() {
 
 function onClassSelectChange() {
   const clsSelect = document.getElementById("new-char-class");
-  const selectedKey = clsSelect ? clsSelect.value : "prince";
+  const selectedKey = clsSelect ? clsSelect.value : "barbarian";
   const preset = resolveClassPreset(selectedKey);
 
   CharCreator.currentClass = selectedKey;
@@ -548,9 +661,8 @@ function confirmCreateChar() {
   }
 
   const preset = resolveClassPreset(CharCreator.currentClass);
-  const clsKey = (CharCreator.currentClass === "knight" || CharCreator.currentClass === "elf" || CharCreator.currentClass === "mage")
-    ? CharCreator.currentClass
-    : "prince";
+  const validClasses = ["barbarian", "sorceress", "paladin", "necromancer", "amazon"];
+  const clsKey = validClasses.includes(CharCreator.currentClass) ? CharCreator.currentClass : "barbarian";
 
   const finalStats = { ...CharCreator.stats };
   const baseHp = 25 + (finalStats.con * 2);
@@ -573,8 +685,8 @@ function confirmCreateChar() {
       { name: "瞬間移動卷軸", count: 30 },
       { name: "對武器施法的卷軸", count: 2 },
       { name: "對防具施法的卷軸", count: 2 },
-      { name: "箭", count: clsKey === "elf" ? 1000 : 0 },
-      { name: "銀箭", count: clsKey === "elf" ? 500 : 0 }
+      { name: "箭", count: (clsKey === "amazon") ? 1000 : 0 },
+      { name: "銀箭", count: (clsKey === "amazon") ? 500 : 0 }
     ],
     equipped: {
       weapon: { uid: (typeof generateUid === "function" ? generateUid() : "w_" + Date.now()), name: preset.initWeapon, enchant: 0 },
@@ -984,7 +1096,7 @@ function useSkill(skillName) {
     log(`⚠️ 技能資料缺失：${skillName}`, "sys");
     return false;
   }
-  const charCls = (currentChar && currentChar.charClass) || "prince";
+  const charCls = (currentChar && currentChar.charClass) || "barbarian";
   if (typeof isSkillMatchClass === "function" ? !isSkillMatchClass(skill, charCls) : (skill.school !== charCls && skill.school !== "common")) {
     log(`⚠️ 【${skillName}】非本職業技能，無法使用！`, "sys");
     return false;
@@ -1003,26 +1115,16 @@ function useSkill(skillName) {
     return false;
   }
 
-  // 扣除 HP 消耗 (如魂體轉換)
+  // 扣除 HP 消耗 (若技能需要消耗生命值)
   if (skill.hpCost) {
     currentChar.hp = Math.max(1, (currentChar.hp || 0) - skill.hpCost);
   }
 
-  // 套用效果
-  if (skillName === "魂體轉換") {
-    currentChar.mp = Math.min(currentChar.maxMp, (currentChar.mp || 0) + (skill.mpRecovery || 15));
-    log(`☯️ 施展【魂體轉換】，消耗 ${skill.hpCost || 40} HP 轉化為 ${skill.mpRecovery || 15} MP！`, "heal");
-  } else if (skillName === "解毒術") {
-    if (currentChar.isPoisoned) {
-      currentChar.isPoisoned = false;
-      log(`🌿 施展【解毒術】，體內劇毒已完全淨化解除！`, "heal");
-    } else {
-      log(`🌿 施展【解毒術】，純淨解毒光輝環繞自身。`, "heal");
-    }
-  } else if (skill.type === "heal") {
+  // 暗黑破壞神技能釋放效果
+  if (skill.type === "heal") {
     const before = currentChar.hp;
-    currentChar.hp = Math.min(currentChar.maxHp, currentChar.hp + (skill.power || 0));
-    log(`✨ 使用【${skillName}】，HP 回復 +${currentChar.hp - before}！`, "heal");
+    currentChar.hp = Math.min(currentChar.maxHp, currentChar.hp + (skill.power || 50));
+    log(`✨ 施展【${skillName}】，神聖生命回復 +${currentChar.hp - before}！`, "heal");
   } else if (skill.type === "damage") {
     let target = gameState.targetMob;
     if (!target) {
@@ -1033,27 +1135,30 @@ function useSkill(skillName) {
       }
     }
     if (target) {
-      const totalDmg = (skillName === "三重矢") ? (skill.power || 90) : (skill.power || 0);
+      const totalDmg = skill.power || 80;
       target.currentHp = (target.currentHp || target.hp) - totalDmg;
-      log(`🔥 使用【${skillName}】命中【${target.name}】，造成 ${totalDmg} 傷害！`, "atk");
+      log(`⚔️ 施展【${skillName}】猛烈命中【${target.name}】，造成 ${totalDmg} 點破壞打擊！`, "atk");
       if (target.currentHp <= 0) {
         target.currentHp = 0;
-        log(`💀 【${target.name}】被技能擊敗！`, "sys");
-        gameState.mobs = gameState.mobs.filter(m => m !== target);
-        gameState.targetMob = null;
+        log(`💀 【${target.name}】被技能擊倒！`, "sys");
+        if (typeof handleMobDeathAndRewards === "function") {
+          handleMobDeathAndRewards(target);
+        }
       }
     } else {
       log(`⚠️ 周圍沒有可攻擊的目標。`, "sys");
     }
-  } else if (skill.type === "buff") {
+  } else if (skill.type === "buff" || skill.type === "shield") {
     if (!currentChar.buffs) currentChar.buffs = {};
-    currentChar.buffs[skill.stat] = (currentChar.buffs[skill.stat] || 0) + (skill.amount || 0);
-    log(`🛡️ 使用【${skillName}】，${skill.stat} +${skill.amount}（${skill.duration} 秒）`, "sys");
+    currentChar.buffs[skill.stat || "buff"] = (currentChar.buffs[skill.stat || "buff"] || 0) + (skill.amount || 10);
+    log(`🛡️ 施展【${skillName}】，${skill.stat || "狀態"} +${skill.amount || 10}（持續 ${skill.duration || 120} 秒）！`, "sys");
     setTimeout(() => {
       if (currentChar && currentChar.buffs) {
-        currentChar.buffs[skill.stat] = Math.max(0, (currentChar.buffs[skill.stat] || 0) - (skill.amount || 0));
+        currentChar.buffs[skill.stat || "buff"] = Math.max(0, (currentChar.buffs[skill.stat || "buff"] || 0) - (skill.amount || 10));
       }
-    }, (skill.duration || 60) * 1000);
+    }, (skill.duration || 120) * 1000);
+  } else if (skill.type === "curse") {
+    log(`💀 施展【${skillName}】，黑暗詛咒籠罩全場！`, "sys");
   }
 
   currentChar.mp = Math.max(0, (currentChar.mp || 0) - skill.mpCost);
@@ -1068,390 +1173,264 @@ window.useSkill = useSkill;
 // 天堂經典 5x5 矩陣技能欄與職業專屬技能圖示 (Lineage Skill Matrix & Icons)
 // ==========================================================================
 
+
+// ==========================================================================
+// ⚔️ 暗黑破壞神經典五大職業專屬技能圖示向量庫 (25 大經典神技)
+// ==========================================================================
 const SKILL_ICONS = {
-  // 衝擊之暈 (Shock Stun) - 雙劍交鋒衝擊波與電弧
-  shock_stun: `
+  // --- 1. 野蠻人 (Barbarian) ---
+  weapon_mastery: `
     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="32" cy="32" r="28" fill="#451a03" fill-opacity="0.6"/>
-      <path d="M10 10 L32 32 L26 38 L4 16 Z" fill="#94a3b8" stroke="#cbd5e1" stroke-width="1.5"/>
-      <path d="M54 10 L32 32 L38 38 L60 16 Z" fill="#cbd5e1" stroke="#f8fafc" stroke-width="1.5"/>
-      <circle cx="32" cy="32" r="7" fill="#fef08a"/>
-      <path d="M32 14 L35 25 L46 20 L38 32 L50 35 L37 38 L42 49 L32 40 L22 49 L27 38 L14 35 L26 32 L18 20 L29 25 Z" fill="#fbbf24"/>
-      <path d="M30 4 L34 16 L28 22 L32 30" stroke="#67e8f9" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="32" cy="32" r="28" fill="#1c1917" stroke="#b91c1c" stroke-width="2"/>
+      <path d="M14 50 L48 16 L50 20 L18 52 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"/>
+      <path d="M50 14 L46 18 L52 24 L56 20 Z" fill="#dc2626"/>
+      <path d="M50 50 L16 16 L20 12 L52 48 Z" fill="#cbd5e1" stroke="#64748b" stroke-width="1.5"/>
+      <path d="M14 14 L18 10 L24 16 L20 20 Z" fill="#b91c1c"/>
+      <circle cx="32" cy="32" r="6" fill="#ef4444" opacity="0.8"/>
+    </svg>
+  `,
+  frenzy: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="28" fill="#260e0e" stroke="#dc2626" stroke-width="2"/>
+      <path d="M16 46 Q32 20 48 18" stroke="#ef4444" stroke-width="5" stroke-linecap="round"/>
+      <path d="M18 18 Q32 20 48 46" stroke="#f97316" stroke-width="5" stroke-linecap="round"/>
+      <path d="M12 40 L24 50 L14 54 Z" fill="#b91c1c"/>
+      <path d="M52 40 L40 50 L50 54 Z" fill="#ea580c"/>
+      <circle cx="32" cy="28" r="8" fill="#fef08a" opacity="0.6"/>
+    </svg>
+  `,
+  battle_orders: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="28" fill="#1f1b14" stroke="#d97706" stroke-width="2"/>
+      <path d="M18 42 L28 36 L44 48 L46 44 L30 32 L20 36 Z" fill="#f59e0b" stroke="#b45309" stroke-width="1.5"/>
+      <path d="M44 26 C48 30 48 36 44 40" stroke="#fef08a" stroke-width="3" stroke-linecap="round"/>
+      <path d="M48 20 C54 26 54 40 48 46" stroke="#fef08a" stroke-width="3" stroke-linecap="round"/>
+      <path d="M52 14 C60 22 60 44 52 52" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+  `,
+  whirlwind: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="28" fill="#0f172a" stroke="#94a3b8" stroke-width="2"/>
+      <path d="M32 10 A22 22 0 1 1 12 38" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+      <path d="M32 18 A14 14 0 1 1 20 36" stroke="#f8fafc" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M32 26 A6 6 0 1 1 28 34" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round"/>
+      <polygon points="32,6 36,14 28,14" fill="#38bdf8"/>
+    </svg>
+  `,
+  berserk: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="28" fill="#450a0a" stroke="#ef4444" stroke-width="2"/>
+      <circle cx="32" cy="28" r="14" fill="#18181b" stroke="#71717a" stroke-width="2"/>
+      <circle cx="26" cy="26" r="3.5" fill="#ef4444"/>
+      <circle cx="38" cy="26" r="3.5" fill="#ef4444"/>
+      <path d="M26 36 Q32 42 38 36" stroke="#fca5a5" stroke-width="2.5" fill="none"/>
+      <path d="M14 22 L22 18 L20 28 Z" fill="#991b1b"/>
+      <path d="M50 22 L42 18 L44 28 Z" fill="#991b1b"/>
     </svg>
   `,
 
-  // 堅固防護 (Solid Carriage) - 重裝堅石塔盾
-  solid_carriage: `
+  // --- 2. 魔法使 (Sorceress) ---
+  teleport: `
     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M14 12 L50 12 L46 44 L32 56 L18 44 Z" fill="#1e293b" stroke="#475569" stroke-width="3"/>
-      <path d="M20 16 L44 16 L41 41 L32 50 L23 41 Z" fill="#334155" stroke="#d4af37" stroke-width="1.5"/>
-      <path d="M32 16 L32 50 M20 28 L44 28" stroke="#d4af37" stroke-width="2.5"/>
-      <circle cx="32" cy="28" r="4.5" fill="#fbbf24"/>
-      <circle cx="23" cy="19" r="2" fill="#94a3b8"/>
-      <circle cx="41" cy="19" r="2" fill="#94a3b8"/>
-    </svg>
-  `,
-
-  // 反擊屏障 (Counter Barrier) - 紫光騎士反擊力場
-  counter_barrier: `
-    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="32" cy="32" r="26" stroke="#c084fc" stroke-width="2.5" stroke-dasharray="5 3" fill="#581c87" fill-opacity="0.4"/>
-      <path d="M32 10 L48 22 L42 46 L32 54 L22 46 L16 22 Z" fill="#7e22ce" stroke="#d8b4fe" stroke-width="2"/>
-      <path d="M32 16 L42 25 L38 42 L32 47 L26 42 L22 25 Z" fill="#a855f7"/>
-      <path d="M28 22 L36 34 M36 22 L28 34" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
-      <circle cx="32" cy="28" r="3.5" fill="#fef08a"/>
-    </svg>
-  `,
-
-  // 增幅防禦 (Reduction Armor) - 鋼鐵板甲重裝護胸
-  reduction_armor: `
-    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M20 12 L32 18 L44 12 L50 24 L46 44 L32 54 L18 44 L14 24 Z" fill="#334155" stroke="#94a3b8" stroke-width="2.5"/>
-      <path d="M24 16 L32 20 L40 16 L44 26 L40 40 L32 47 L24 40 L20 26 Z" fill="#475569" stroke="#d4af37" stroke-width="1.5"/>
-      <path d="M32 20 L32 47" stroke="#d4af37" stroke-width="2"/>
-      <path d="M22 28 L42 28 M24 34 L40 34" stroke="#64748b" stroke-width="1.5"/>
-      <circle cx="32" cy="28" r="3" fill="#fbbf24"/>
-    </svg>
-  `,
-
-  // 狂暴將軍 (Brave Aura) - 烈火戰刃握於鐵拳
-  brave_aura: `
-    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M24 54 C20 40 16 30 26 18 C30 24 32 14 36 8 C42 20 48 24 46 36 C52 30 50 44 44 54 Z" fill="#dc2626"/>
-      <path d="M28 52 C26 42 24 34 30 24 C33 28 34 20 37 14 C40 24 44 28 42 38 C46 34 44 44 40 52 Z" fill="#f59e0b"/>
-      <path d="M32 16 L32 46" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
-      <rect x="25" y="46" width="14" height="4" rx="1" fill="#475569" stroke="#cbd5e1"/>
-      <rect x="30" y="50" width="4" height="8" rx="1" fill="#78350f"/>
-    </svg>
-  `,
-
-  // 三重矢 (Triple Arrow) - 妖精三道翠綠疾光箭
-  triple_arrow: `
-    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <g transform="rotate(-30 32 32)">
-        <line x1="8" y1="32" x2="52" y2="32" stroke="#4ade80" stroke-width="3" stroke-linecap="round"/>
-        <polygon points="56,32 44,26 48,32 44,38" fill="#86efac"/>
-        <line x1="12" y1="28" x2="8" y2="32" stroke="#22c55e" stroke-width="2"/>
-        <line x1="12" y1="36" x2="8" y2="32" stroke="#22c55e" stroke-width="2"/>
-        <line x1="12" y1="18" x2="48" y2="18" stroke="#86efac" stroke-width="2.5" stroke-linecap="round"/>
-        <polygon points="52,18 42,13 45,18 42,23" fill="#bbf7d0"/>
-        <line x1="12" y1="46" x2="48" y2="46" stroke="#86efac" stroke-width="2.5" stroke-linecap="round"/>
-        <polygon points="52,46 42,41 45,46 42,51" fill="#bbf7d0"/>
-      </g>
-      <circle cx="48" cy="18" r="3" fill="#fef08a"/>
-      <circle cx="56" cy="30" r="2.5" fill="#fef08a"/>
-    </svg>
-  `,
-
-  // 屬性之火 (Elemental Fire) - 火鳳凰展開熾炎雙翼
-  elemental_fire: `
-    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M32 14 C28 24 12 28 8 44 C18 42 22 48 32 58 C42 48 46 42 56 44 C52 28 36 24 32 14 Z" fill="#b91c1c"/>
-      <path d="M32 20 C29 28 18 32 14 42 C22 40 25 44 32 52 C39 44 42 40 50 42 C46 32 35 28 32 20 Z" fill="#ea580c"/>
-      <path d="M32 26 C30 32 24 36 20 42 C26 40 28 42 32 48 C36 42 38 40 44 42 C40 36 34 32 32 26 Z" fill="#facc15"/>
-      <circle cx="32" cy="30" r="2.5" fill="#ffffff"/>
-    </svg>
-  `,
-
-  // 屬性之水 (Elemental Water) - 水藍聖十字漩渦
-  elemental_water: `
-    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="32" cy="32" r="25" stroke="#38bdf8" stroke-width="3" stroke-dasharray="8 4" fill="#0c4a6e" fill-opacity="0.4"/>
-      <circle cx="32" cy="32" r="18" stroke="#0ea5e9" stroke-width="2"/>
-      <path d="M32 12 L32 52 M12 32 L52 32" stroke="#7dd3fc" stroke-width="3" stroke-linecap="round"/>
-      <circle cx="32" cy="32" r="6" fill="#38bdf8"/>
+      <circle cx="32" cy="32" r="28" fill="#082f49" stroke="#0284c7" stroke-width="2"/>
+      <ellipse cx="32" cy="32" rx="12" ry="24" stroke="#38bdf8" stroke-width="3" fill="#0369a1" fill-opacity="0.4"/>
+      <ellipse cx="32" cy="32" rx="6" ry="16" stroke="#e0f2fe" stroke-width="2" fill="#7dd3fc"/>
       <circle cx="32" cy="32" r="3" fill="#ffffff"/>
-      <circle cx="20" cy="20" r="2" fill="#bae6fd"/>
-      <circle cx="44" cy="44" r="2" fill="#bae6fd"/>
+      <circle cx="18" cy="20" r="1.5" fill="#bae6fd"/>
+      <circle cx="46" cy="44" r="1.5" fill="#bae6fd"/>
     </svg>
   `,
-
-  // 屬性之風 (Elemental Wind) - 疾風雙刃螺旋
-  elemental_wind: `
+  meteor: `
     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M32 10 C46 10 54 22 54 32 C54 36 50 36 48 32 C44 24 38 18 32 18 C22 18 16 26 18 34 C20 40 28 44 34 42 C38 40 40 36 38 34" stroke="#34d399" stroke-width="3.5" stroke-linecap="round"/>
-      <path d="M32 54 C18 54 10 42 10 32 C10 28 14 28 16 32 C20 40 26 46 32 46 C42 46 48 38 46 30 C44 24 36 20 30 22 C26 24 24 28 26 30" stroke="#6ee7b7" stroke-width="3.5" stroke-linecap="round"/>
-      <circle cx="32" cy="32" r="4" fill="#a7f3d0"/>
+      <circle cx="32" cy="32" r="28" fill="#431407" stroke="#ea580c" stroke-width="2"/>
+      <path d="M14 14 L38 38" stroke="#f97316" stroke-width="8" stroke-linecap="round"/>
+      <path d="M18 10 L34 26" stroke="#fef08a" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="42" cy="42" r="12" fill="#7c2d12" stroke="#ea580c" stroke-width="2"/>
+      <circle cx="40" cy="40" r="8" fill="#f97316"/>
+      <circle cx="38" cy="38" r="4" fill="#fef08a"/>
     </svg>
   `,
-
-  // 屬性之地 (Elemental Earth) - 浮空剛石稜柱
-  elemental_earth: `
+  chain_lightning: `
     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="32,8 52,22 44,48 32,56 20,48 12,22" fill="#14532d" stroke="#22c55e" stroke-width="2.5"/>
-      <polygon points="32,14 46,24 40,44 32,50 24,44 18,24" fill="#16a34a"/>
-      <polygon points="32,18 40,26 36,40 32,44 28,40 24,26" fill="#4ade80"/>
-      <line x1="32" y1="18" x2="32" y2="44" stroke="#bbf7d0" stroke-width="2"/>
-      <circle cx="48" cy="16" r="2.5" fill="#86efac"/>
-      <circle cx="16" cy="46" r="2.5" fill="#86efac"/>
+      <circle cx="32" cy="32" r="28" fill="#0c1a30" stroke="#38bdf8" stroke-width="2"/>
+      <path d="M36 8 L18 28 L32 28 L22 56 L46 32 L32 32 Z" fill="#67e8f9" stroke="#e0f2fe" stroke-width="2"/>
+      <path d="M44 26 L56 36 L48 42" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/>
     </svg>
   `,
-
-  // 自然之祝福 (Nature Blessing) - 妖精世界樹聖葉星光
-  nature_blessing: `
+  blizzard: `
     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M32 10 C20 22 14 36 22 48 C28 54 40 54 48 44 C52 34 46 20 32 10 Z" fill="#15803d" stroke="#86efac" stroke-width="2"/>
-      <path d="M22 48 Q32 34 38 18" stroke="#fef08a" stroke-width="2" stroke-linecap="round"/>
-      <path d="M28 36 Q34 32 42 34" stroke="#fef08a" stroke-width="1.5" stroke-linecap="round"/>
-      <circle cx="38" cy="18" r="3" fill="#fef08a"/>
-      <circle cx="18" cy="24" r="1.5" fill="#fef08a"/>
-      <circle cx="48" cy="38" r="2" fill="#fef08a"/>
+      <circle cx="32" cy="32" r="28" fill="#082f49" stroke="#7dd3fc" stroke-width="2"/>
+      <path d="M32 12 L32 52 M12 32 L52 32 M18 18 L46 46 M18 46 L46 18" stroke="#e0f2fe" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="32" cy="32" r="4" fill="#38bdf8"/>
+      <circle cx="20" cy="24" r="2" fill="#ffffff"/>
+      <circle cx="44" cy="40" r="2" fill="#ffffff"/>
     </svg>
   `,
-
-  // 初級治癒術 (Heal) - 柔光治癒之手與生命光點
-  heal: `
+  frozen_orb: `
     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="32" cy="24" r="10" fill="#22c55e" fill-opacity="0.8"/>
-      <circle cx="32" cy="24" r="5" fill="#fef08a"/>
-      <path d="M14 48 C14 38 22 34 30 38 L32 40 L34 38 C42 34 50 38 50 48 Z" fill="#b45309" stroke="#f59e0b" stroke-width="2"/>
-      <path d="M18 48 C18 40 24 38 32 44 C40 38 46 40 46 48 Z" fill="#d97706"/>
-      <line x1="32" y1="8" x2="32" y2="14" stroke="#86efac" stroke-width="2"/>
-      <line x1="22" y1="14" x2="26" y2="18" stroke="#86efac" stroke-width="2"/>
-      <line x1="42" y1="14" x2="38" y2="18" stroke="#86efac" stroke-width="2"/>
+      <circle cx="32" cy="32" r="28" fill="#0c2438" stroke="#0ea5e9" stroke-width="2"/>
+      <circle cx="32" cy="32" r="14" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+      <circle cx="32" cy="32" r="8" fill="#bae6fd"/>
+      <path d="M32 8 L32 16 M32 48 L32 56 M8 32 L16 32 M48 32 L56 32 M15 15 L21 21 M43 43 L49 49 M15 49 L21 43 M43 21 L49 15" stroke="#e0f2fe" stroke-width="3" stroke-linecap="round"/>
     </svg>
   `,
-
-  // 魔法飛彈 (Energy Bolt) - 藍光秘術星弧飛彈
-  energy_bolt: `
+  energy_shield: `
     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M10 50 Q28 42 46 18" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
-      <circle cx="48" cy="16" r="8" fill="#38bdf8"/>
-      <circle cx="48" cy="16" r="4" fill="#ffffff"/>
-      <polygon points="48,6 51,13 58,16 51,19 48,26 45,19 38,16 45,13" fill="#f0f9ff"/>
-      <circle cx="28" cy="34" r="3" fill="#7dd3fc"/>
-      <circle cx="16" cy="44" r="2" fill="#bae6fd"/>
-    </svg>
-  `,
-
-  // 光箭術 (Light Arrow) - 耀眼破魔銀光之箭
-  light_arrow: `
-    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <line x1="10" y1="54" x2="52" y2="12" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
-      <polygon points="56,8 42,12 46,18 52,14" fill="#fef08a"/>
-      <circle cx="52" cy="12" r="6" fill="#fef08a" fill-opacity="0.6"/>
-      <line x1="16" y1="52" x2="12" y2="44" stroke="#94a3b8" stroke-width="2"/>
-      <line x1="20" y1="56" x2="12" y2="48" stroke="#94a3b8" stroke-width="2"/>
-    </svg>
-  `,
-
-  // 初級加速術 (Haste) - 疾走雷電法杖
-  haste: `
-    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <line x1="18" y1="52" x2="44" y2="16" stroke="#b45309" stroke-width="4" stroke-linecap="round"/>
-      <circle cx="44" cy="16" r="7" fill="#f59e0b" stroke="#fef08a" stroke-width="2"/>
-      <path d="M42 6 L46 14 L52 14 L46 20 L48 28 L40 22 L34 26 L38 18 L34 12 L42 12 Z" fill="#67e8f9"/>
-      <line x1="12" y1="36" x2="28" y2="36" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/>
-      <line x1="8" y1="42" x2="24" y2="42" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-  `,
-
-  // 火球術 (Fireball) - 熾熱滾燙爆裂火球
-  fireball: `
-    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="36" cy="30" r="18" fill="#b91c1c"/>
-      <circle cx="36" cy="30" r="14" fill="#ea580c"/>
-      <circle cx="36" cy="30" r="9" fill="#facc15"/>
-      <circle cx="36" cy="30" r="4" fill="#ffffff"/>
-      <path d="M12 52 C18 42 22 36 26 38" stroke="#ea580c" stroke-width="4" stroke-linecap="round"/>
-      <path d="M8 44 C16 38 20 32 24 34" stroke="#facc15" stroke-width="3" stroke-linecap="round"/>
-      <circle cx="16" cy="22" r="2" fill="#fef08a"/>
-      <circle cx="50" cy="48" r="2" fill="#fef08a"/>
-    </svg>
-  `,
-
-  // 初級體力回復術 (Extra Heal) - 雙掌翡翠生命光環
-  extra_heal: `
-    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="32" cy="32" r="22" stroke="#22c55e" stroke-width="2" stroke-dasharray="4 2"/>
-      <circle cx="32" cy="32" r="14" fill="#15803d" fill-opacity="0.6"/>
-      <path d="M28 20 L36 20 L36 28 L44 28 L44 36 L36 36 L36 44 L28 44 L28 36 L20 36 L20 28 L28 28 Z" fill="#86efac"/>
-      <circle cx="32" cy="32" r="3" fill="#ffffff"/>
-    </svg>
-  `,
-
-  // 極道落雷 (Lightning) - 烏雲與狂暴暗紫落雷
-  lightning: `
-    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M16 20 C16 14 24 10 32 12 C38 8 50 12 50 20 C54 22 56 28 50 32 C44 34 16 34 16 20 Z" fill="#334155"/>
-      <polygon points="36,22 24,36 32,36 26,54 44,34 34,34" fill="#c084fc" stroke="#f3e8ff" stroke-width="1.5"/>
-      <circle cx="28" cy="48" r="2" fill="#67e8f9"/>
-      <circle cx="42" cy="40" r="1.5" fill="#67e8f9"/>
-    </svg>
-  `,
-
-  // 高級治癒術 (Greater Heal) - 天使羽翼守護聖十字
-  greater_heal: `
-    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M32 38 C24 24 10 20 8 36 C14 38 22 42 32 50 Z" fill="#fef08a" fill-opacity="0.8"/>
-      <path d="M32 38 C40 24 54 20 56 36 C50 38 42 42 32 50 Z" fill="#fef08a" fill-opacity="0.8"/>
-      <path d="M29 14 L35 14 L35 23 L44 23 L44 29 L35 29 L35 44 L29 44 L29 29 L20 29 L20 23 L29 23 Z" fill="#fbbf24" stroke="#fef08a" stroke-width="1.5"/>
-      <circle cx="32" cy="26" r="4" fill="#ffffff"/>
-      <circle cx="32" cy="8" r="3" fill="#fef08a"/>
-    </svg>
-  `,
-
-  // 體魄強健術 (Physical Enchant) - 雄渾金色肌肉力魄
-  physical_enchant: `
-    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="32" cy="32" r="25" fill="#78350f" fill-opacity="0.5" stroke="#f59e0b" stroke-width="2"/>
-      <path d="M24 16 L32 20 L40 16 L48 24 L42 46 L32 52 L22 46 L16 24 Z" fill="#d97706" stroke="#fbbf24" stroke-width="2"/>
-      <path d="M24 28 C28 32 36 32 40 28 M32 32 L32 46" stroke="#fef08a" stroke-width="2.5" stroke-linecap="round"/>
-      <circle cx="24" cy="24" r="2" fill="#fff"/>
-      <circle cx="40" cy="24" r="2" fill="#fff"/>
-    </svg>
-  `,
-
-  // 聖結界 (Immune to Harm) - 神聖八芒水晶護盾
-  immune_to_harm: `
-    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="32,8 48,14 56,30 50,48 32,56 14,48 8,30 16,14" fill="#1e1b4b" stroke="#818cf8" stroke-width="3"/>
-      <polygon points="32,14 44,18 50,30 46,44 32,50 18,44 14,30 20,18" fill="#312e81" stroke="#a5b4fc" stroke-width="1.5"/>
-      <circle cx="32" cy="32" r="8" fill="#c7d2fe"/>
+      <circle cx="32" cy="32" r="28" fill="#1e1b4b" stroke="#818cf8" stroke-width="2"/>
+      <circle cx="32" cy="32" r="20" stroke="#a5b4fc" stroke-width="3" fill="#312e81" fill-opacity="0.5"/>
+      <path d="M32 18 L44 26 L40 42 L32 48 L24 42 L20 26 Z" stroke="#c7d2fe" stroke-width="2" fill="#4338ca"/>
       <circle cx="32" cy="32" r="4" fill="#ffffff"/>
-      <line x1="32" y1="14" x2="32" y2="50" stroke="#c7d2fe" stroke-width="1.5"/>
-      <line x1="14" y1="32" x2="50" y2="32" stroke="#c7d2fe" stroke-width="1.5"/>
     </svg>
   `,
 
-  // 究極光裂術 (Disintegrate) - 終極神聖天罰烈芒
-  disintegrate: `
+  // --- 3. 聖騎士 (Paladin) ---
+  zeal: `
     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <line x1="32" y1="4" x2="32" y2="52" stroke="#fef08a" stroke-width="6" stroke-linecap="round"/>
-      <line x1="32" y1="4" x2="32" y2="52" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
-      <ellipse cx="32" cy="52" rx="20" ry="6" fill="#f59e0b"/>
-      <ellipse cx="32" cy="52" rx="14" ry="4" fill="#fef08a"/>
-      <ellipse cx="32" cy="52" rx="6" ry="2" fill="#ffffff"/>
-      <line x1="18" y1="36" x2="46" y2="36" stroke="#fef08a" stroke-width="2"/>
-      <line x1="22" y1="24" x2="42" y2="24" stroke="#fef08a" stroke-width="2"/>
+      <circle cx="32" cy="32" r="28" fill="#2e1065" stroke="#d97706" stroke-width="2"/>
+      <path d="M12 52 L36 28 M22 56 L46 32 M32 60 L56 36" stroke="#fbbf24" stroke-width="3" stroke-linecap="round"/>
+      <path d="M36 16 L48 28 L40 32 L32 24 Z" fill="#fef08a"/>
+      <circle cx="44" cy="22" r="6" fill="#fef08a" opacity="0.8"/>
+    </svg>
+  `,
+  blessed_hammer: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="28" fill="#2d2006" stroke="#f59e0b" stroke-width="2"/>
+      <path d="M18 46 L34 30 L38 34 L22 50 Z" fill="#b45309"/>
+      <rect x="30" y="16" width="22" height="16" rx="2" fill="#fbbf24" stroke="#d97706" stroke-width="2"/>
+      <path d="M36 24 L46 24" stroke="#78350f" stroke-width="2.5"/>
+      <path d="M26 14 A20 20 0 0 1 50 38" stroke="#fef08a" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 4"/>
+    </svg>
+  `,
+  concentration: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="28" fill="#1c1917" stroke="#eab308" stroke-width="2"/>
+      <ellipse cx="32" cy="32" rx="18" ry="10" stroke="#facc15" stroke-width="3"/>
+      <circle cx="32" cy="32" r="6" fill="#ca8a04"/>
+      <circle cx="32" cy="32" r="2.5" fill="#fef08a"/>
+      <path d="M32 12 L32 18 M32 46 L32 52 M12 32 L18 32 M46 32 L52 32" stroke="#fde047" stroke-width="2.5"/>
+    </svg>
+  `,
+  fanaticism: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="28" fill="#3b0712" stroke="#e11d48" stroke-width="2"/>
+      <path d="M32 12 L32 52 M18 24 L46 24" stroke="#fb7185" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="32" cy="24" r="8" fill="#f43f5e" opacity="0.6"/>
+      <path d="M14 42 Q32 28 50 42" stroke="#fde047" stroke-width="3" fill="none"/>
+    </svg>
+  `,
+  holy_shield: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="28" fill="#201a08" stroke="#facc15" stroke-width="2"/>
+      <path d="M16 16 L48 16 L44 44 L32 54 L20 44 Z" fill="#ca8a04" stroke="#fde047" stroke-width="3"/>
+      <path d="M32 20 L32 48 M22 28 L42 28" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
     </svg>
   `,
 
-  // 精準目標 (True Target) - 獵鷹十字鎖定準星
-  true_target: `
+  // --- 4. 死靈法師 (Necromancer) ---
+  raise_skeleton: `
     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="32" cy="32" r="22" stroke="#ef4444" stroke-width="2.5" fill="#7f1d1d" fill-opacity="0.3"/>
-      <circle cx="32" cy="32" r="14" stroke="#f87171" stroke-width="1.5"/>
-      <circle cx="32" cy="32" r="4" fill="#ef4444"/>
-      <line x1="32" y1="6" x2="32" y2="22" stroke="#ef4444" stroke-width="2.5"/>
-      <line x1="32" y1="42" x2="32" y2="58" stroke="#ef4444" stroke-width="2.5"/>
-      <line x1="6" y1="32" x2="22" y2="32" stroke="#ef4444" stroke-width="2.5"/>
-      <line x1="42" y1="32" x2="58" y2="32" stroke="#ef4444" stroke-width="2.5"/>
+      <circle cx="32" cy="32" r="28" fill="#141c14" stroke="#22c55e" stroke-width="2"/>
+      <circle cx="32" cy="26" r="10" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
+      <circle cx="28" cy="25" r="2.5" fill="#0f172a"/>
+      <circle cx="36" cy="25" r="2.5" fill="#0f172a"/>
+      <path d="M30 32 L34 32" stroke="#0f172a" stroke-width="2"/>
+      <path d="M32 36 L32 54 M20 44 L44 44" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+  `,
+  decrepify: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="28" fill="#1c1024" stroke="#a855f7" stroke-width="2"/>
+      <path d="M22 18 L42 18 L32 32 L42 46 L22 46 L32 32 Z" stroke="#c084fc" stroke-width="3" fill="#581c87"/>
+      <circle cx="32" cy="32" r="4" fill="#f3e8ff"/>
+      <path d="M26 12 L38 12 M26 52 L38 52" stroke="#a855f7" stroke-width="2.5"/>
+    </svg>
+  `,
+  corpse_explosion: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="28" fill="#3f0708" stroke="#dc2626" stroke-width="2"/>
+      <path d="M32 16 L36 28 L48 24 L40 34 L52 40 L38 42 L42 54 L32 44 L22 54 L26 42 L12 40 L24 34 L16 24 L28 28 Z" fill="#ef4444" stroke="#fca5a5" stroke-width="2"/>
+      <circle cx="32" cy="36" r="6" fill="#fef08a"/>
+    </svg>
+  `,
+  bone_spear: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="28" fill="#0f172a" stroke="#cbd5e1" stroke-width="2"/>
+      <path d="M14 50 L48 16" stroke="#f8fafc" stroke-width="5" stroke-linecap="round"/>
+      <path d="M48 16 L38 18 L46 26 Z" fill="#f8fafc"/>
+      <path d="M26 42 L22 36 M34 34 L30 28 M42 26 L38 20" stroke="#94a3b8" stroke-width="2.5"/>
+    </svg>
+  `,
+  bone_armor: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="28" fill="#18181b" stroke="#71717a" stroke-width="2"/>
+      <path d="M32 16 L32 48" stroke="#f8fafc" stroke-width="3"/>
+      <path d="M20 22 Q32 26 44 22 M18 30 Q32 34 46 30 M20 38 Q32 42 44 38 M24 46 Q32 50 40 46" stroke="#f8fafc" stroke-width="2.5" fill="none" stroke-linecap="round"/>
     </svg>
   `,
 
-  // 皇家血統 (Royal Blood) - 帝國王者黃金皇冠
-  royal_blood: `
+  // --- 5. 亞馬遜 (Amazon) ---
+  multiple_shot: `
     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 44 L16 22 L26 32 L32 16 L38 32 L48 22 L52 44 Z" fill="#b45309" stroke="#fbbf24" stroke-width="2.5"/>
-      <path d="M16 44 L19 26 L26 34 L32 20 L38 34 L45 26 L48 44 Z" fill="#f59e0b"/>
-      <rect x="12" y="44" width="40" height="6" rx="2" fill="#78350f" stroke="#fbbf24" stroke-width="2"/>
-      <circle cx="16" cy="22" r="3" fill="#38bdf8"/>
-      <circle cx="32" cy="16" r="3.5" fill="#ef4444"/>
-      <circle cx="48" cy="22" r="3" fill="#38bdf8"/>
-      <circle cx="26" cy="47" r="1.5" fill="#fff"/>
-      <circle cx="32" cy="47" r="1.5" fill="#fff"/>
-      <circle cx="38" cy="47" r="1.5" fill="#fff"/>
+      <circle cx="32" cy="32" r="28" fill="#062817" stroke="#16a34a" stroke-width="2"/>
+      <path d="M16 48 L48 16" stroke="#4ade80" stroke-width="3" stroke-linecap="round"/>
+      <path d="M16 48 L40 12" stroke="#86efac" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M16 48 L52 24" stroke="#86efac" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M16 48 L32 10" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
+      <path d="M16 48 L54 32" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
     </svg>
   `,
-
-  // 激勵士氣 (Brave Mental) - 王族戰旗與號角金光
-  brave_mental: `
+  guided_arrow: `
     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <line x1="16" y1="10" x2="16" y2="54" stroke="#d4af37" stroke-width="3" stroke-linecap="round"/>
-      <path d="M16 12 L46 20 L38 28 L46 36 L16 42 Z" fill="#b91c1c" stroke="#f59e0b" stroke-width="2"/>
-      <circle cx="26" cy="26" r="5" fill="#fbbf24"/>
-      <polygon points="16,8 14,12 18,12" fill="#fbbf24"/>
-      <path d="M48 20 C54 24 54 32 48 36" stroke="#fef08a" stroke-width="2" stroke-linecap="round"/>
-      <path d="M52 16 C60 22 60 34 52 40" stroke="#fef08a" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="32" cy="32" r="28" fill="#2d0607" stroke="#e11d48" stroke-width="2"/>
+      <path d="M14 48 Q24 24 50 16" stroke="#f43f5e" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M50 16 L40 18 L46 24 Z" fill="#fb7185"/>
+      <circle cx="50" cy="16" r="4" fill="#fef08a" opacity="0.8"/>
+    </svg>
+  `,
+  lightning_fury: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="28" fill="#082f49" stroke="#38bdf8" stroke-width="2"/>
+      <path d="M14 50 L48 16" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+      <path d="M48 16 L38 18 L46 26 Z" fill="#bae6fd"/>
+      <path d="M30 34 L22 26 L30 24 M38 26 L46 34 L40 36" stroke="#fef08a" stroke-width="2.5"/>
+    </svg>
+  `,
+  valkyrie: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="28" fill="#2a1f0a" stroke="#eab308" stroke-width="2"/>
+      <path d="M32 20 L38 34 L32 38 L26 34 Z" fill="#fde047"/>
+      <path d="M16 26 Q24 22 28 32 M48 26 Q40 22 36 32" stroke="#fef08a" stroke-width="3" stroke-linecap="round"/>
+      <path d="M32 38 L32 54" stroke="#ca8a04" stroke-width="3"/>
+      <circle cx="32" cy="18" r="4" fill="#ffffff"/>
+    </svg>
+  `,
+  dodge: `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="28" fill="#111827" stroke="#6b7280" stroke-width="2"/>
+      <path d="M22 22 Q28 16 34 22 Q40 28 46 22" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <path d="M18 36 Q26 30 34 36 Q42 42 50 36" stroke="#e2e8f0" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+      <circle cx="34" cy="22" r="3" fill="#38bdf8"/>
     </svg>
   `
 };
 
-function getSkillIconSvg(iconKey) {
-  if (SKILL_ICONS && SKILL_ICONS[iconKey]) {
-    return SKILL_ICONS[iconKey];
-  }
-  return `<svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="24" fill="#334155"/><text x="32" y="38" font-size="20" text-anchor="middle" fill="#d4af37">✨</text></svg>`;
-}
-
 function getSkillIconHtml(iconKey) {
-  if (!iconKey) {
-    return `<svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="24" fill="#334155"/><text x="32" y="38" font-size="20" text-anchor="middle" fill="#d4af37">✨</text></svg>`;
+  if (!iconKey) return `<div class="skill-icon-fallback">?</div>`;
+  const cleanKey = String(iconKey).trim().toLowerCase();
+  if (SKILL_ICONS[cleanKey]) {
+    return SKILL_ICONS[cleanKey];
   }
-  return `<img src="assets/skills/${iconKey}.png" alt="${iconKey}" class="skill-pixel-art" onerror="this.style.display='none'; if (this.nextElementSibling) this.nextElementSibling.style.display='block';"><div class="skill-svg-fallback" style="display:none; width:100%; height:100%;">${getSkillIconSvg(iconKey)}</div>`;
+  return `<div class="skill-icon-fallback">${cleanKey.slice(0, 2).toUpperCase()}</div>`;
 }
+window.getSkillIconHtml = getSkillIconHtml;
 
-function getSkillBookItemName(skillName) {
-  if (typeof DB !== "undefined" && DB.items) {
-    const candidates = [
-      `精靈水晶(${skillName})`,
-      `技術書(${skillName})`,
-      `皇家魔典(${skillName})`,
-      `魔法書(${skillName})`,
-      `技能書(${skillName})`
-    ];
-    for (const cName of candidates) {
-      if (DB.items[cName] && DB.items[cName].skill === skillName) {
-        return cName;
-      }
-    }
-    for (let itemName in DB.items) {
-      const item = DB.items[itemName];
-      if (item && item.type === "spellbook" && item.skill === skillName) {
-        return itemName;
-      }
-    }
-  }
-  return null;
-}
-
-// 經典天堂1技能需求等級計算 (依職業修煉界線)
 function getSkillReqLevelForClass(skill, charCls) {
   if (!skill) return 1;
-  const cls = charCls || "prince";
-  if (cls === "elf") {
-    // 妖精精靈魔法：階段 1~5 階 -> Lv 10, 20, 30, 40, 50
-    if (skill.school === "elf") {
-      const tier = skill.tier || 1;
-      return tier * 10;
-    }
-    // 妖精一般魔法：1~6 級 -> Lv 8, 16, 24, 32, 40, 48
-    if (skill.circle) {
-      return skill.circle * 8;
-    }
-  } else if (cls === "mage") {
-    // 法師一般魔法：1~10 級 -> Lv 4, 8, 12, 16, 20, 24, 28, 32, 36, 40
-    if (skill.circle) {
-      return skill.circle * 4;
-    }
-  } else if (cls === "knight") {
-    if (skill.circle) return 50;
-    return skill.reqLv || 50;
-  } else if (cls === "prince") {
-    if (skill.circle) return skill.circle * 10;
-    return skill.reqLv || 15;
-  }
   return skill.reqLv || 1;
 }
 
-let currentSkillFilter = "all";
-let currentSpellTab = "class"; // 經典雙分頁：預設專屬職業魔法 ("class")，或一般魔法技能 ("common") (絕不顯示第三分頁)
 let selectedSkillName = null;
 let skillCooldownTimer = null;
-
-function switchSpellTab(tabKey) {
-  currentSpellTab = (tabKey === "common") ? "common" : "class";
-  renderSkillTab();
-}
-window.switchSpellTab = switchSpellTab;
-
-function filterSkillCategory(cat) {
-  currentSkillFilter = cat;
-  renderSkillTab();
-}
-window.filterSkillCategory = filterSkillCategory;
 
 function selectSkillInInspector(skillName) {
   selectedSkillName = skillName;
@@ -1470,58 +1449,25 @@ function getPadlockHtml() {
 }
 
 function showSkillLockedToast(skillName, reqLv) {
-  const msg = `🔒 尚未習得此技能【${skillName}】${reqLv ? ` (需求等級: Lv.${reqLv})` : ""}，請研讀對應技能書習得！`;
+  const msg = `🔒 尚未習得此技能【${skillName}】${reqLv ? ` (需求等級: Lv.${reqLv})` : ""}，達成等級後即可領悟！`;
   if (typeof addLog === "function") {
     addLog(msg, "sys");
   }
 }
 
-// 嚴格依天堂1經典設定判定該職業能否學習該技能
 function isSkillMatchClass(skill, charCls) {
   if (!skill) return false;
-  const cls = charCls || "prince";
-
-  // 🛡️ 騎士 (Knight): 騎士專屬技術 + 1 級一般魔法
-  if (cls === "knight") {
-    if (skill.school === "knight") return true;
-    if (skill.category === "common" || skill.school === "common") {
-      return (skill.circle || 1) <= 1;
-    }
-    return ["光箭術", "初級治癒術", "魔法飛彈", "保護罩"].includes(skill.name);
-  }
-
-  // 👑 王族 (Prince): 王族專屬魔法 + 1~2 級一般魔法
-  if (cls === "prince") {
-    if (skill.school === "prince") return true;
-    if (skill.category === "common" || skill.school === "common") {
-      return (skill.circle || 1) <= 2;
-    }
-    return ["光箭術", "初級治癒術", "魔法飛彈", "初級加速術", "解毒術", "保護罩", "初級體力回復術"].includes(skill.name);
-  }
-
-  // 🏹 妖精 (Elf): 精靈專屬魔法 + 1~6 級正統一般魔法 (全套 1~6 級一般魔法皆可學)
-  if (cls === "elf") {
-    if (skill.school === "elf") return true;
-    if (skill.category === "common" || skill.school === "common") {
-      return (skill.circle || 1) <= 6;
-    }
-    return false;
-  }
-
-  // 🧙‍♂️ 法師 (Mage): 法師專屬高階神術 + 全套正統一般魔法 (1~10 級)
-  if (cls === "mage") {
-    if (skill.school === "mage" || skill.school === "normal") return true;
-    return skill.category === "common" || skill.school === "common";
-  }
-
-  return skill.school === cls || skill.category === "common";
+  let cls = charCls || "barbarian";
+  if (cls === "knight") cls = "barbarian";
+  if (cls === "mage" || cls === "wizard") cls = "sorceress";
+  if (cls === "prince") cls = "paladin";
+  if (cls === "elf") cls = "amazon";
+  return skill.school === cls || skill.school === "common";
 }
 
-// 實時冷卻倒數計時器 (每 200ms 更新網格上之倒數秒數與檢視器按鈕)
 function updateCooldownTicker() {
   const gridContainer = document.getElementById("skill-matrix-grid");
   if (!gridContainer) return;
-
   const slots = gridContainer.querySelectorAll(".skill-slot-box[data-skill-name]");
   let activeCdFound = false;
 
@@ -1540,9 +1486,7 @@ function updateCooldownTicker() {
       }
       cdEl.textContent = sec + "s";
     } else {
-      if (cdEl) {
-        cdEl.remove();
-      }
+      if (cdEl) cdEl.remove();
     }
   });
 
@@ -1565,7 +1509,6 @@ function updateCooldownTicker() {
     }
   }
 
-  // 若技能頁籤未開啟且無任何冷卻中技能，暫停計時器以優化效能
   const tabSkills = document.getElementById("tab-skills");
   const isSkillsTabOpen = tabSkills && tabSkills.classList && tabSkills.classList.contains("active");
   if (!isSkillsTabOpen && !activeCdFound) {
@@ -1582,26 +1525,6 @@ function startSkillCooldownTicker() {
   }
 }
 
-function learnSkillByBook(skillName) {
-  const charCls = (currentChar && currentChar.charClass) || "prince";
-  const targetSkill = (typeof DB !== "undefined" && DB.skills) ? DB.skills[skillName] : null;
-  if (!targetSkill || !isSkillMatchClass(targetSkill, charCls)) {
-    alert("你的職業無法研讀非本職業的技能！");
-    return;
-  }
-  const bookName = getSkillBookItemName(skillName);
-  if (!bookName) {
-    alert("查無對應之技能書！");
-    return;
-  }
-  if (typeof useItemByName === "function") {
-    useItemByName(bookName);
-  }
-  renderSkillTab();
-  if (typeof updateLeftPanel === "function") updateLeftPanel();
-}
-window.learnSkillByBook = learnSkillByBook;
-
 function useSkillFromTab(skillName) {
   if (typeof useSkill === "function") {
     useSkill(skillName);
@@ -1617,176 +1540,53 @@ function renderSkillTab() {
   const tabButtonsGroup = document.getElementById("skill-tab-buttons");
   const legacyTabsContainer = document.getElementById("skill-category-tabs");
 
-  // 取得目前角色職業
-  const charCls = (currentChar && currentChar.charClass) || "prince";
-
-  // 強制清理角色身上非本職業且非通用的技能
-  if (currentChar && Array.isArray(currentChar.skills)) {
-    currentChar.skills = currentChar.skills.filter(sn => {
-      const sk = (typeof DB !== "undefined" && DB.skills) ? DB.skills[sn] : null;
-      return sk && isSkillMatchClass(sk, charCls);
-    });
-  }
+  const charCls = (currentChar && currentChar.charClass) || "barbarian";
 
   const allSkills = (typeof DB !== "undefined" && DB.skills) ? Object.values(DB.skills) : [];
-
-  // 專屬職業魔法 (左分頁)
-  const classSkills = allSkills.filter(sk => {
-    if (sk.category === "common" || sk.school === "common") return false;
-    return isSkillMatchClass(sk, charCls);
-  });
-
-  // 一般魔法技能 (右分頁，依職業上限篩選：妖精可學 1~6 級正統魔法，共 38 招)
-  const commonLearnableSkills = allSkills.filter(sk => {
-    return (sk.category === "common" || sk.school === "common") && isSkillMatchClass(sk, charCls);
-  });
+  const classSkills = allSkills.filter(sk => isSkillMatchClass(sk, charCls));
 
   const classTitles = {
-    knight: "專屬騎士技術",
-    elf: "專屬精靈魔法",
-    mage: "專屬正統神術",
-    prince: "專屬王族魔法"
+    barbarian: "⚔️ 野蠻人專屬戰技",
+    sorceress: "🔮 魔法使元素秘術",
+    paladin: "🛡️ 聖騎士神聖靈氣",
+    necromancer: "💀 死靈法師詛咒召喚",
+    amazon: "🏹 亞馬遜弓矛射擊"
   };
-  const activeClassTitle = classTitles[charCls] || "專屬職業魔法";
-
-  // 經典雙分頁：嚴格限定只有【專屬職業魔法】與【一般魔法技能】兩個按鈕，絕不渲染第三分頁
-  if (currentSpellTab !== "common" && currentSpellTab !== "class") {
-    currentSpellTab = "class";
-  }
+  const activeClassTitle = classTitles[charCls] || "暗黑職業專屬技能";
 
   if (tabButtonsGroup) {
     tabButtonsGroup.innerHTML = `
-      <button type="button" class="lineage-tab-btn ${currentSpellTab === 'class' ? 'active' : ''}" onclick="switchSpellTab('class')">
+      <button type="button" class="lineage-tab-btn active" style="flex:1;">
         ${activeClassTitle} (${classSkills.length})
-      </button>
-      <button type="button" class="lineage-tab-btn ${currentSpellTab === 'common' ? 'active' : ''}" onclick="switchSpellTab('common')">
-        一般魔法技能 (${commonLearnableSkills.length})
       </button>
     `;
   }
 
-  // 若存在舊版過濾按鈕容器清空
   if (legacyTabsContainer) {
     legacyTabsContainer.innerHTML = "";
   }
 
-  // 若找不到矩陣容器，相容傳統列表
-  if (!gridContainer) {
-    const legacyContainer = document.getElementById("skill-list-container");
-    if (!legacyContainer) return;
-    legacyContainer.innerHTML = "";
-    const learned = (currentChar && Array.isArray(currentChar.skills)) ? currentChar.skills : [];
-    if (learned.length === 0) {
-      legacyContainer.innerHTML = `<div style="color:#7e889b; padding:12px;">尚未學會任何技能，使用魔法書即可學習。</div>`;
-    } else {
-      learned.forEach(sn => {
-        const sk = (typeof DB !== "undefined" && DB.skills) ? DB.skills[sn] : null;
-        if (!sk) return;
-        const card = document.createElement("div");
-        card.style.cssText = "background:#0f131a; border:1px solid #2e3440; border-radius:6px; padding:8px;";
-        card.innerHTML = `<div style="color:var(--gold); font-weight:bold;">${sk.name}</div><div style="font-size:11px;">MP ${sk.mpCost}</div>`;
-        legacyContainer.appendChild(card);
-      });
-    }
-    return;
-  }
-
+  if (!gridContainer) return;
   gridContainer.innerHTML = "";
 
   const learnedList = (currentChar && Array.isArray(currentChar.skills)) ? currentChar.skills : [];
-  const inventoryList = (currentChar && Array.isArray(currentChar.inventory)) ? currentChar.inventory : [];
+  const MAX_ROW_SLOTS = 6;
 
-  // 依級別/屬性組織行群組（每一級技能一行）
-  const MAX_ROW_SLOTS = 8; // 每行標準 8 格，保持整齊橫向平鋪對齊
-  let rowGroups = [];
+  // 依修煉階層分組 (Tier 1 Lv.1~6, Tier 2 Lv.12~18, Tier 3 Lv.24~30)
+  const tier1 = classSkills.filter(s => (s.tier || 1) <= 1 || (s.reqLv || 1) <= 6);
+  const tier2 = classSkills.filter(s => (s.tier || 1) === 2 || ((s.reqLv || 1) > 6 && (s.reqLv || 1) <= 18));
+  const tier3 = classSkills.filter(s => (s.tier || 1) >= 3 || (s.reqLv || 1) > 18);
 
-  if (currentSpellTab === "common") {
-    // 依職業可學上限決定最多幾級
-    let maxCircle = 6;
-    if (charCls === "knight") maxCircle = 1;
-    else if (charCls === "prince") maxCircle = 2;
-    else if (charCls === "elf") maxCircle = 6;
-    else if (charCls === "mage") maxCircle = 10;
+  const rowGroups = [
+    { title: "第 1 階・基礎啟蒙核心戰技", desc: "Lv. 1 ~ Lv. 6 啟蒙必備技能", skills: tier1 },
+    { title: "第 2 階・進階專精殺戮技術", desc: "Lv. 12 ~ Lv. 18 專精爆發技能", skills: tier2 },
+    { title: "第 3 階・終極奧義神威領域", desc: "Lv. 24 ~ Lv. 30 終極領域神技", skills: tier3 }
+  ].filter(g => g.skills.length > 0);
 
-    const circleDefs = [
-      { circle: 1, title: "第 1 級 一般魔法", desc: "法師 Lv.4 / 妖精 Lv.8 / 王族 Lv.10 / 騎士 Lv.50" },
-      { circle: 2, title: "第 2 級 一般魔法", desc: "法師 Lv.8 / 妖精 Lv.16 / 王族 Lv.20" },
-      { circle: 3, title: "第 3 級 一般魔法", desc: "法師 Lv.12 / 妖精 Lv.24" },
-      { circle: 4, title: "第 4 級 一般魔法", desc: "法師 Lv.16 / 妖精 Lv.32" },
-      { circle: 5, title: "第 5 級 一般魔法", desc: "法師 Lv.20 / 妖精 Lv.40" },
-      { circle: 6, title: "第 6 級 一般魔法", desc: "法師 Lv.24 / 妖精 Lv.48" }
-    ];
-
-    for (let c = 1; c <= Math.min(6, maxCircle); c++) {
-      const def = circleDefs[c - 1];
-      const skillsInCircle = commonLearnableSkills.filter(s => s.circle === c);
-      if (skillsInCircle.length > 0) {
-        rowGroups.push({
-          title: def.title,
-          desc: def.desc,
-          skills: skillsInCircle
-        });
-      }
-    }
-  } else {
-    // 專屬職業魔法
-    if (charCls === "elf") {
-      // 妖精四大屬性與共通魔法：每一級/屬性一行
-      const elfRowDefs = [
-        { key: "common", title: "共通精靈魔法", desc: "全精靈共通核心秘術" },
-        { key: "wind", title: "風屬性（弓手遠程核心）", desc: "風系遠程連射與神速秘術" },
-        { key: "water", title: "水屬性（補血與輔助核心）", desc: "水系泉湧治癒與淨化秘術" },
-        { key: "earth", title: "地屬性（高防禦與控制）", desc: "地系石膚剛體與石化屏障" },
-        { key: "fire", title: "火屬性（近戰烈魂妖）", desc: "火系近戰烈焰與狂暴破壞" }
-      ];
-
-      elfRowDefs.forEach(def => {
-        const skillsInEl = classSkills.filter(s => s.element === def.key);
-        if (skillsInEl.length > 0) {
-          rowGroups.push({
-            title: def.title,
-            desc: def.desc,
-            skills: skillsInEl
-          });
-        }
-      });
-    } else if (charCls === "knight") {
-      rowGroups.push({
-        title: "專屬騎士技術",
-        desc: "近戰防護與重擊昏迷控制",
-        skills: classSkills
-      });
-    } else if (charCls === "prince") {
-      rowGroups.push({
-        title: "專屬王族魔法",
-        desc: "血盟統禦與戰場光環號令",
-        skills: classSkills
-      });
-    } else {
-      // mage
-      const tier1 = classSkills.filter(s => (s.tier || 1) <= 2);
-      const tier2 = classSkills.filter(s => (s.tier || 1) > 2);
-      if (tier1.length > 0) {
-        rowGroups.push({ title: "專屬神術・初中階秘術", desc: "高階法術控制與變形幻化", skills: tier1 });
-      }
-      if (tier2.length > 0) {
-        rowGroups.push({ title: "專屬神術・高階究極禁咒", desc: "聖結界、絕對屏障與究極光裂術", skills: tier2 });
-      }
-    }
+  if (!selectedSkillName || !classSkills.some(s => s.name === selectedSkillName)) {
+    selectedSkillName = classSkills.length > 0 ? classSkills[0].name : null;
   }
 
-  // 收集當前分頁中所有技能清單
-  const allCurrentSkills = [];
-  rowGroups.forEach(grp => {
-    allCurrentSkills.push(...grp.skills);
-  });
-
-  // 如果當前選取的技能不在目前清單中，重設為第一個技能
-  if (!selectedSkillName || !allCurrentSkills.some(s => s.name === selectedSkillName)) {
-    selectedSkillName = allCurrentSkills.length > 0 ? allCurrentSkills[0].name : null;
-  }
-
-  // 依行渲染各 Row Group（每一級技能一行）
   rowGroups.forEach(group => {
     const rowGroupEl = document.createElement("div");
     rowGroupEl.className = "skill-row-group";
@@ -1805,35 +1605,35 @@ function renderSkillTab() {
 
     group.skills.forEach(skill => {
       const isLearned = learnedList.includes(skill.name);
-      const bookName = getSkillBookItemName(skill.name);
-      const hasBook = inventoryList.some(i => i.name === bookName && (i.count || 1) > 0);
       const cd = getSkillCooldownRemaining(skill.name);
       const isSelected = skill.name === selectedSkillName;
       const reqLv = getSkillReqLevelForClass(skill, charCls);
+      const curCharLv = (currentChar && currentChar.level) || 1;
+      const canUnlock = curCharLv >= reqLv;
 
       const slot = document.createElement("div");
       let stateClass = "state-unlearned";
       if (isLearned) stateClass = "state-learned";
-      else if (hasBook) stateClass = "state-can-learn";
+      else if (canUnlock) stateClass = "state-can-learn";
 
       slot.className = `skill-slot-box ${stateClass} ${isSelected ? "selected" : ""}`;
       slot.setAttribute("data-skill-name", skill.name);
       slot.onclick = () => {
         selectSkillInInspector(skill.name);
-        if (!isLearned) {
+        if (!isLearned && !canUnlock) {
           showSkillLockedToast(skill.name, reqLv);
         }
       };
-      slot.title = `${skill.name} (${isLearned ? "已習得" : `未習得 - 需求 Lv.${reqLv}`})`;
+      slot.title = `${skill.name} (${isLearned ? "已習得" : (canUnlock ? "可領悟習得" : `未習得 - 需求 Lv.${reqLv}`)})`;
 
       const isPassive = skill.mode === "passive";
       const badgeText = isPassive ? "P" : "A";
       const badgeClass = isPassive ? "badge-p" : "badge-a";
 
       let bottomIndicator = "";
-      if (!isLearned && hasBook) {
-        bottomIndicator = `<div class="skill-learn-text">學習</div>`;
-      } else if (!isLearned && !hasBook) {
+      if (!isLearned && canUnlock) {
+        bottomIndicator = `<div class="skill-learn-text">領悟</div>`;
+      } else if (!isLearned && !canUnlock) {
         bottomIndicator = `<div class="skill-plus-sign">+</div>`;
       }
 
@@ -1860,8 +1660,7 @@ function renderSkillTab() {
       slotsContainer.appendChild(slot);
     });
 
-    // 每行補齊空石槽至 MAX_ROW_SLOTS (8 格)，維持整齊橫向對齊美感
-    const emptyCount = MAX_ROW_SLOTS - group.skills.length;
+    const emptyCount = Math.max(0, MAX_ROW_SLOTS - group.skills.length);
     for (let i = 0; i < emptyCount; i++) {
       const emptySlot = document.createElement("div");
       emptySlot.className = "skill-slot-box";
@@ -1882,25 +1681,25 @@ function renderSkillTab() {
 
     const curSkill = DB.skills[selectedSkillName];
     const isLearned = learnedList.includes(curSkill.name);
-    const bookName = getSkillBookItemName(curSkill.name);
-    const hasBook = inventoryList.some(i => i.name === bookName && (i.count || 1) > 0);
     const cd = getSkillCooldownRemaining(curSkill.name);
     const isPassive = curSkill.mode === "passive";
     const reqLv = getSkillReqLevelForClass(curSkill, charCls);
+    const curCharLv = (currentChar && currentChar.level) || 1;
+    const canUnlock = curCharLv >= reqLv;
 
     const schoolLabels = {
-      knight: "🛡️ 騎士技術",
-      elf: "🏹 精靈魔法",
-      mage: "🧙‍♂️ 正統魔法",
-      prince: "👑 王族魔法",
-      common: `✨ ${curSkill.circle ? curSkill.circle + " 級正統魔法" : "一般魔法"}`
+      barbarian: "⚔️ 野蠻人戰術",
+      sorceress: "🔮 元素秘法",
+      paladin: "🛡️ 神聖靈氣",
+      necromancer: "💀 詛咒召喚",
+      amazon: "🏹 弓矛技巧"
     };
 
     let actionBtnHtml = "";
-    if (!isLearned && hasBook) {
+    if (!isLearned && canUnlock) {
       actionBtnHtml = `
-        <button type="button" class="btn btn-gold" style="padding:10px; font-weight:bold; font-size:13px;" onclick="learnSkillByBook('${curSkill.name}')">
-          ✨ 研讀習得【${curSkill.name}】
+        <button type="button" class="btn btn-gold" style="padding:10px; font-weight:bold; font-size:13px;" onclick="unlockSkillDirectly('${curSkill.name}')">
+          ✨ 點擊領悟習得【${curSkill.name}】(符合等級 Lv.${reqLv})
         </button>
       `;
     } else if (isLearned && !isPassive) {
@@ -1912,26 +1711,24 @@ function renderSkillTab() {
     } else if (isLearned && isPassive) {
       actionBtnHtml = `
         <button type="button" class="btn" disabled style="padding:10px; font-weight:bold; font-size:12px; color:#86efac; border-color:#22c55e; background:#052e16;">
-          🌟 被動技術・角色數值恆常生效中
+          🌟 被動神技・角色數值恆常生效中
         </button>
       `;
     } else {
       actionBtnHtml = `
         <button type="button" class="btn" disabled style="padding:10px; font-weight:bold; font-size:12px; color:#71717a; border-color:#333; background:#12141a;">
-          🔒 尚未習得 (需求 Lv.${reqLv} / 缺少 ${bookName || "專屬秘笈"})
+          🔒 尚未習得 (需求 Lv.${reqLv})
         </button>
       `;
     }
 
     let effectDesc = "";
     if (curSkill.type === "damage") {
-      effectDesc = `單體破壞威力：${curSkill.power} 點傷害`;
-    } else if (curSkill.type === "heal") {
-      effectDesc = curSkill.hpRecovery ? `轉化效益：HP -${curSkill.hpCost} 轉化 MP +${curSkill.mpRecovery}` : `神聖生命回復：+${curSkill.power || 0} 點 HP`;
-    } else if (curSkill.type === "buff") {
-      effectDesc = `${(curSkill.stat || "狀態").toUpperCase()} 提升 ${curSkill.amount > 0 ? "+" + curSkill.amount : curSkill.amount}（持續 ${curSkill.duration} 秒）`;
+      effectDesc = `單體破壞威力：${curSkill.power} 點打擊傷害`;
+    } else if (curSkill.type === "buff" || curSkill.type === "shield") {
+      effectDesc = `${(curSkill.stat || "狀態").toUpperCase()} 提升 ${curSkill.amount > 0 ? "+" + curSkill.amount : curSkill.amount}（持續 ${curSkill.duration || 120} 秒）`;
     } else {
-      effectDesc = curSkill.desc || "特殊秘術效益";
+      effectDesc = curSkill.desc || "特殊暗黑秘術效益";
     }
 
     inspector.innerHTML = `
@@ -1943,14 +1740,13 @@ function renderSkillTab() {
           <div class="skill-insp-name">${curSkill.name}</div>
           <div class="skill-insp-tags">
             <span class="skill-tag-pill ${isPassive ? "skill-tag-passive" : "skill-tag-active"}">
-              ${isPassive ? "P 被動技術" : "A 主動技能"}
+              ${isPassive ? "P 被動神技" : "A 主動技能"}
             </span>
             <span class="skill-tag-pill skill-tag-school">
-              ${schoolLabels[curSkill.school] || "通用魔法"}
+              ${schoolLabels[curSkill.school] || "暗黑職業技能"}
             </span>
-            <span class="skill-tag-pill" style="background:#27272a; color:#cbd5e1;">${curSkill.circle ? curSkill.circle + " 級" : (curSkill.tier ? curSkill.tier + " 階" : "初級")}</span>
             <span class="skill-tag-pill" style="background:${isLearned ? '#14532d' : '#3f3f46'}; color:${isLearned ? '#86efac' : '#a1a1aa'};">
-              ${isLearned ? '已習得' : '未習得 (鎖定中)'}
+              ${isLearned ? '已習得' : (canUnlock ? '可領悟' : '鎖定中')}
             </span>
           </div>
         </div>
@@ -1962,16 +1758,16 @@ function renderSkillTab() {
           <span class="insp-prop-val" style="color:var(--gold);">Lv. ${reqLv}</span>
         </div>
         <div class="insp-prop-row">
-          <span class="insp-prop-lbl">消耗 MP / HP</span>
-          <span class="insp-prop-val" style="color:#60a5fa;">MP ${curSkill.mpCost || 0} / HP ${curSkill.hpCost || 0}</span>
-        </div>
-        <div class="insp-prop-row">
-          <span class="insp-prop-lbl">施法材料</span>
-          <span class="insp-prop-val" style="color:#f59e0b;">${curSkill.materialCost || "無"}</span>
+          <span class="insp-prop-lbl">消耗 MP</span>
+          <span class="insp-prop-val" style="color:#60a5fa;">MP ${curSkill.mpCost || 0}</span>
         </div>
         <div class="insp-prop-row">
           <span class="insp-prop-lbl">冷卻時間</span>
           <span class="insp-prop-val">${curSkill.cooldown ? curSkill.cooldown / 1000 + " 秒" : "無冷卻"}</span>
+        </div>
+        <div class="insp-prop-row">
+          <span class="insp-prop-lbl">施展型態</span>
+          <span class="insp-prop-val" style="color:#f59e0b;">${isPassive ? "恆常生效" : "即時施放"}</span>
         </div>
         <div class="insp-prop-row" style="grid-column: span 2;">
           <span class="insp-prop-lbl">技能效益</span>
@@ -1983,22 +1779,297 @@ function renderSkillTab() {
         ${curSkill.desc || "無詳細說明"}
       </div>
 
-      <div class="skill-insp-source">
-        <div style="color:#94a3b8; font-size:11px; margin-bottom:2px;">【修煉習得來源】</div>
-        <div>對應書冊：<b style="color:var(--gold);">${bookName || "官方特許導師授予"}</b></div>
-        <div style="font-size:10.5px; color:#64748b; margin-top:2px;">
-          ${hasBook ? "✅ 背包中已持有此書，可直接點擊下方立即學習。" : (isLearned ? "✨ 角色已完全掌握此項技能能力。" : "💡 可於各大村莊技能導師、奇岩名匠購買或野外菁英怪獲取。")}
-        </div>
-      </div>
-
       <div class="skill-insp-actions">
         ${actionBtnHtml}
       </div>
     `;
   }
 
-  // 啟動實時倒數計時器
   startSkillCooldownTicker();
   updateCooldownTicker();
 }
 window.renderSkillTab = renderSkillTab;
+
+function unlockSkillDirectly(skillName) {
+  if (!currentChar) return;
+  if (!Array.isArray(currentChar.skills)) currentChar.skills = [];
+  if (currentChar.skills.includes(skillName)) return;
+
+  const sk = (typeof DB !== "undefined" && DB.skills) ? DB.skills[skillName] : null;
+  if (!sk) return;
+  const curLv = currentChar.level || 1;
+  if (curLv < (sk.reqLv || 1)) {
+    alert(`⚠️ 等級不足！學習【${skillName}】需要等級達到 Lv.${sk.reqLv || 1}`);
+    return;
+  }
+  currentChar.skills.push(skillName);
+  log(`✨ 成功領悟並解鎖暗黑神技：【${skillName}】！已可於戰鬥與戰術 AI 自動放招！`, "sys");
+  renderSkillTab();
+  if (typeof updateLeftPanel === "function") updateLeftPanel();
+  if (typeof saveAccountData === "function") saveAccountData();
+}
+window.unlockSkillDirectly = unlockSkillDirectly;
+
+// ========================================================
+// 👥 暗黑破壞神 8 人傭兵追隨者系統 (Mercenary Followers)
+// ========================================================
+const D2_MERC_POOL = [
+  {
+    key: "emilio_might",
+    name: "米山 (沙漠槍兵)",
+    type: "desert_guard",
+    act: "Act 2 魯高因",
+    aura: "might",
+    auraName: "力量靈氣 (+25% 全隊物理攻擊)",
+    price: 10000,
+    baseHp: 800,
+    baseAtk: 65,
+    range: 45,
+    attackSpeed: 1100,
+    desc: "經典必備！近戰長矛神手，自帶力量靈氣，大幅拔高主角與全隊物理輸出"
+  },
+  {
+    key: "emilio_freeze",
+    name: "瓦希德 (冰凍守衛槍兵)",
+    type: "desert_guard",
+    act: "Act 2 魯高因",
+    aura: "holy_freeze",
+    auraName: "神聖冰凍 (減速全場怪群50%)",
+    price: 12000,
+    baseHp: 850,
+    baseAtk: 58,
+    range: 45,
+    attackSpeed: 1100,
+    desc: "控場極品！神聖極冰領域減速周圍所有怪物，掛機安全性極致提升"
+  },
+  {
+    key: "emilio_prayer",
+    name: "拉達蒙特 (祈禱治癒槍兵)",
+    type: "desert_guard",
+    act: "Act 2 魯高因",
+    aura: "prayer",
+    auraName: "祈禱靈氣 (每秒全隊回血 25 點)",
+    price: 10000,
+    baseHp: 900,
+    baseAtk: 55,
+    range: 45,
+    attackSpeed: 1200,
+    desc: "永動醫者！源源不絕的生命光環，掛機再也不用擔心紅水耗盡"
+  },
+  {
+    key: "kyoko_rogue",
+    name: "京子 (羅格神射手)",
+    type: "rogue",
+    act: "Act 1 羅格營地",
+    aura: "inner_sight",
+    auraName: "內視光環 (怪物防禦-30%)",
+    price: 8000,
+    baseHp: 550,
+    baseAtk: 52,
+    range: 240,
+    attackSpeed: 950,
+    desc: "遠程狙擊手！後排精準穿透箭雨，持續削弱敵人防禦"
+  },
+  {
+    key: "charsi_archer",
+    name: "卡夏禁衛 (霜凍箭羅格)",
+    type: "rogue",
+    act: "Act 1 羅格營地",
+    aura: "frost_arrow",
+    auraName: "霜凍箭 (遠程冰凍減速)",
+    price: 9000,
+    baseHp: 580,
+    baseAtk: 50,
+    range: 240,
+    attackSpeed: 1000,
+    desc: "遠程極冰控場！在遠方射出冰霜箭矢凍結敵軍"
+  },
+  {
+    key: "asheara_ironwolf",
+    name: "艾席拉 (鐵狼風暴法師)",
+    type: "iron_wolf",
+    act: "Act 3 庫拉斯特",
+    aura: "lightning_storm",
+    auraName: "風暴雷霆 (連鎖閃電彈跳轟擊)",
+    price: 15000,
+    baseHp: 620,
+    baseAtk: 72,
+    range: 220,
+    attackSpeed: 1250,
+    desc: "元素法術打擊！遠程施放高階閃電電弧群體轟擊"
+  },
+  {
+    key: "qual_kehk_barb",
+    name: "夸爾凱克 (亞瑞特先鋒巨劍狂徒)",
+    type: "barbarian",
+    act: "Act 5 哈洛加斯",
+    aura: "shout",
+    auraName: "戰鬥怒吼 (全隊防禦AC-10)",
+    price: 20000,
+    baseHp: 1200,
+    baseAtk: 85,
+    range: 45,
+    attackSpeed: 1150,
+    desc: "近戰巨坦先鋒！手持重劍在前排硬扛首領魔王"
+  },
+  {
+    key: "barb_berserk",
+    name: "馬道克之影 (遠古守衛先祖)",
+    type: "barbarian",
+    act: "Act 5 哈洛加斯",
+    aura: "battle_orders",
+    auraName: "遠古體質 (全隊生命上限+150)",
+    price: 25000,
+    baseHp: 1400,
+    baseAtk: 90,
+    range: 45,
+    attackSpeed: 1200,
+    desc: "終極防線！遠古三野蠻人化身，大幅拔高全隊血量上限"
+  }
+];
+
+function ensureMercenariesArray() {
+  if (!currentChar) return;
+  if (!Array.isArray(currentChar.mercenaries)) {
+    currentChar.mercenaries = [];
+  }
+}
+
+function hireMercenary(mercKey) {
+  ensureMercenariesArray();
+  if (currentChar.mercenaries.length >= 8) {
+    alert("⚠️ 傭兵隊伍已滿員（最多 8 人）！請先解雇成員後再招募。");
+    return;
+  }
+  const tmpl = D2_MERC_POOL.find(m => m.key === mercKey);
+  if (!tmpl) return;
+
+  if ((currentChar.gold || 0) < tmpl.price) {
+    alert(`⚠️ 金幣不足！招募【${tmpl.name}】需要 ${tmpl.price.toLocaleString()} 金幣。`);
+    return;
+  }
+
+  currentChar.gold -= tmpl.price;
+  const newMerc = {
+    uid: "merc_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5),
+    key: tmpl.key,
+    name: tmpl.name,
+    type: tmpl.type,
+    act: tmpl.act,
+    aura: tmpl.aura,
+    auraName: tmpl.auraName,
+    baseHp: tmpl.baseHp,
+    maxHp: tmpl.baseHp,
+    currentHp: tmpl.baseHp,
+    baseAtk: tmpl.baseAtk,
+    range: tmpl.range,
+    attackSpeed: tmpl.attackSpeed,
+    lastAttackTime: 0,
+    alive: true,
+    level: currentChar.level || 1,
+    x: (gameState && gameState.playerX) ? gameState.playerX + (Math.random()*40-20) : 1200,
+    y: (gameState && gameState.playerY) ? gameState.playerY + (Math.random()*40-20) : 800
+  };
+
+  currentChar.mercenaries.push(newMerc);
+  log(`🎉 成功雇傭追隨者：【${newMerc.name}】加入 8 人遠征軍團！自帶【${newMerc.auraName}】！`, "sys");
+  renderMercenariesTab();
+  if (typeof updateLeftPanel === "function") updateLeftPanel();
+  if (typeof saveAccountData === "function") saveAccountData();
+}
+window.hireMercenary = hireMercenary;
+
+function dismissMercenary(mercUid) {
+  ensureMercenariesArray();
+  const idx = currentChar.mercenaries.findIndex(m => m.uid === mercUid);
+  if (idx !== -1) {
+    const removed = currentChar.mercenaries.splice(idx, 1)[0];
+    log(`已解除與傭兵【${removed.name}】的雇傭契約。`, "sys");
+    renderMercenariesTab();
+    if (typeof saveAccountData === "function") saveAccountData();
+  }
+}
+window.dismissMercenary = dismissMercenary;
+
+function reviveMercenary(mercUid) {
+  ensureMercenariesArray();
+  const merc = currentChar.mercenaries.find(m => m.uid === mercUid);
+  if (!merc) return;
+  const cost = 500;
+  if ((currentChar.gold || 0) < cost) {
+    alert(`金幣不足！復活傭兵需要 ${cost} 金幣。`);
+    return;
+  }
+  currentChar.gold -= cost;
+  merc.currentHp = merc.maxHp;
+  merc.alive = true;
+  log(`✨ 傭兵【${merc.name}】已於聖殿復活完畢，生命力完全恢復！`, "heal");
+  renderMercenariesTab();
+  if (typeof updateLeftPanel === "function") updateLeftPanel();
+  if (typeof saveAccountData === "function") saveAccountData();
+}
+window.reviveMercenary = reviveMercenary;
+
+function renderMercenariesTab() {
+  ensureMercenariesArray();
+  const countEl = document.getElementById("merc-party-count");
+  if (countEl) countEl.innerText = `${currentChar.mercenaries.length} / 8`;
+
+  const activeGrid = document.getElementById("merc-active-grid");
+  if (activeGrid) {
+    activeGrid.innerHTML = "";
+    if (currentChar.mercenaries.length === 0) {
+      activeGrid.innerHTML = `<div style="grid-column: 1 / -1; color:#94a3b8; padding:18px; text-align:center; background:#0b0d12; border:1px dashed #7f1d1d; border-radius:6px;">目前尚未雇傭任何追隨者！請至下方招募所挑選傭兵加入您的 8 人遠征軍團！</div>`;
+    } else {
+      currentChar.mercenaries.forEach((merc, idx) => {
+        const hpPct = Math.max(0, Math.min(100, Math.floor((merc.currentHp / merc.maxHp) * 100)));
+        const isDead = merc.currentHp <= 0;
+        const card = document.createElement("div");
+        card.className = "merc-card active-slot";
+        card.style.cssText = "background:#11141c; border:1px solid #7f1d1d; border-radius:6px; padding:12px; display:flex; flex-direction:column; gap:6px;";
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:4px;">
+            <b style="color:var(--gold); font-size:14px;">#${idx + 1} ${merc.name}</b>
+            <span style="font-size:11px; color:#38bdf8;">Lv.${merc.level || 1}</span>
+          </div>
+          <div style="font-size:12px; color:#cbd5e1;">靈氣特性：<span style="color:#facc15;">${merc.auraName}</span></div>
+          <div style="font-size:11px; color:#94a3b8;">基礎攻擊：<b style="color:#fff;">${merc.baseAtk}</b> | 攻擊間隔: <b>${(merc.attackSpeed/1000).toFixed(1)}s</b></div>
+          <div class="bar-wrap" style="height:14px; margin:4px 0;">
+            <div class="bar-fill bar-hp" style="width:${hpPct}%; background:${isDead ? '#ef4444' : '#22c55e'};"></div>
+            <div class="bar-text" style="font-size:10px; line-height:14px;">HP ${merc.currentHp} / ${merc.maxHp}</div>
+          </div>
+          <div style="display:flex; gap:6px; margin-top:4px;">
+            ${isDead ? `<button class="btn btn-gold" style="flex:1; padding:4px;" onclick="reviveMercenary('${merc.uid}')">💖 復活 (500金幣)</button>` : `<button class="btn" disabled style="flex:1; padding:4px; color:#22c55e; border-color:#22c55e;">⚔️ 出戰中</button>`}
+            <button class="btn btn-danger" style="padding:4px 8px;" onclick="dismissMercenary('${merc.uid}')">解雇</button>
+          </div>
+        `;
+        activeGrid.appendChild(card);
+      });
+    }
+  }
+
+  const recruitGrid = document.getElementById("merc-recruit-grid");
+  if (recruitGrid) {
+    recruitGrid.innerHTML = "";
+    D2_MERC_POOL.forEach(tmpl => {
+      const card = document.createElement("div");
+      card.className = "merc-card";
+      card.style.cssText = "background:#0c0f16; border:1px solid #334155; border-radius:6px; padding:10px; display:flex; flex-direction:column; gap:5px;";
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <b style="color:#38bdf8; font-size:13px;">${tmpl.name}</b>
+          <span style="font-size:11px; color:var(--text-muted);">${tmpl.act}</span>
+        </div>
+        <div style="font-size:11px; color:#facc15;">靈氣：${tmpl.auraName}</div>
+        <div style="font-size:11px; color:#94a3b8; line-height:1.3;">${tmpl.desc}</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:4px;">
+          <span style="color:var(--gold); font-size:12px; font-weight:bold;">${tmpl.price.toLocaleString()} 金幣</span>
+          <button class="btn btn-gold" style="padding:4px 10px;" onclick="hireMercenary('${tmpl.key}')">雇傭入隊</button>
+        </div>
+      `;
+      recruitGrid.appendChild(card);
+    });
+  }
+}
+window.renderMercenariesTab = renderMercenariesTab;
+window.D2_MERC_POOL = D2_MERC_POOL;
