@@ -4,7 +4,8 @@ let currentChar = null;
 
 const WORLD_WIDTH = 2400;
 const WORLD_HEIGHT = 1600;
-const BOSS_NAMES = ["安達利爾", "督瑞爾", "墨菲斯托", "暗黑破壞神", "巴爾", "母牛之王"];
+const BOSS_NAMES = ["安達利爾", "督瑞爾", "墨菲斯托", "暗黑破壞神", "巴爾", "母牛之王", "科力克", "塔力克", "馬道克"];
+if (typeof window !== "undefined") window.BOSS_NAMES = BOSS_NAMES;
 const ALLOWED_BUY_ITEMS = [
   "紅色藥水", "橙色藥水", "白色藥水", "綠色藥水", "勇敢藥水", "翡翠藥水",
   "傳送回家的卷軸", "瞬間移動卷軸", "對武器施法的卷軸", "對防具施法的卷軸",

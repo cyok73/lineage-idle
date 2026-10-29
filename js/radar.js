@@ -1,6 +1,34 @@
-// js/radar.js - MMORPG 高畫質角色動作引擎 (放大 1.5 倍、4 方向奔跑邁步、真實揮砍打擊與傷害飄字)
+// js/radar.js - MMORPG 高畫質角色動作引擎 (暗黑五大職業專屬精靈圖、4 方向奔跑邁步、真實揮砍打擊與傷害飄字)
 
-// 1. 載入高畫質 MMORPG 騎士動作圖譜 (4x4 序列：南跑、東側身跑、北背影跑、揮刀斬擊)
+// 1. 預先載入暗黑破壞神五大經典職業專屬動作精靈圖
+const HERO_SPRITE_IMAGES = {
+  barbarian: new Image(),
+  sorceress: new Image(),
+  paladin: new Image(),
+  necromancer: new Image(),
+  amazon: new Image()
+};
+const HERO_SPRITE_LOADED = {
+  barbarian: false,
+  sorceress: false,
+  paladin: false,
+  necromancer: false,
+  amazon: false
+};
+
+Object.keys(HERO_SPRITE_IMAGES).forEach(cls => {
+  const img = HERO_SPRITE_IMAGES[cls];
+  img.src = `assets/heroes/${cls}.png`;
+  img.onload = () => {
+    HERO_SPRITE_LOADED[cls] = true;
+    if (typeof renderRadar === "function") renderRadar();
+  };
+  if (img.complete && img.naturalWidth > 0) {
+    HERO_SPRITE_LOADED[cls] = true;
+  }
+});
+
+// 備用騎士動作圖譜
 const knightAnimImg = new Image();
 knightAnimImg.src = "assets/knight_hd_mmorpg_anim.jpg";
 let isKnightAnimLoaded = false;
@@ -76,8 +104,8 @@ const MONSTER_SPRITE_MAP = {
 };
 
 // 畫布與繪圖上下文快取
-let canvas = null;
-let ctx = null;
+var canvas = null;
+var ctx = null;
 
 // 記錄玩家上一刻面對方向: "down" | "right" | "left" | "up"
 let playerFacing = "down";
@@ -586,19 +614,29 @@ function drawPlayerHDActionSprite(screenX, screenY, size = 76) {
   }
 
   // ===== B. 繪製精靈動作本體 =====
+  // 取得暗黑五大職業專屬 2.5D 精靈圖 (優先使用實體 PNG，若加載中則由 HeroSpriteBaker 記憶體畫布無縫頂上)
+  let heroSheet = null;
+  if (HERO_SPRITE_LOADED[cls] && HERO_SPRITE_IMAGES[cls]) {
+    heroSheet = HERO_SPRITE_IMAGES[cls];
+  } else if (window.HeroSpriteBaker && typeof window.HeroSpriteBaker.getSpriteSheet === "function") {
+    heroSheet = window.HeroSpriteBaker.getSpriteSheet(cls);
+  } else if (isKnightAnimLoaded) {
+    heroSheet = knightAnimImg;
+  }
+
   ctx.save();
   if (flipHorizontal) {
     ctx.translate(screenX, 0);
     ctx.scale(-1, 1);
-    if (isKnightAnimLoaded) {
-      ctx.drawImage(knightAnimImg, sx, sy, sw, sh, -size / 2, drawY, size, size);
+    if (heroSheet) {
+      ctx.drawImage(heroSheet, sx, sy, sw, sh, -size / 2, drawY, size, size);
     } else {
       ctx.fillStyle = "#3b82f6";
       ctx.fillRect(-size / 4, drawY + size / 4, size / 2, size / 2);
     }
   } else {
-    if (isKnightAnimLoaded) {
-      ctx.drawImage(knightAnimImg, sx, sy, sw, sh, drawX, drawY, size, size);
+    if (heroSheet) {
+      ctx.drawImage(heroSheet, sx, sy, sw, sh, drawX, drawY, size, size);
     } else {
       ctx.fillStyle = "#3b82f6";
       ctx.fillRect(drawX + size / 4, drawY + size / 4, size / 2, size / 2);
@@ -606,47 +644,8 @@ function drawPlayerHDActionSprite(screenX, screenY, size = 76) {
   }
   ctx.restore();
 
-  // ===== C. 職業外觀專屬特徵與武器配備 (Class Unique Overlays) =====
-  if (cls === "barbarian") {
-    // 牛角狂戰鐵盔 (頭頂雙紅角)
-    ctx.fillStyle = "#991b1b";
-    ctx.beginPath();
-    ctx.moveTo(screenX - 10 * sc, drawY + 16 * sc);
-    ctx.lineTo(screenX - 17 * sc, drawY + 5 * sc);
-    ctx.lineTo(screenX - 7 * sc, drawY + 14 * sc);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(screenX + 10 * sc, drawY + 16 * sc);
-    ctx.lineTo(screenX + 17 * sc, drawY + 5 * sc);
-    ctx.lineTo(screenX + 7 * sc, drawY + 14 * sc);
-    ctx.fill();
-
-    // 雙持狂暴戰斧
-    const axW = flipHorizontal ? screenX - 24 * sc : screenX + 24 * sc;
-    ctx.strokeStyle = "#ef4444";
-    ctx.lineWidth = 2.5 * sc;
-    ctx.beginPath();
-    ctx.arc(axW, drawY + 38 * sc, 11 * sc, -Math.PI / 3, Math.PI / 3);
-    ctx.stroke();
-  } else if (cls === "sorceress") {
-    // 元素使者法杖與水晶寶珠
-    const stX = flipHorizontal ? screenX - 22 * sc : screenX + 22 * sc;
-    ctx.strokeStyle = "#d4af37";
-    ctx.lineWidth = 2.5 * sc;
-    ctx.beginPath();
-    ctx.moveTo(stX, drawY + 52 * sc);
-    ctx.lineTo(stX, drawY + 10 * sc);
-    ctx.stroke();
-
-    const orbGlow = ctx.createRadialGradient(stX, drawY + 10 * sc, 1 * sc, stX, drawY + 10 * sc, 9 * sc);
-    orbGlow.addColorStop(0, "#ffffff");
-    orbGlow.addColorStop(0.5, "#38bdf8");
-    orbGlow.addColorStop(1, "rgba(56, 189, 248, 0)");
-    ctx.fillStyle = orbGlow;
-    ctx.beginPath();
-    ctx.arc(stX, drawY + 10 * sc, 9 * sc, 0, Math.PI * 2);
-    ctx.fill();
-
+  // ===== C. 職業動態環繞光效 (Class Ambient FX) =====
+  if (cls === "sorceress") {
     // 三顆環繞法師旋轉的元素法球 (冰、火、電)
     const orbs = [
       { color: "#38bdf8", ang: (now / 350) },
@@ -661,28 +660,7 @@ function drawPlayerHDActionSprite(screenX, screenY, size = 76) {
       ctx.arc(ox, oy, 4 * sc, 0, Math.PI * 2);
       ctx.fill();
     });
-  } else if (cls === "paladin") {
-    // 聖騎士十字聖盾 (左手金邊銀盾與十字紋章)
-    const shX = flipHorizontal ? screenX + 20 * sc : screenX - 20 * sc;
-    ctx.fillStyle = "#1e293b";
-    ctx.fillRect(shX - 7 * sc, drawY + 30 * sc, 14 * sc, 20 * sc);
-    ctx.strokeStyle = "#f59e0b";
-    ctx.lineWidth = 2 * sc;
-    ctx.strokeRect(shX - 7 * sc, drawY + 30 * sc, 14 * sc, 20 * sc);
-    // 聖盾金色十字
-    ctx.fillStyle = "#facc15";
-    ctx.fillRect(shX - 2 * sc, drawY + 32 * sc, 4 * sc, 16 * sc);
-    ctx.fillRect(shX - 6 * sc, drawY + 36 * sc, 12 * sc, 4 * sc);
   } else if (cls === "necromancer") {
-    // 死靈骨杖
-    const wandX = flipHorizontal ? screenX - 20 * sc : screenX + 20 * sc;
-    ctx.strokeStyle = "#e2e8f0";
-    ctx.lineWidth = 2 * sc;
-    ctx.beginPath();
-    ctx.moveTo(wandX, drawY + 50 * sc);
-    ctx.lineTo(wandX, drawY + 16 * sc);
-    ctx.stroke();
-
     // 漂浮幽魂光點 (2 隻小綠骷髏光點環繞)
     for (let s = 0; s < 2; s++) {
       const sang = (now / 400) + (s * Math.PI);
@@ -693,22 +671,6 @@ function drawPlayerHDActionSprite(screenX, screenY, size = 76) {
       ctx.arc(sx, sy, 3.5 * sc, 0, Math.PI * 2);
       ctx.fill();
     }
-  } else if (cls === "amazon") {
-    // 亞馬遜戰鬥長弓
-    const bowX = flipHorizontal ? screenX - 22 * sc : screenX + 22 * sc;
-    ctx.strokeStyle = "#ca8a04";
-    ctx.lineWidth = 2.5 * sc;
-    ctx.beginPath();
-    ctx.arc(bowX, drawY + 36 * sc, 18 * sc, -Math.PI / 2.2, Math.PI / 2.2, flipHorizontal);
-    ctx.stroke();
-
-    // 弓弦
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
-    ctx.lineWidth = 1 * sc;
-    ctx.beginPath();
-    ctx.moveTo(bowX, drawY + 18 * sc);
-    ctx.lineTo(bowX, drawY + 54 * sc);
-    ctx.stroke();
   }
 
   // ===== D. 職業頭頂身分標籤 (Class Badge) =====
