@@ -244,6 +244,12 @@
                 <option value="secret_cow_level">【隱藏彩蛋】秘密母牛關卡 🐄 (Lv 60+ 👑母牛之王)</option>
               </select>
               <button type="button" class="btn btn-gold" onclick="exitVillageToField()">出發打怪</button>
+              <div class="zoom-btn-group" id="battle-zoom-bar">
+                <span style="font-size:10.5px; color:#94a3b8; padding-left:2px;">🔍 視角:</span>
+                <button type="button" id="btn-zoom-close" class="btn btn-sm btn-gold active" onclick="setBattleZoom('close')" title="精細近景特寫 (人物 76px)">特寫 76px</button>
+                <button type="button" id="btn-zoom-normal" class="btn btn-sm" onclick="setBattleZoom('normal')" title="標準平衡視角 (人物 62px)">標準 62px</button>
+                <button type="button" id="btn-zoom-wide" class="btn btn-sm" onclick="setBattleZoom('wide')" title="宏觀廣角視野 (人物 48px)">廣角 48px</button>
+              </div>
             </div>
           </div>
 
