@@ -470,7 +470,11 @@ function gameTick() {
   }
 
   if (typeof handleStrategyAI === "function") handleStrategyAI();
-  if (gameState.inVillage) return;
+  if (gameState.inVillage) {
+    if (typeof renderRadar === "function") renderRadar();
+    updateLeftPanel();
+    return;
+  }
 
   // 處理怪物重生佇列（小怪 10 秒 / Boss 30 分鐘冷卻）
   processRespawnQueue();

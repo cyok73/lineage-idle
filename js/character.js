@@ -238,6 +238,10 @@ function sanitizeCharacterData(char) {
     };
   }
 
+  if (!Array.isArray(char.mercenaries)) {
+    char.mercenaries = [];
+  }
+
   sanitizeInventoryAndEquipped(char);
   return char;
 }

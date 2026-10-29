@@ -6,7 +6,11 @@ knightAnimImg.src = "assets/knight_hd_mmorpg_anim.jpg";
 let isKnightAnimLoaded = false;
 knightAnimImg.onload = () => {
   isKnightAnimLoaded = true;
+  if (typeof renderRadar === "function") renderRadar();
 };
+if (knightAnimImg.complete && knightAnimImg.naturalWidth > 0) {
+  isKnightAnimLoaded = true;
+}
 
 // 2. 怪物圖譜載入
 const monsterSheetImg = new Image();
@@ -14,7 +18,11 @@ monsterSheetImg.src = "assets/lineage_sprites.jpg";
 let isMonsterSheetLoaded = false;
 monsterSheetImg.onload = () => {
   isMonsterSheetLoaded = true;
+  if (typeof renderRadar === "function") renderRadar();
 };
+if (monsterSheetImg.complete && monsterSheetImg.naturalWidth > 0) {
+  isMonsterSheetLoaded = true;
+}
 
 // 怪物圖譜坐標對應表 (每一格 256x256)
 // 暗黑五大章節怪物圖譜坐標與視覺映射表 (Row 0~3, Col 0~3)
@@ -149,33 +157,32 @@ function renderRadar() {
   const ch = canvas.height;
   ctx.clearRect(0, 0, cw, ch);
 
-  if (isNaN(gameState.playerX)) gameState.playerX = 1200;
-  if (isNaN(gameState.playerY)) gameState.playerY = 800;
+  const wWidth = (typeof WORLD_WIDTH !== "undefined") ? WORLD_WIDTH : 2000;
+  const wHeight = (typeof WORLD_HEIGHT !== "undefined") ? WORLD_HEIGHT : 2000;
 
-  // 鏡頭維持在玩家視野中央
-  const camX = gameState.playerX - cw / 2;
-  const camY = gameState.playerY - ch / 2;
+  if (isNaN(gameState.playerX)) gameState.playerX = wWidth / 2;
+  if (isNaN(gameState.playerY)) gameState.playerY = wHeight / 2;
+
+  // 限制玩家座標在世界地圖內
+  gameState.playerX = Math.max(80, Math.min(wWidth - 80, gameState.playerX));
+  gameState.playerY = Math.max(80, Math.min(wHeight - 80, gameState.playerY));
+
+  // 鏡頭維持在玩家視野中央，並平滑限制在世界地圖邊界內，確保畫面絕不露黑底
+  const camX = Math.max(0, Math.min(wWidth - cw, gameState.playerX - cw / 2));
+  const camY = Math.max(0, Math.min(wHeight - ch, gameState.playerY - ch / 2));
 
   // 1. 繪製獵場地磚
   drawBattlefieldTerrain(cw, ch, camX, camY);
 
+  // 1.5 若在村莊安全區，繪製羅格營地專屬設施、溫馨營火與 NPC
   if (gameState.inVillage) {
-    ctx.fillStyle = "rgba(16, 185, 129, 0.15)";
-    ctx.fillRect(0, 0, cw, ch);
-    ctx.fillStyle = "#34d399";
-    ctx.font = "bold 20px -apple-system, sans-serif";
-    ctx.textAlign = "center";
-    ctx.shadowColor = "#000";
-    ctx.shadowBlur = 6;
-    ctx.fillText("🏛️ 安全村莊和平區域 - 整備休整中", cw / 2, ch / 2);
-    ctx.shadowBlur = 0;
-    return;
+    drawVillageCampDecorations(cw, ch);
   }
 
   const curZoom = BATTLE_ZOOM_CONFIG[currentBattleZoom] || BATTLE_ZOOM_CONFIG.close;
 
-  // 2. 繪製怪物群體 (依 Y 軸排序前後深度，尺寸比例對齊視角縮放)
-  if (Array.isArray(gameState.mobs)) {
+  // 2. 僅在野外戰場時繪製怪物群體 (依 Y 軸排序前後深度，尺寸比例對齊視角縮放)
+  if (!gameState.inVillage && Array.isArray(gameState.mobs)) {
     const sortedMobs = [...gameState.mobs].sort((a, b) => a.y - b.y);
 
     sortedMobs.forEach(mob => {
@@ -291,10 +298,21 @@ function renderRadar() {
   // 3.5 繪製 8 人傭兵追隨者小隊 (Mercenaries Party，比例放大至 36px 與英雄協調)
   if (curChar && Array.isArray(curChar.mercenaries)) {
     const mRadius = curZoom.mercRadius; // 預設 18px (直徑 36px)
-    curChar.mercenaries.forEach(merc => {
-      if (merc.currentHp <= 0 || merc.x === undefined) return;
-      const mx = merc.x - camX;
-      const my = merc.y - camY;
+    curChar.mercenaries.forEach((merc, mIdx) => {
+      if (!merc || merc.currentHp <= 0) return;
+
+      let mx, my;
+      if (gameState.inVillage) {
+        // 村莊內守衛護衛陣型圍繞玩家
+        const totalMercs = Math.max(1, curChar.mercenaries.length);
+        const angle = (mIdx / totalMercs) * Math.PI * 2;
+        mx = px + Math.cos(angle) * 72;
+        my = py + Math.sin(angle) * 38;
+      } else {
+        if (merc.x === undefined || merc.y === undefined) return;
+        mx = merc.x - camX;
+        my = merc.y - camY;
+      }
 
       // 靈氣圈 (Aura effect under feet)
       if (merc.aura === "might") {
@@ -340,7 +358,7 @@ function renderRadar() {
       ctx.fillText(typeChar, mx, my + Math.round(mRadius * 0.3));
 
       // 傭兵血條
-      const mercHpPct = Math.max(0, Math.min(1, merc.currentHp / merc.maxHp));
+      const mercHpPct = Math.max(0, Math.min(1, (merc.currentHp || 100) / (merc.maxHp || 100)));
       const mBarW = Math.round(mRadius * 2.4);
       const mBarH = 4.5;
       const mBarY = my - Math.round(mRadius * 1.5);
@@ -354,7 +372,8 @@ function renderRadar() {
       ctx.fillStyle = "#38bdf8";
       ctx.shadowColor = "#000";
       ctx.shadowBlur = 4;
-      ctx.fillText(`[傭兵] ${merc.name.split(" ")[0]}`, mx, mBarY - 4);
+      const mLabel = (merc.name || "傭兵").split(" ")[0];
+      ctx.fillText(`[傭兵] ${mLabel}`, mx, mBarY - 4);
       ctx.shadowBlur = 0;
     });
   }
@@ -456,6 +475,12 @@ function updatePlayerFacing() {
 
 // 繪製暗黑五大經典職業精靈 (野蠻人、魔法使、聖騎士、死靈法師、亞馬遜)
 function drawPlayerHDActionSprite(screenX, screenY, size = 76) {
+  if (!ctx) {
+    if (!canvas) canvas = document.getElementById("gameCanvas");
+    if (canvas) ctx = canvas.getContext("2d");
+  }
+  if (!ctx) return;
+
   const curChar = (typeof currentChar !== "undefined") ? currentChar : (typeof window !== "undefined" ? window.currentChar : null);
   const cls = (curChar && curChar.charClass) || "barbarian";
   const now = Date.now();
@@ -709,6 +734,12 @@ function drawPlayerHDActionSprite(screenX, screenY, size = 76) {
 
 // 繪製暗黑風格怪物精靈 (支援首領特效與巨型 Boss 渲染)
 function drawMonsterSprite(name, screenX, screenY, size = 52, isBoss = false) {
+  if (!ctx) {
+    if (!canvas) canvas = document.getElementById("gameCanvas");
+    if (canvas) ctx = canvas.getContext("2d");
+  }
+  if (!ctx) return;
+
   const coord = MONSTER_SPRITE_MAP[name] || MONSTER_SPRITE_MAP["沉淪魔"] || { c: 0, r: 1 };
   const actualSize = size * (coord.scale || 1.0);
 
@@ -801,6 +832,98 @@ function _hashStr(str) {
     h = ((h << 5) - h + str.charCodeAt(i)) | 0;
   }
   return Math.abs(h) || 1;
+}
+
+// 繪製羅格營地安全休整村莊場景 (營火、傳奇 NPC 攤位、冒險者聚集地)
+function drawVillageCampDecorations(cw, ch) {
+  if (!ctx) return;
+  const now = Date.now();
+
+  // 1. 營地中心溫暖篝火光暈
+  const fireX = cw / 2;
+  const fireY = ch / 2 + 55;
+  const pulse = Math.sin(now / 150) * 8;
+  const grad = ctx.createRadialGradient(fireX, fireY, 8, fireX, fireY, 190 + pulse);
+  grad.addColorStop(0, "rgba(249, 115, 22, 0.45)");
+  grad.addColorStop(0.4, "rgba(234, 88, 12, 0.18)");
+  grad.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(fireX, fireY, 190 + pulse, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 2. 營地篝火柴堆與跳動火焰
+  ctx.fillStyle = "#292524";
+  ctx.fillRect(fireX - 16, fireY - 4, 32, 10);
+  ctx.fillStyle = "#ea580c";
+  ctx.beginPath();
+  ctx.arc(fireX, fireY - 6, 9 + (Math.sin(now / 80) * 3), 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#facc15";
+  ctx.beginPath();
+  ctx.arc(fireX, fireY - 9, 5 + (Math.cos(now / 70) * 2), 0, Math.PI * 2);
+  ctx.fill();
+
+  // 飛舞火星
+  for (let i = 0; i < 6; i++) {
+    const spX = fireX + Math.sin(now / 200 + i) * 18;
+    const spY = fireY - 14 - ((now / 25 + i * 15) % 35);
+    ctx.fillStyle = "rgba(251, 191, 36, 0.85)";
+    ctx.beginPath();
+    ctx.arc(spX, spY, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 3. 羅格營地傳奇 NPC 攤位與標記 (阿卡拉、恰西、卡夏、迪卡·凱恩、基德)
+  const npcs = [
+    { name: "📜 迪卡·凱恩", title: "赫拉迪姆先知", x: cw / 2 - 190, y: ch / 2 - 40, color: "#93c5fd" },
+    { name: "🔮 阿卡拉", title: "修道院高階女祭司", x: cw / 2 - 240, y: ch / 2 + 70, color: "#c084fc" },
+    { name: "🔨 恰西", title: "營地鐵匠", x: cw / 2 + 190, y: ch / 2 - 40, color: "#facc15" },
+    { name: "💰 基德", title: "賭博與雜貨商人", x: cw / 2 + 230, y: ch / 2 + 70, color: "#fb923c" },
+    { name: "🏹 卡夏", title: "羅格射手隊長", x: cw / 2 - 80, y: ch / 2 - 130, color: "#34d399" }
+  ];
+
+  npcs.forEach(npc => {
+    // 地面陰影
+    ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+    ctx.beginPath();
+    ctx.ellipse(npc.x, npc.y + 16, 26, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // NPC 帳棚木質立牌
+    ctx.fillStyle = "#1e293b";
+    ctx.strokeStyle = npc.color;
+    ctx.lineWidth = 1.5;
+    ctx.fillRect(npc.x - 36, npc.y - 12, 72, 24);
+    ctx.strokeRect(npc.x - 36, npc.y - 12, 72, 24);
+
+    ctx.font = "bold 11px -apple-system, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillStyle = npc.color;
+    ctx.shadowColor = "#000";
+    ctx.shadowBlur = 4;
+    ctx.fillText(npc.name, npc.x, npc.y + 4);
+
+    ctx.font = "9.5px sans-serif";
+    ctx.fillStyle = "#94a3b8";
+    ctx.fillText(npc.title, npc.x, npc.y + 24);
+    ctx.shadowBlur = 0;
+  });
+
+  // 4. 頂部安全村莊狀態懸浮橫幅
+  ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
+  ctx.fillRect(cw / 2 - 170, 10, 340, 28);
+  ctx.strokeStyle = "rgba(52, 211, 153, 0.75)";
+  ctx.lineWidth = 1.2;
+  ctx.strokeRect(cw / 2 - 170, 10, 340, 28);
+
+  ctx.font = "bold 12.5px -apple-system, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#34d399";
+  ctx.shadowColor = "#000";
+  ctx.shadowBlur = 4;
+  ctx.fillText("🏛️ 羅格營地 (安全整補區) ｜ 隨時出發打怪", cw / 2, 29);
+  ctx.shadowBlur = 0;
 }
 
 function drawBattlefieldTerrain(cw, ch, camX, camY) {
